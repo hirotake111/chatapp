@@ -1,0 +1,16 @@
+version: "3.7"
+
+services:
+  api_endpoint: # API endpoint
+    image: hirotake1111/video_chat_ws_server:latest
+    ports:
+      - "3001:3000"
+    environment:
+      - "NODE_ENV=development"
+
+  api_db: # PostgreSQL for todo api
+    image: postgres:11
+    environment:
+      - "POSTGRES_USER=postgres"
+      - "POSTGRES_PASSWORD=password"
+      - "POSTGRES_DB=mytable"
