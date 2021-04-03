@@ -1,13 +1,47 @@
 import express from "express";
+import session from "express-session";
+import { Issuer } from "openid-client";
 
-import { URL, PORT } from "./config";
-import { router } from "./router";
+import { HOSTNAME, PORT, SECRETKEY, PROD, ISSUER } from "./config";
+import { getController } from "./controllers/controller";
+import { useRoute } from "./router";
 
 const app = express();
 
-// use router
-app.use(router);
+(async () => {
+  try {
+    // middlewares
+    app.use(
+      session({
+        secret: SECRETKEY,
+        name: "chatappsessionid",
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+          maxAge: 1000 * 60 * 5, // 5 minutes
+          sameSite: "lax",
+          secure: PROD,
+        },
+      })
+    );
 
-app.listen(PORT, () => {
-  console.log(`${URL}/userinfo`);
-});
+    // connect to OIDC server
+    const issuer = await Issuer.discover(ISSUER);
+    const client = new issuer.Client({
+      client_id: "myclient",
+      client_secret: "secret",
+      redirect_uris: ["http://localhost:8888/callback"],
+      response_types: ["code"],
+    });
+    const controller = getController(client);
+
+    // use router
+    app.use(useRoute(controller));
+
+    app.listen(PORT, () => {
+      console.log(`http://${HOSTNAME}:${PORT}/userinfo`);
+    });
+  } catch (e) {
+    throw e;
+  }
+})();
