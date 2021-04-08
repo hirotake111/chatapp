@@ -1,0 +1,9 @@
+FROM node:14.12.0
+
+WORKDIR /app
+COPY server/*.json /app/
+# Install dev modules
+RUN npm install
+# Copy and compile files
+COPY server/src ./src
+CMD [ "npm", "run", "start" ]

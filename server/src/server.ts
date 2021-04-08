@@ -2,7 +2,7 @@ import express from "express";
 import session from "express-session";
 import { Issuer } from "openid-client";
 
-import { HOSTNAME, PORT, SECRETKEY, PROD, ISSUER } from "./config";
+import { HOSTNAME, PORT, SECRETKEY, PROD, ISSUER, FRONTENDURL } from "./config";
 import { getController } from "./controllers/controller";
 import { useRoute } from "./router";
 
@@ -40,6 +40,8 @@ const app = express();
 
     app.listen(PORT, () => {
       console.log(`http://${HOSTNAME}:${PORT}/userinfo`);
+      console.log(`http://${HOSTNAME}:${PORT}/login`);
+      console.log(FRONTENDURL);
     });
   } catch (e) {
     throw e;

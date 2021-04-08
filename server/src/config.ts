@@ -8,3 +8,4 @@ export const SECRETKEY = process.env.SECRETKEY || "sssshhhiiiii";
 export const PROD = process.env.NODE_ENV === "production";
 export const CALLBACKURL =
   process.env.CALLBACKURL || "http://localhost:3000/callback";
+export const FRONTENDURL = process.env.FRONTENDURL || "http://localhost:3000";

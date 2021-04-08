@@ -8,7 +8,9 @@
     "build": "tsc --build tsconfig.json",
     "prebuild": "tslint -c tslint.json -p tsconfig.json --fix",
     "start": "nodemon --config nodemon.json src/server.ts",
-    "start:debug": "nodemon --config nodemon.json --inspect-brk src/server.ts"
+    "start:debug": "nodemon --config nodemon.json --inspect-brk src/server.ts",
+    "builddev": "docker build -t myapp -f Dockerfile-dev .",
+    "buildprod": "./build_production_image.sh"
   },
   "keywords": [],
   "author": "",
