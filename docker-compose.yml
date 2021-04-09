@@ -6,7 +6,7 @@ services:
     container_name: app
     volumes:
       - type: bind
-        source: ./server/src
+        source: ./src
         target: /app/src
     depends_on:
       - app_db
@@ -15,6 +15,8 @@ services:
     #   - 4444:4444
     environment:
       - "SECRETKEY=${SECRETKEY}"
+      - "OAUTH_CLIENTID=${OAUTH_CLIENTID}"
+      - "OAUTH_CLIENTSECRET=${OAUTH_CLIENTSECRET}"
       - "HOSTNAME=${HOSTNAME}"
       - "PORT=${PORT}"
       - "ISSUER=${ISSUER}"

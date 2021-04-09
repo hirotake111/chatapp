@@ -2,9 +2,19 @@ import express from "express";
 import session from "express-session";
 import { Issuer } from "openid-client";
 
-import { HOSTNAME, PORT, SECRETKEY, PROD, ISSUER, FRONTENDURL } from "./config";
+import {
+  HOSTNAME,
+  PORT,
+  SECRETKEY,
+  PROD,
+  ISSUER,
+  FRONTENDURL,
+  CALLBACKURL,
+  OAUTH_CLIENTMETADATA,
+} from "./config";
 import { getController } from "./controllers/controller";
 import { useRoute } from "./router";
+import { getIssuer, getOIDCClient } from "./utils/oidc";
 
 const app = express();
 
@@ -26,15 +36,10 @@ const app = express();
     );
 
     // connect to OIDC server
-    const issuer = await Issuer.discover(ISSUER);
-    const client = new issuer.Client({
-      client_id: "myclient",
-      client_secret: "secret",
-      redirect_uris: ["http://localhost:8888/callback"],
-      response_types: ["code"],
-    });
+    const issuer = await getIssuer(ISSUER);
+    const client = getOIDCClient(issuer, OAUTH_CLIENTMETADATA);
+    // get controller
     const controller = getController(client);
-
     // use router
     app.use(useRoute(controller));
 

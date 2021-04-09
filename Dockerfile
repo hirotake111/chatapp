@@ -4,20 +4,24 @@ FROM node:14.12.0 AS builder
 # Build stage
 #
 WORKDIR /app
-COPY server/*.json /app/
+COPY *.json /app/
 # Install dev modules
 # RUN npm install --also=dev
 RUN npm install
 # Copy and compile files
-COPY server/src /app/src
+COPY src /app/src
 RUN npm run build
 
+
+#
+# Production stage
+#
 FROM node:14.12.0
 WORKDIR /app
 # Add user
 RUN groupadd -r user && useradd --no-log-init -r -g user user
 # Copy files
-COPY server/package*.json ./
+COPY package*.json ./
 COPY --from=builder /app/dist /app/dist
 # COPY /src/views /app/dist/views
 # COPY /src/public /app/dist/public
