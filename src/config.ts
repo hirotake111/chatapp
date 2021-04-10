@@ -16,3 +16,6 @@ export const OAUTH_CLIENTMETADATA: ClientMetadata = {
   redirect_uris: [CALLBACKURL],
   response_types: ["code"],
 };
+
+export const DATABASE_URI =
+  process.env.DATABASE_URI || "postgres://user:passlocalhost:5432/mydb";

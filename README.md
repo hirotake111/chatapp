@@ -4,7 +4,7 @@
 
 ```bash
 # Image for development
-docker build -t myapp -f Dockerfile-dev .
+./create_dev_image.sh
 # Image for production (multi platform)
-./build_production_image.sh
+./create_prod_image.sh
 ```

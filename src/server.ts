@@ -1,6 +1,5 @@
 import express from "express";
 import session from "express-session";
-import { Issuer } from "openid-client";
 
 import {
   HOSTNAME,
@@ -9,12 +8,15 @@ import {
   PROD,
   ISSUER,
   FRONTENDURL,
-  CALLBACKURL,
   OAUTH_CLIENTMETADATA,
+  DATABASE_URI,
 } from "./config";
 import { getController } from "./controllers/controller";
 import { useRoute } from "./router";
+import { getDb } from "./utils/dbFactory";
+import { User } from "./models/User.model";
 import { getIssuer, getOIDCClient } from "./utils/oidc";
+import { SequelizeOptions } from "sequelize-typescript";
 
 const app = express();
 
@@ -34,7 +36,19 @@ const app = express();
         },
       })
     );
-
+    const options: SequelizeOptions = PROD
+      ? {
+          logging: false,
+          dialectOptions: {
+            ssl: {
+              requre: true,
+              rejectUnauthorized: false,
+            },
+          },
+        }
+      : { logging: console.log };
+    // connect to database
+    await getDb(DATABASE_URI, [User], options);
     // connect to OIDC server
     const issuer = await getIssuer(ISSUER);
     const client = getOIDCClient(issuer, OAUTH_CLIENTMETADATA);
