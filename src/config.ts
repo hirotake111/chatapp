@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import { ClientMetadata } from "openid-client";
+import { SequelizeOptions } from "sequelize-typescript";
 dotenv.config();
 
 export const PORT = parseInt(process.env.PORT || "3000", 10);
@@ -19,3 +20,15 @@ export const OAUTH_CLIENTMETADATA: ClientMetadata = {
 
 export const DATABASE_URI =
   process.env.DATABASE_URI || "postgres://user:passlocalhost:5432/mydb";
+
+export const sequelizeOptions: SequelizeOptions = PROD
+  ? {
+      logging: false,
+      dialectOptions: {
+        ssl: {
+          requre: true,
+          rejectUnauthorized: false,
+        },
+      },
+    }
+  : { logging: console.log };

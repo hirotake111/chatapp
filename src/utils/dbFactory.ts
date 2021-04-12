@@ -15,7 +15,7 @@ export const getDb = async (
     const sequelize = new Sequelize(connectionUri, { models, ...options });
     // check connectivity
     await sequelize.authenticate();
-    console.log("connected to database.");
+    console.log("connected to database.", connectionUri);
     // create database if not exists
     await sequelize.sync();
     return sequelize;

@@ -1,7 +1,7 @@
 FROM node:14.12.0
 
 WORKDIR /app
-COPY ./*.js* /app/
+COPY ./*.js* /app/  # .js and .json
 
 # Install dev modules
 RUN npm install

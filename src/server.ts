@@ -10,6 +10,7 @@ import {
   FRONTENDURL,
   OAUTH_CLIENTMETADATA,
   DATABASE_URI,
+  sequelizeOptions,
 } from "./config";
 import { getController } from "./controllers/controller";
 import { useRoute } from "./router";
@@ -37,19 +38,9 @@ const app = express();
         },
       })
     );
-    const options: SequelizeOptions = PROD
-      ? {
-          logging: false,
-          dialectOptions: {
-            ssl: {
-              requre: true,
-              rejectUnauthorized: false,
-            },
-          },
-        }
-      : { logging: console.log };
+
     // connect to database
-    await getDb(DATABASE_URI, [User], options);
+    await getDb(DATABASE_URI, [User], sequelizeOptions);
     // connect to OIDC server
     const issuer = await getIssuer(ISSUER);
     const client = getOIDCClient(issuer, OAUTH_CLIENTMETADATA);

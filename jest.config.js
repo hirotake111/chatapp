@@ -8,5 +8,4 @@ module.exports = {
   collectCoverage: true,
   clearMocks: true,
   coverageDirectory: "coverage",
-  // presets: ["@babel/preset-env", "@babel/preset-typescript"],
 };
