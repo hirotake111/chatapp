@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { Client } from "openid-client";
+import { UserServiceFactory } from "../services/user.service";
 
 import { getUserController } from "./userController";
 
@@ -21,7 +22,10 @@ export interface ControllerReturnType {
   };
 }
 
-export const getController = (oidcClient: Client): ControllerReturnType => ({
+export const getController = (
+  oidcClient: Client,
+  UserService: UserServiceFactory
+): ControllerReturnType => ({
   getRoot: (req: Request, res: Response) => {
     return res.status(200).send({ message: "OK" });
   },
@@ -35,5 +39,5 @@ export const getController = (oidcClient: Client): ControllerReturnType => ({
     }
     return res.send(userDatamock);
   },
-  user: getUserController(oidcClient),
+  user: getUserController(oidcClient, UserService),
 });

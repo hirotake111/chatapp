@@ -7,3 +7,11 @@ declare module "express-session" {
     verifier: string;
   }
 }
+
+export interface CreateUserProps {
+  id: string;
+  username: string;
+  displayName: string;
+  firstName?: string;
+  lastName?: string;
+}

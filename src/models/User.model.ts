@@ -11,13 +11,6 @@ import {
   NotNull,
 } from "sequelize-typescript";
 
-export interface IcreateUserProps {
-  username: string;
-  displayName: string;
-  firstName?: string;
-  lastName?: string;
-}
-
 @Table
 export class User extends Model {
   @IsUUID(4)
@@ -50,3 +43,5 @@ export class User extends Model {
   @DeletedAt
   deletedAt?: Date;
 }
+
+export type UserModelFactory = typeof User;

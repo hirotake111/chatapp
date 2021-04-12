@@ -17,6 +17,7 @@ import { getDb } from "./utils/dbFactory";
 import { User } from "./models/User.model";
 import { getIssuer, getOIDCClient } from "./utils/oidc";
 import { SequelizeOptions } from "sequelize-typescript";
+import { UserService } from "./services/user.service";
 
 const app = express();
 
@@ -53,7 +54,7 @@ const app = express();
     const issuer = await getIssuer(ISSUER);
     const client = getOIDCClient(issuer, OAUTH_CLIENTMETADATA);
     // get controller
-    const controller = getController(client);
+    const controller = getController(client, UserService);
     // use router
     app.use(useRoute(controller));
 
