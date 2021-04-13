@@ -9,6 +9,7 @@ import {
   UpdatedAt,
   DeletedAt,
   NotNull,
+  Sequelize,
 } from "sequelize-typescript";
 
 @Table
@@ -35,9 +36,17 @@ export class User extends Model {
   lastName?: string;
 
   @CreatedAt
+  @Column({
+    defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
+    allowNull: false,
+  })
   createdAt!: Date;
 
   @UpdatedAt
+  @Column({
+    defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
+    allowNull: false,
+  })
   updatedAt!: Date;
 
   @DeletedAt

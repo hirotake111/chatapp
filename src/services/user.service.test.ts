@@ -11,24 +11,28 @@ const getErrorMsg = () => `DATABSE ERROR: ${nanoid()}`;
 describe("UserService", () => {
   describe("getUserById()", () => {
     it("should return user", async () => {
-      expect.assertions(1);
+      expect.assertions(2);
       try {
         const id = uuid();
         User.findOne = jest.fn().mockReturnValue({ id });
+        const findOneMock = User.findOne as jest.Mock;
         const user = await UserService.getUserById(id);
-        expect(user).toEqual(null);
+        expect(user).toEqual({ id });
+        expect(findOneMock.mock.calls[0][0]).toEqual({ where: { id } });
       } catch (e) {
         throw e;
       }
     });
 
     it("should return null", async () => {
-      expect.assertions(1);
+      expect.assertions(2);
       try {
         const id = uuid();
         User.findOne = jest.fn().mockReturnValue(null);
+        const findOneMock = User.findOne as jest.Mock;
         const user = await UserService.getUserById(id);
         expect(user).toEqual(null);
+        expect(findOneMock.mock.calls[0][0]).toEqual({ where: { id } });
       } catch (e) {
         throw e;
       }
