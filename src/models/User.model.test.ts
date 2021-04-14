@@ -4,7 +4,7 @@ import { Sequelize } from "sequelize-typescript";
 import { User } from "./User.model";
 import { nanoid } from "nanoid";
 import { DATABASE_URI, sequelizeOptions } from "../config";
-import { QueryTypes } from "sequelize";
+import { Op, QueryTypes } from "sequelize";
 
 interface userObject {
   id: string;
@@ -24,33 +24,30 @@ const getUser = (): userObject => ({
 });
 
 /** helper function to store a new user to database */
-const createUser = async (user: userObject, db: Sequelize): Promise<void> => {
+const storeUserToDB = async (db: Sequelize): Promise<userObject> => {
   try {
+    const user = getUser();
+    const { id, username, displayName, firstName, lastName } = user;
     await db.query(
       'INSERT INTO "Users" ("id", "username", "displayName", "firstName", "lastName") VALUES (?,?,?,?,?);',
       {
-        replacements: [
-          user.id,
-          user.username,
-          user.displayName,
-          user.firstName,
-          user.lastName,
-        ],
+        replacements: [id, username, displayName, firstName, lastName],
       }
     );
+    return user;
   } catch (e) {
     throw e;
   }
 };
 
-/** fetch user record from database */
+/** helper function to fetch user record from database */
 const fetchUserFromDB = async (
   userId: string,
   db: Sequelize
 ): Promise<User[] | null> => {
   try {
     const result = await db.query<User>(
-      'SELECT * FROM "Users" WHERE ("id" = ?);',
+      'SELECT * FROM "Users" WHERE ("id" = ? and "deletedAt" IS NULL);',
       {
         replacements: [userId],
         type: QueryTypes.SELECT,
@@ -61,9 +58,11 @@ const fetchUserFromDB = async (
     throw e;
   }
 };
+
+/** sequelize object */
 const sequelize = new Sequelize(DATABASE_URI, {
   models: [User],
-  ...sequelizeOptions,
+  logging: false, // if needed, uncomment this
 });
 
 describe("User model", () => {
@@ -90,15 +89,16 @@ describe("User model", () => {
   });
 
   it("should find user", async () => {
-    expect.assertions(1);
+    expect.assertions(2);
     try {
-      const user = getUser();
-      // create a user
-      await createUser(user, sequelize);
+      // create users
+      const user = await storeUserToDB(sequelize);
+      await storeUserToDB(sequelize);
       // fetch user
       const result = await User.findOne({ where: { id: user.id } });
       // validation
       expect(result?.id).toEqual(user.id);
+      expect((await User.findAll())!.length).toEqual(2);
     } catch (e) {
       throw e;
     }
@@ -124,13 +124,12 @@ describe("User model", () => {
   });
 
   it("should update a user", async () => {
-    expect.assertions(2);
+    expect.assertions(3);
     try {
       const updatedValue = nanoid();
-      // create a new user object
-      const user = getUser();
-      // add it to database
-      await createUser(user, sequelize);
+      // create users
+      const user = await storeUserToDB(sequelize);
+      const other = await storeUserToDB(sequelize);
       // update it
       const [num, _] = await User.update(
         { firstName: updatedValue },
@@ -141,6 +140,31 @@ describe("User model", () => {
       // validation
       if (result) {
         expect(result[0].firstName).toEqual(updatedValue);
+        expect(num).toEqual(1);
+      }
+      // fetch the record for other user
+      const result2 = await fetchUserFromDB(other.id, sequelize);
+      if (result2) {
+        expect(result2[0].firstName).toEqual(other.firstName);
+      }
+    } catch (e) {
+      throw e;
+    }
+  });
+
+  it("should delete a user", async () => {
+    expect.assertions(2);
+    try {
+      // create users
+      const user = await storeUserToDB(sequelize);
+      await storeUserToDB(sequelize);
+      // delete one
+      const num = await User.destroy({ where: { id: user.id } });
+      // fetch the record
+      const result = await fetchUserFromDB(user.id, sequelize);
+      // validation
+      if (result) {
+        expect(result).toEqual([]);
         expect(num).toEqual(1);
       }
     } catch (e) {
