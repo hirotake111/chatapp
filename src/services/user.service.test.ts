@@ -10,6 +10,7 @@ const getErrorMsg = () => `DATABSE ERROR: ${nanoid()}`;
 
 /** helper function to get user object */
 const getUser = (): CreateUserProps => ({
+  id: uuid(),
   username: nanoid(),
   displayName: nanoid(),
   firstName: nanoid(),
@@ -101,10 +102,9 @@ describe("UserService", () => {
     it("should create a new user", async () => {
       expect.assertions(6);
       try {
-        const id = uuid();
         const user = getUser();
         User.findOne = jest.fn();
-        User.create = jest.fn().mockReturnValue({ id });
+        User.create = jest.fn().mockReturnValue({ id: user.id });
         const createMock = User.create as jest.Mock;
         const newUser = await UserService.createUser({ ...user });
         expect(User.findOne).toHaveBeenCalledTimes(1);
@@ -114,7 +114,7 @@ describe("UserService", () => {
         );
         expect(createMock.mock.calls[0][0].firstName).toEqual(user.firstName);
         expect(createMock.mock.calls[0][0].lastName).toEqual(user.lastName);
-        expect(newUser?.id).toEqual(id);
+        expect(newUser?.id).toEqual(user.id);
       } catch (e) {
         throw e;
       }

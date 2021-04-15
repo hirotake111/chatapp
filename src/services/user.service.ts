@@ -34,8 +34,7 @@ export class UserService {
    */
   static async createUser(user: CreateUserProps): Promise<User | null> {
     try {
-      const id = uuid();
-      const { username, displayName, firstName, lastName } = user;
+      const { id, username, displayName, firstName, lastName } = user;
       // if the username or displayname already exists, skip it
       const userExists = await User.findOne({
         where: {

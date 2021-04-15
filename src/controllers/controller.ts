@@ -31,13 +31,14 @@ export const getController = (
   },
 
   getUserinfo: (req: Request, res: Response) => {
-    if (!req.session.username) {
+    const { userId: id, username } = req.session;
+    if (!username) {
       // UNAUTHORIZED response
       return res
         .status(401)
         .send({ mesaage: "UNAUTHORIZED", location: "/login" });
     }
-    return res.send(userDatamock);
+    return res.send({ id, username } as IUserData);
   },
   user: getUserController(oidcClient, UserService),
 });
