@@ -1,4 +1,5 @@
 import { Op } from "sequelize";
+import { v4 as uuid } from "uuid";
 
 import { User } from "../models/User.model";
 import { CreateUserProps } from "../type";
@@ -33,7 +34,8 @@ export class UserService {
    */
   static async createUser(user: CreateUserProps): Promise<User | null> {
     try {
-      const { id, username, displayName, firstName, lastName } = user;
+      const id = uuid();
+      const { username, displayName, firstName, lastName } = user;
       // if the username or displayname already exists, skip it
       const userExists = await User.findOne({
         where: {

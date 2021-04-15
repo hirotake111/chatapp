@@ -9,7 +9,6 @@ declare module "express-session" {
 }
 
 export interface CreateUserProps {
-  id: string;
   username: string;
   displayName: string;
   firstName?: string;

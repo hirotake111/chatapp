@@ -85,7 +85,11 @@ describe("User model", () => {
   });
 
   afterAll(async () => {
-    await sequelize.close();
+    try {
+      await sequelize.close();
+    } catch (e) {
+      throw e;
+    }
   });
 
   it("should find user", async () => {

@@ -8,6 +8,14 @@ import { CreateUserProps } from "../type";
 // helper function
 const getErrorMsg = () => `DATABSE ERROR: ${nanoid()}`;
 
+/** helper function to get user object */
+const getUser = (): CreateUserProps => ({
+  username: nanoid(),
+  displayName: nanoid(),
+  firstName: nanoid(),
+  lastName: nanoid(),
+});
+
 describe("UserService", () => {
   describe("getUserById()", () => {
     it("should return user", async () => {
@@ -91,22 +99,22 @@ describe("UserService", () => {
 
   describe("createUser()", () => {
     it("should create a new user", async () => {
-      expect.assertions(3);
+      expect.assertions(6);
       try {
-        const user = {
-          id: uuid(),
-          username: nanoid(),
-          displayName: nanoid(),
-          firstName: nanoid(),
-          lastName: nanoid(),
-        } as CreateUserProps;
+        const id = uuid();
+        const user = getUser();
         User.findOne = jest.fn();
-        User.create = jest.fn().mockReturnValue({ id: user.id });
+        User.create = jest.fn().mockReturnValue({ id });
         const createMock = User.create as jest.Mock;
         const newUser = await UserService.createUser({ ...user });
         expect(User.findOne).toHaveBeenCalledTimes(1);
-        expect(createMock.mock.calls[0][0]).toEqual(user);
-        expect(newUser?.id).toEqual(user.id);
+        expect(createMock.mock.calls[0][0].username).toEqual(user.username);
+        expect(createMock.mock.calls[0][0].displayName).toEqual(
+          user.displayName
+        );
+        expect(createMock.mock.calls[0][0].firstName).toEqual(user.firstName);
+        expect(createMock.mock.calls[0][0].lastName).toEqual(user.lastName);
+        expect(newUser?.id).toEqual(id);
       } catch (e) {
         throw e;
       }
@@ -115,13 +123,7 @@ describe("UserService", () => {
     it("should return null", async () => {
       expect.assertions(2);
       try {
-        const user: CreateUserProps = {
-          id: uuid(),
-          username: nanoid(),
-          displayName: nanoid(),
-          firstName: nanoid(),
-          lastName: nanoid(),
-        };
+        const user = getUser();
         User.findOne = jest.fn().mockReturnValue(true);
         const newUser = await UserService.createUser({ ...user });
         expect(User.findOne).toHaveBeenCalledTimes(1);
