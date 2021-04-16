@@ -3,12 +3,17 @@ import { Request, Response } from "express";
 import { Client, generators } from "openid-client";
 import { UserServiceFactory } from "../services/user.service";
 import { CALLBACKURL } from "../config";
-import { CreateUserProps } from "../type";
+import { BaseController, CreateUserProps } from "../type";
+
+export type UserController = {
+  getLogin: BaseController;
+  getCallback: BaseController;
+};
 
 export const getUserController = (
   oidcClient: Client,
   UserService: UserServiceFactory
-) => ({
+): UserController => ({
   getLogin: async (req: Request, res: Response) => {
     try {
       // generate and store code verifier
@@ -21,10 +26,12 @@ export const getUserController = (
         code_challenge_method: "S256",
       });
       // return res.send("getLogin()");
-      return res.redirect(authzUrl);
+      res.redirect(authzUrl);
+      return;
     } catch (e) {
       // console.error(e);
-      return res.status(500).send({ error: "INTERNAL SERVER ERROR" });
+      res.status(500).send({ error: "INTERNAL SERVER ERROR" });
+      return;
     }
   },
 
@@ -60,10 +67,12 @@ export const getUserController = (
       req.session.username = userInfo.name;
       req.session.userId = userInfo.sub;
       // redirect to SPA root page
-      return res.redirect("/");
+      res.redirect("/");
+      return;
     } catch (e) {
       console.error(e);
       res.status(500).send({ error: "INTERNAL SERVER ERROR" });
+      return;
     }
   },
 });

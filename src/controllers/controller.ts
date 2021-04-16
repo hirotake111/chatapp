@@ -1,44 +1,34 @@
 import { Request, Response } from "express";
-import { Client } from "openid-client";
-import { UserServiceFactory } from "../services/user.service";
+import { BaseController } from "../type";
+import { UserController } from "./userController";
 
-import { getUserController } from "./userController";
-
-interface IUserData {
-  id: string;
-  username: string;
-}
-const userDatamock: IUserData = {
-  id: "abcd-abcd-abcd-abcd",
-  username: "test  user",
+type RootController = {
+  getRoot: BaseController;
+  getUserinfo: BaseController;
+  user: UserController;
+  // [key: string]: SubController;
 };
 
-export interface ControllerReturnType {
-  getRoot: (req: Request, res: Response) => Response;
-  getUserinfo: (req: Request, res: Response) => Response;
-  user: {
-    getLogin: (req: Request, res: Response) => Promise<void | Response>;
-    getCallback: (req: Request, res: Response) => Promise<void | Response>;
-  };
-}
+type Controllers = {
+  user: UserController;
+};
 
-export const getController = (
-  oidcClient: Client,
-  UserService: UserServiceFactory
-): ControllerReturnType => ({
+export const getController = ({ user }: Controllers): RootController => ({
   getRoot: (req: Request, res: Response) => {
-    return res.status(200).send({ message: "OK" });
+    res.status(200).send({ message: "OK" });
+    return;
   },
 
   getUserinfo: (req: Request, res: Response) => {
-    const { userId: id, username } = req.session;
+    const { userId, username } = req.session;
     if (!username) {
       // UNAUTHORIZED response
       return res
         .status(401)
         .send({ mesaage: "UNAUTHORIZED", location: "/login" });
     }
-    return res.send({ id, username } as IUserData);
+    return res.status(200).send({ userId, username });
   },
-  user: getUserController(oidcClient, UserService),
+  // user controller
+  user,
 });

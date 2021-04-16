@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response } from "express";
 
 declare module "express-session" {
   interface SessionData {
@@ -14,4 +14,17 @@ export interface CreateUserProps {
   displayName: string;
   firstName?: string;
   lastName?: string;
+}
+
+type BaseController =
+  // synchronous and asynchronous
+  | ((req: Request, res: Response) => void)
+  | ((req: Request, res: Reponse) => Promise<void>);
+
+type SubController = {
+  [key: string]: BaseController;
+};
+
+interface SubControllers {
+  [key: string]: SubController;
 }
