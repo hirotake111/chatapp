@@ -1,4 +1,3 @@
-import { Request, Response, NextFunction } from "express";
 import { nanoid } from "nanoid";
 import { v4 as uuid } from "uuid";
 
@@ -37,9 +36,9 @@ describe("getController", () => {
       // set mock
       const userId = uuid();
       const username = nanoid();
-      const req = { session: { userId, username } } as any;
+      const request = { session: { userId, username } } as any;
       // invoke function
-      ctlr.getUserinfo(req, res);
+      ctlr.getUserinfo(request, res);
       // validation
       expect(res.status).toHaveBeenCalledTimes(1);
       expect(res.send).toHaveBeenCalledTimes(1);
@@ -49,10 +48,8 @@ describe("getController", () => {
 
     it("should respond 401 and login endpoint", () => {
       expect.assertions(4);
-      // set mock
-      const req = { session: {} } as any;
       // invoke function
-      ctlr.getUserinfo(req, res);
+      ctlr.getUserinfo({ session: {} } as any, res);
       // validation
       expect(res.status).toHaveBeenCalledTimes(1);
       expect(statusMock.mock.calls[0][0]).toEqual(401);

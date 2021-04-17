@@ -1,17 +1,18 @@
 import { Request, Response } from "express";
 
-import { Client, generators } from "openid-client";
+import { Client, generators as Generators } from "openid-client";
 import { UserServiceFactory } from "../services/user.service";
 import { CALLBACKURL } from "../config";
-import { BaseController, CreateUserProps } from "../type";
+import { ControllerSignature, CreateUserProps } from "../type";
 
 export type UserController = {
-  getLogin: BaseController;
-  getCallback: BaseController;
+  getLogin: ControllerSignature;
+  getCallback: ControllerSignature;
 };
 
 export const getUserController = (
   oidcClient: Client,
+  generators: typeof Generators,
   UserService: UserServiceFactory
 ): UserController => ({
   getLogin: async (req: Request, res: Response) => {
@@ -44,7 +45,10 @@ export const getUserController = (
       });
       // get user info
       if (!tokenSet.access_token) {
-        throw new Error("Cannot fetch access token from OIDC server");
+        res
+          .status(500)
+          .send({ error: "Cannot fetch access token from OIDC server" });
+        return;
       }
       const userInfo = await oidcClient.userinfo(tokenSet.access_token);
       // If user does not exists on database, create new one
@@ -55,13 +59,14 @@ export const getUserController = (
         firstName: userInfo.given_name,
         lastName: userInfo.family_name,
       };
-      console.log("userInfo: ", userInfo);
-      console.log("userpropps: ", user);
+      // console.log("userInfo: ", userInfo);
+      // console.log("userpropps: ", user);
+      // if user does not exist, store it in the database
       if (!(await UserService.getUserByUsername(user.username))) {
         await UserService.createUser({ ...user });
-        console.log("user created");
+        // console.log("user created");
       } else {
-        console.log("user already exists.");
+        // console.log("user already exists.");
       }
       // store session
       req.session.username = userInfo.name;
@@ -70,7 +75,7 @@ export const getUserController = (
       res.redirect("/");
       return;
     } catch (e) {
-      console.error(e);
+      // console.error(e);
       res.status(500).send({ error: "INTERNAL SERVER ERROR" });
       return;
     }

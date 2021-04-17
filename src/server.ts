@@ -1,5 +1,6 @@
 import express from "express";
 import session from "express-session";
+import { generators } from "openid-client";
 
 import {
   HOSTNAME,
@@ -17,7 +18,6 @@ import { useRoute } from "./router";
 import { getDb } from "./utils/dbFactory";
 import { User } from "./models/User.model";
 import { getIssuer, getOIDCClient } from "./utils/oidc";
-import { SequelizeOptions } from "sequelize-typescript";
 import { UserService } from "./services/user.service";
 import { getUserController } from "./controllers/userController";
 
@@ -47,7 +47,7 @@ const app = express();
     const client = getOIDCClient(issuer, OAUTH_CLIENTMETADATA);
     // get controller
     const controller = getController({
-      user: getUserController(client, UserService),
+      user: getUserController(client, generators, UserService),
     });
     // use router
     app.use(useRoute(controller));

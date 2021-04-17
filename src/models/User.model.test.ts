@@ -3,10 +3,10 @@ import { Sequelize } from "sequelize-typescript";
 
 import { User } from "./User.model";
 import { nanoid } from "nanoid";
-import { DATABASE_URI, sequelizeOptions } from "../config";
-import { Op, QueryTypes } from "sequelize";
+import { DATABASE_URI } from "../config";
+import { QueryTypes } from "sequelize";
 
-interface userObject {
+interface UserObject {
   id: string;
   username: string;
   displayName: string;
@@ -14,8 +14,8 @@ interface userObject {
   lastName: string;
 }
 
-/** helper function to create a user object*/
-const getUser = (): userObject => ({
+// helper function to create a user object
+const getUser = (): UserObject => ({
   id: uuid(),
   username: nanoid(),
   displayName: nanoid(),
@@ -23,8 +23,8 @@ const getUser = (): userObject => ({
   lastName: nanoid(),
 });
 
-/** helper function to store a new user to database */
-const storeUserToDB = async (db: Sequelize): Promise<userObject> => {
+// helper function to store a new user to database
+const storeUserToDB = async (db: Sequelize): Promise<UserObject> => {
   try {
     const user = getUser();
     const { id, username, displayName, firstName, lastName } = user;
@@ -40,7 +40,7 @@ const storeUserToDB = async (db: Sequelize): Promise<userObject> => {
   }
 };
 
-/** helper function to fetch user record from database */
+//  helper function to fetch user record from database
 const fetchUserFromDB = async (
   userId: string,
   db: Sequelize
@@ -59,7 +59,7 @@ const fetchUserFromDB = async (
   }
 };
 
-/** sequelize object */
+//  sequelize object
 const sequelize = new Sequelize(DATABASE_URI, {
   models: [User],
   logging: false, // if needed, uncomment this
