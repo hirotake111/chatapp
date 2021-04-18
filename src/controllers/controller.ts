@@ -2,11 +2,10 @@ import { Request, Response } from "express";
 import { ControllerSignature } from "../type";
 import { UserController } from "./userController";
 
-type RootController = {
+export type RootController = {
   getRoot: ControllerSignature;
   getUserinfo: ControllerSignature;
   user: UserController;
-  // [key: string]: SubController;
 };
 
 type Controllers = {
