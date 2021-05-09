@@ -28,7 +28,7 @@ const res = {
   redirect: jest.fn(),
 } as any;
 const redirectMock = res.redirect as jest.Mock;
-const userService = {
+const UserService = {
   getUserByUsername: jest.fn(),
   createUser: jest.fn(),
 } as any;
@@ -38,21 +38,27 @@ const generators = {
   codeVerifier: jest.fn().mockReturnValue(verifier),
   codeChallenge: jest.fn().mockReturnValue(codeChallenge),
 } as any;
-const client = {
+const oidcClient = {
   authorizationUrl: jest.fn().mockReturnValue(authzUrl),
   callbackParams: jest.fn(),
   callback: jest.fn().mockReturnValue({ access_token: accessToken }),
   userinfo: jest.fn().mockReturnValue(userInfo),
 } as any;
+const config = {} as any;
 const challengeMock = generators.codeChallenge as jest.Mock;
-const authorizationUrlMock = client.authorizationUrl as jest.Mock;
+const authorizationUrlMock = oidcClient.authorizationUrl as jest.Mock;
 
 describe("userController", () => {
   describe("getLogin()", () => {
     it("should redirect user", async () => {
       expect.assertions(5);
       try {
-        const uc = getUserController(client, generators, userService);
+        const uc = getUserController({
+          oidcClient,
+          generators,
+          UserService,
+          config,
+        });
         await uc.getLogin(req, res);
         // validation
         expect(generators.codeVerifier).toHaveBeenCalledTimes(1);
@@ -75,7 +81,12 @@ describe("userController", () => {
           }),
         } as any;
         // invoke function
-        const uc = getUserController(client, generatorsFail, userService);
+        const uc = getUserController({
+          oidcClient,
+          generators: generatorsFail,
+          UserService,
+          config,
+        });
         await uc.getLogin(req, res);
         expect(statusMock.mock.calls[0][0]).toEqual(500);
         expect(sendMock.mock.calls[0][0]).toEqual({
@@ -92,12 +103,17 @@ describe("userController", () => {
       expect.assertions(3);
       try {
         // invoke function
-        const uc = getUserController(client, generators, userService);
+        const uc = getUserController({
+          oidcClient,
+          generators,
+          UserService,
+          config,
+        });
         await uc.getCallback(req, res);
         // validation
         expect(redirectMock).toHaveBeenCalledTimes(1);
         expect(redirectMock.mock.calls[0][0]).toEqual("/");
-        expect(userService.createUser).toHaveBeenCalledTimes(1);
+        expect(UserService.createUser).toHaveBeenCalledTimes(1);
       } catch (e) {
         throw e;
       }
@@ -107,16 +123,22 @@ describe("userController", () => {
       expect.assertions(3);
       try {
         // set mocks
-        const us = {
+        const UserServiceMock = {
           getUserByUsername: jest.fn().mockReturnValue({ id: nanoid() }),
+          createUser: jest.fn(),
         } as any;
         // invoke function
-        const uc = getUserController(client, generators, us);
+        const uc = getUserController({
+          oidcClient,
+          generators,
+          UserService: UserServiceMock,
+          config,
+        });
         await uc.getCallback(req, res);
         // validation
         expect(redirectMock).toHaveBeenCalledTimes(1);
         expect(redirectMock.mock.calls[0][0]).toEqual("/");
-        expect(userService.createUser).toHaveBeenCalledTimes(0);
+        expect(UserServiceMock.createUser).toHaveBeenCalledTimes(0);
       } catch (e) {
         throw e;
       }
@@ -133,7 +155,12 @@ describe("userController", () => {
           userinfo: jest.fn().mockReturnValue(userInfo),
         } as any;
         // invoke function
-        const uc = getUserController(mockClient, generators, userService);
+        const uc = getUserController({
+          oidcClient: mockClient,
+          generators,
+          UserService,
+          config,
+        });
         await uc.getCallback(req, res);
         // validation
         expect(statusMock.mock.calls[0][0]).toEqual(500);
@@ -155,7 +182,12 @@ describe("userController", () => {
           }),
         } as any;
         // invoke function
-        const uc = getUserController(clientFail, generators, userService);
+        const uc = getUserController({
+          oidcClient: clientFail,
+          generators,
+          UserService,
+          config,
+        });
         await uc.getCallback(req, res);
         expect(statusMock.mock.calls[0][0]).toEqual(500);
         expect(sendMock.mock.calls[0][0]).toEqual({

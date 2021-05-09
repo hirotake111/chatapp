@@ -1,21 +1,9 @@
 import express from "express";
 import session from "express-session";
 import { generators } from "openid-client";
+import { Kafka } from "kafkajs";
 
-import {
-  HOSTNAME,
-  PORT,
-  SECRETKEY,
-  PROD,
-  ISSUER,
-  FRONTENDURL,
-  OAUTH_CLIENTMETADATA,
-  DATABASE_URI,
-  sequelizeOptions,
-  kafkaProducer,
-  kafkaConsumer,
-  KAFKA_TOPIC_NAME,
-} from "./config";
+import { config } from "./config";
 import { getController } from "./controllers/controller";
 import { useRoute } from "./router";
 import { getDb } from "./utils/dbFactory";
@@ -25,6 +13,13 @@ import { UserService } from "./services/user.service";
 import { getUserController } from "./controllers/userController";
 
 const app = express();
+// Kafka producer/consumer
+const kafka = new Kafka({
+  clientId: config.KAFKA_CLIENT_ID,
+  brokers: config.KAFKA_BROKERS,
+});
+const kafkaProducer = kafka.producer();
+const kafkaConsumer = kafka.consumer({ groupId: config.KAFKA_GROUP_ID });
 
 // Register SIGINT event
 process.on("SIGINT", async () => {
@@ -43,14 +38,14 @@ process.on("SIGINT", async () => {
     // middlewares
     app.use(
       session({
-        secret: SECRETKEY,
+        secret: config.SECRETKEY,
         name: "chatappsessionid",
         resave: false,
         saveUninitialized: false,
         cookie: {
           maxAge: 1000 * 60 * 5, // 5 minutes
           sameSite: "lax",
-          secure: PROD,
+          secure: config.PROD,
         },
       })
     );
@@ -60,25 +55,25 @@ process.on("SIGINT", async () => {
     console.log("connected to Kafka cluster as a producer.");
     await kafkaConsumer.connect();
     console.log("connected to Kafka cluster as a consumer.");
-    await kafkaConsumer.subscribe({ topic: KAFKA_TOPIC_NAME });
-    console.log(`subscribed topic ${KAFKA_TOPIC_NAME}`);
+    await kafkaConsumer.subscribe({ topic: config.KAFKA_TOPIC_NAME });
+    console.log(`subscribed topic ${config.KAFKA_TOPIC_NAME}`);
 
     // connect to database
-    await getDb(DATABASE_URI, [User], sequelizeOptions);
+    await getDb(config.DATABASE_URI, [User], config.SEQUELIZEOPTIONS);
     // connect to OIDC server
-    const issuer = await getIssuer(ISSUER);
-    const client = getOIDCClient(issuer, OAUTH_CLIENTMETADATA);
+    const issuer = await getIssuer(config.ISSUER);
+    const oidcClient = getOIDCClient(issuer, config.OAUTH_CLIENTMETADATA);
     // get controller
     const controller = getController({
-      user: getUserController(client, generators, UserService),
+      user: getUserController({ oidcClient, generators, UserService, config }),
     });
     // use router
     app.use(useRoute(controller));
 
-    app.listen(PORT, () => {
-      console.log(`http://${HOSTNAME}:${PORT}/userinfo`);
-      console.log(`http://${HOSTNAME}:${PORT}/login`);
-      console.log(FRONTENDURL);
+    app.listen(config.PORT, () => {
+      console.log(`http://${config.HOSTNAME}:${config.PORT}/userinfo`);
+      console.log(`http://${config.HOSTNAME}:${config.PORT}/login`);
+      console.log(config.FRONTENDURL);
     });
   } catch (e) {
     throw e;

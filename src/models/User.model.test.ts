@@ -3,7 +3,7 @@ import { Sequelize } from "sequelize-typescript";
 
 import { User } from "./User.model";
 import { nanoid } from "nanoid";
-import { DATABASE_URI } from "../config";
+import { config } from "../config";
 import { QueryTypes } from "sequelize";
 
 interface UserObject {
@@ -60,7 +60,7 @@ const fetchUserFromDB = async (
 };
 
 //  sequelize object
-const sequelize = new Sequelize(DATABASE_URI, {
+const sequelize = new Sequelize(config.DATABASE_URI, {
   models: [User],
   logging: false, // if needed, uncomment this
 });

@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 
 import { Client, generators as Generators } from "openid-client";
 import { UserServiceFactory } from "../services/user.service";
-import { CALLBACKURL } from "../config";
+import { ConfigType } from "../config";
 import { ControllerSignature, CreateUserProps } from "../type";
 
 export type UserController = {
@@ -10,11 +10,19 @@ export type UserController = {
   getCallback: ControllerSignature;
 };
 
-export const getUserController = (
-  oidcClient: Client,
-  generators: typeof Generators,
-  UserService: UserServiceFactory
-): UserController => ({
+interface Params {
+  oidcClient: Client;
+  generators: typeof Generators;
+  UserService: UserServiceFactory;
+  config: ConfigType;
+}
+
+export const getUserController = ({
+  oidcClient,
+  generators,
+  UserService,
+  config,
+}: Params): UserController => ({
   getLogin: async (req: Request, res: Response) => {
     try {
       // generate and store code verifier
@@ -40,7 +48,7 @@ export const getUserController = (
     try {
       // get token set from OIDC server
       const params = oidcClient.callbackParams(req);
-      const tokenSet = await oidcClient.callback(CALLBACKURL, params, {
+      const tokenSet = await oidcClient.callback(config.CALLBACKURL, params, {
         code_verifier: req.session.verifier,
       });
       // get user info
@@ -64,7 +72,7 @@ export const getUserController = (
 
       // if user does not exist, store it in the database
       if (!(await UserService.getUserByUsername(user.username))) {
-        // await UserService.createUser({ ...user });
+        await UserService.createUser({ ...user });
         console.log("userregistered event sent.");
         // console.log("user created");
       } else {
