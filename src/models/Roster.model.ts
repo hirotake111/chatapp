@@ -12,9 +12,10 @@ import {
   BelongsTo,
 } from "sequelize-typescript";
 import { Thread } from "./Thread.model";
+import { User } from "./User.model";
 
 @Table
-export class Message extends Model {
+export class Roster extends Model {
   @IsUUID(4)
   @NotNull
   @PrimaryKey
@@ -39,8 +40,9 @@ export class Message extends Model {
   deletedAt?: Date;
 
   @NotNull
+  @BelongsTo(() => User)
   @Column({ allowNull: false })
-  message!: string;
+  User!: User;
 
   @BelongsTo(() => Thread)
   @Column

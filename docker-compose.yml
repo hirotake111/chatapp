@@ -11,6 +11,8 @@ services:
     depends_on:
       - app_db
       - app_redis
+      - kafka1
+      - kafka2
     # ports:
     #   - 4444:4444
     environment:
@@ -25,6 +27,9 @@ services:
       - "DATABASE_URI=${DATABASE_URI}"
       - "NODE_ENV=${NODE_ENV}"
       - "REDIS_URL=${REDIS_URL}"
+      - "KAFKA_CLIENT_ID=${KAFKA_CLIENT_ID}"
+      - "KAFKA_BROKERS=${KAFKA_BROKERS}"
+      - "KAFKA_TOPIC_NAME=${KAFKA_TOPIC_NAME}"
 
   app_db: # PostgreSQL
     image: postgres:13.2
@@ -52,7 +57,57 @@ services:
     depends_on:
       - app
 
-        # auth_server: # OIDC server
+  zookeeper1:
+    container_name: zookeeper1
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - 22181:2181
+
+  zookeeper2:
+    container_name: zookeeper2
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - 32181:2181
+
+  kafka1:
+    container_name: kafka1
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper1
+      - zookeeper2
+    ports:
+      - 29092:29092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper1:2181,zookeeper2:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka1:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  kafka2:
+    container_name: kafka2
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper1
+      - zookeeper2
+    ports:
+      - 39092:39092
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper1:2181,zookeeper2:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka2:9092,PLAINTEXT_HOST://localhost:39092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  # auth_server: # OIDC server
   #   container_name: auth
   #   image: hirotake1111/auth_server_typescript:1.0.9
   #   ports:

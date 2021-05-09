@@ -15,11 +15,12 @@ if [ "$VAR" == "prod" ]; then
 elif [ "$VAR" == "dev" ] || [ -z $VAR ]; then
     echo "================"
     npm run prebuild
-    echo "================"
     if [ $? -ne 0 ]; then
+        echo "================"
         echo "ERROR COMPILING TYPESCRIPT"
         exit 1
     fi
+    echo "================"
     echo "COMPILE STEP SUCCEEDED."
     docker build -t myapp -f Dockerfile-dev .
     exit 0

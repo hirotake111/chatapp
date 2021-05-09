@@ -12,6 +12,9 @@ import {
   OAUTH_CLIENTMETADATA,
   DATABASE_URI,
   sequelizeOptions,
+  kafkaProducer,
+  kafkaConsumer,
+  KAFKA_TOPIC_NAME,
 } from "./config";
 import { getController } from "./controllers/controller";
 import { useRoute } from "./router";
@@ -22,6 +25,18 @@ import { UserService } from "./services/user.service";
 import { getUserController } from "./controllers/userController";
 
 const app = express();
+
+// Register SIGINT event
+process.on("SIGINT", async () => {
+  try {
+    await kafkaProducer.disconnect();
+    console.log("disconnected from Kafka cluster as a producer");
+    await kafkaConsumer.disconnect();
+    console.log("disconnected from Kafka cluster as a consumer");
+  } catch (e) {
+    throw e;
+  }
+});
 
 (async () => {
   try {
@@ -39,6 +54,14 @@ const app = express();
         },
       })
     );
+
+    // connect Kafka cluster
+    await kafkaProducer.connect();
+    console.log("connected to Kafka cluster as a producer.");
+    await kafkaConsumer.connect();
+    console.log("connected to Kafka cluster as a consumer.");
+    await kafkaConsumer.subscribe({ topic: KAFKA_TOPIC_NAME });
+    console.log(`subscribed topic ${KAFKA_TOPIC_NAME}`);
 
     // connect to database
     await getDb(DATABASE_URI, [User], sequelizeOptions);

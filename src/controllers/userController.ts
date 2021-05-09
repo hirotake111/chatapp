@@ -61,9 +61,11 @@ export const getUserController = (
       };
       // console.log("userInfo: ", userInfo);
       // console.log("userpropps: ", user);
+
       // if user does not exist, store it in the database
       if (!(await UserService.getUserByUsername(user.username))) {
-        await UserService.createUser({ ...user });
+        // await UserService.createUser({ ...user });
+        console.log("userregistered event sent.");
         // console.log("user created");
       } else {
         // console.log("user already exists.");

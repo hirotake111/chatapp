@@ -4,10 +4,10 @@ import { getUserController } from "./userController";
 
 // constants
 const verifier = nanoid();
-const code_challenge = nanoid();
+const codeChallenge = nanoid();
 const parameters = {
   scope: "openid email profile",
-  code_challenge,
+  code_challenge: codeChallenge,
   code_challenge_method: "S256",
 };
 const authzUrl = `https://${nanoid()}.com`;
@@ -36,7 +36,7 @@ const statusMock = res.status as jest.Mock;
 const sendMock = res.send as jest.Mock;
 const generators = {
   codeVerifier: jest.fn().mockReturnValue(verifier),
-  codeChallenge: jest.fn().mockReturnValue(code_challenge),
+  codeChallenge: jest.fn().mockReturnValue(codeChallenge),
 } as any;
 const client = {
   authorizationUrl: jest.fn().mockReturnValue(authzUrl),
@@ -126,14 +126,14 @@ describe("userController", () => {
       expect.assertions(2);
       try {
         // set mocks
-        const client = {
+        const mockClient = {
           authorizationUrl: jest.fn().mockReturnValue(authzUrl),
           callbackParams: jest.fn(),
           callback: jest.fn().mockReturnValue({ access_token: null }),
           userinfo: jest.fn().mockReturnValue(userInfo),
         } as any;
         // invoke function
-        const uc = getUserController(client, generators, userService);
+        const uc = getUserController(mockClient, generators, userService);
         await uc.getCallback(req, res);
         // validation
         expect(statusMock.mock.calls[0][0]).toEqual(500);
