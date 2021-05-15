@@ -10,12 +10,13 @@ import {
   NotNull,
   Sequelize,
   BelongsTo,
+  ForeignKey,
 } from "sequelize-typescript";
-import { Thread } from "./Thread.model";
-import { User } from "./User.model";
+import Thread from "./Thread.model";
+import User from "./User.model";
 
 @Table
-export class Roster extends Model {
+class Roster extends Model {
   @IsUUID(4)
   @NotNull
   @PrimaryKey
@@ -39,12 +40,11 @@ export class Roster extends Model {
   @DeletedAt
   deletedAt?: Date;
 
-  @NotNull
-  @BelongsTo(() => User)
-  @Column({ allowNull: false })
+  @ForeignKey(() => User)
   User!: User;
 
-  @BelongsTo(() => Thread)
-  @Column
+  @ForeignKey(() => Thread)
   thread!: Thread;
 }
+
+export default Roster;

@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-
 import { Client, generators as Generators } from "openid-client";
-import { UserServiceFactory } from "../services/user.service";
+import { UserService } from "../services/user.service";
 import { ConfigType } from "../config";
-import { ControllerSignature, CreateUserProps } from "../type";
+import { ControllerSignature, CreateUserProps, RegisteredEvent } from "../type";
+import { ProducerRecord } from "kafkajs";
 
 export type UserController = {
   getLogin: ControllerSignature;
@@ -13,14 +13,14 @@ export type UserController = {
 interface Params {
   oidcClient: Client;
   generators: typeof Generators;
-  UserService: UserServiceFactory;
+  userService: UserService;
   config: ConfigType;
 }
 
 export const getUserController = ({
   oidcClient,
   generators,
-  UserService,
+  userService,
   config,
 }: Params): UserController => ({
   getLogin: async (req: Request, res: Response) => {
@@ -48,9 +48,13 @@ export const getUserController = ({
     try {
       // get token set from OIDC server
       const params = oidcClient.callbackParams(req);
-      const tokenSet = await oidcClient.callback(config.CALLBACKURL, params, {
-        code_verifier: req.session.verifier,
-      });
+      const tokenSet = await oidcClient.callback(
+        config.oidc.callbackUrl,
+        params,
+        {
+          code_verifier: req.session.verifier,
+        }
+      );
       // get user info
       if (!tokenSet.access_token) {
         res
@@ -71,9 +75,25 @@ export const getUserController = ({
       // console.log("userpropps: ", user);
 
       // if user does not exist, store it in the database
-      if (!(await UserService.getUserByUsername(user.username))) {
-        await UserService.createUser({ ...user });
-        console.log("userregistered event sent.");
+      if (!(await userService.getUserByUsername(user.username))) {
+        await userService.createUser({ ...user });
+        // const event: RegisteredEvent = {
+        //   id: uuid(),
+        //   type: "registered",
+        //   metadata: {
+        //     traceId: uuid(),
+        //     ...user,
+        //   },
+        //   data: {
+        //     ...user,
+        //   },
+        // };
+        // const topic = config.KAFKA_TOPIC_NAME;
+        // const record: ProducerRecord = {
+        //   topic,
+        //   messages: [{ value: JSON.stringify(event) }],
+        // };
+        // await config.kafkaProducer.send(record);
         // console.log("user created");
       } else {
         // console.log("user already exists.");

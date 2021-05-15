@@ -1,79 +1,67 @@
 import express from "express";
 import session from "express-session";
-import { generators } from "openid-client";
-import { Kafka } from "kafkajs";
 
-import { config } from "./config";
+import { getConfig } from "./config";
 import { getController } from "./controllers/controller";
 import { useRoute } from "./router";
-import { getDb } from "./utils/dbFactory";
-import { User } from "./models/User.model";
-import { getIssuer, getOIDCClient } from "./utils/oidc";
-import { UserService } from "./services/user.service";
-import { getUserController } from "./controllers/userController";
+import { getDb } from "./utils/db";
+import { getAggrigators } from "./aggrigators";
+import { getService } from "./services";
 
 const app = express();
-// Kafka producer/consumer
-const kafka = new Kafka({
-  clientId: config.KAFKA_CLIENT_ID,
-  brokers: config.KAFKA_BROKERS,
-});
-const kafkaProducer = kafka.producer();
-const kafkaConsumer = kafka.consumer({ groupId: config.KAFKA_GROUP_ID });
-
-// Register SIGINT event
-process.on("SIGINT", async () => {
-  try {
-    await kafkaProducer.disconnect();
-    console.log("disconnected from Kafka cluster as a producer");
-    await kafkaConsumer.disconnect();
-    console.log("disconnected from Kafka cluster as a consumer");
-  } catch (e) {
-    throw e;
-  }
-});
 
 (async () => {
   try {
-    // middlewares
-    app.use(
-      session({
-        secret: config.SECRETKEY,
-        name: "chatappsessionid",
-        resave: false,
-        saveUninitialized: false,
-        cookie: {
-          maxAge: 1000 * 60 * 5, // 5 minutes
-          sameSite: "lax",
-          secure: config.PROD,
-        },
-      })
-    );
+    // get config
+    const config = await getConfig();
+
+    // use middlewares
+    app.use(session(config.sessionOptions));
 
     // connect Kafka cluster
-    await kafkaProducer.connect();
-    console.log("connected to Kafka cluster as a producer.");
-    await kafkaConsumer.connect();
-    console.log("connected to Kafka cluster as a consumer.");
-    await kafkaConsumer.subscribe({ topic: config.KAFKA_TOPIC_NAME });
-    console.log(`subscribed topic ${config.KAFKA_TOPIC_NAME}`);
+    await config.kafka.producer.connect();
+    console.log("==== connected to Kafka cluster as a producer. ====");
+    await config.kafka.consumer.connect();
+    console.log("==== connected to Kafka cluster as a consumer. ====");
+    await config.kafka.consumer.subscribe({ topic: config.kafka.topicName });
+    console.log(`==== subscribed topic "${config.kafka.topicName}" ====`);
+
+    // Register SIGINT event
+    process.on("SIGINT", async () => {
+      try {
+        await config.kafka.producer.disconnect();
+        console.log("==== disconnected from Kafka cluster as a producer ====");
+        await config.kafka.consumer.disconnect();
+        console.log("==== disconnected from Kafka cluster as a consumer ====");
+      } catch (e) {
+        throw e;
+      }
+    });
+
+    // create aggrigators
+    const aggrigators = getAggrigators(config);
+
+    // set callback for Kafka topic
+    config.kafka.consumer.run({
+      eachMessage: async ({ topic, partition, message }) => {
+        console.log("==== GET MESSAGE FROM KAFKA ====");
+        console.log({ topic, partition, message: message.value?.toString() });
+      },
+    });
 
     // connect to database
-    await getDb(config.DATABASE_URI, [User], config.SEQUELIZEOPTIONS);
-    // connect to OIDC server
-    const issuer = await getIssuer(config.ISSUER);
-    const oidcClient = getOIDCClient(issuer, config.OAUTH_CLIENTMETADATA);
+    await getDb(config);
+    // get service
+    const services = getService(config);
     // get controller
-    const controller = getController({
-      user: getUserController({ oidcClient, generators, UserService, config }),
-    });
+    const controller = getController(config, services);
     // use router
     app.use(useRoute(controller));
 
-    app.listen(config.PORT, () => {
-      console.log(`http://${config.HOSTNAME}:${config.PORT}/userinfo`);
-      console.log(`http://${config.HOSTNAME}:${config.PORT}/login`);
-      console.log(config.FRONTENDURL);
+    app.listen(config.port, () => {
+      console.log(`http://${config.hostname}:${config.port}/userinfo`);
+      console.log(`http://${config.hostname}:${config.port}/login`);
+      console.log(config.oidc.frontendUrl);
     });
   } catch (e) {
     throw e;

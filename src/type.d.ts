@@ -20,3 +20,21 @@ type ControllerSignature =
   // synchronous and asynchronous
   | ((req: Request, res: Response, next?: NextFunction) => void)
   | ((req: Request, res: Reponse, next?: NextFunction) => Promise<void>);
+
+export interface RegisteredEvent {
+  id: string;
+  type: string;
+  metadata: {
+    traceId: string;
+    username: string;
+    displayName: string;
+    firstName?: string;
+    lastName?: string;
+  };
+  data: {
+    username: string;
+    displayName: string;
+    firstName?: string;
+    lastName?: string;
+  };
+}

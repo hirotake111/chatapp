@@ -1,6 +1,10 @@
 import { Request, Response } from "express";
+import { Client, generators as Generators } from "openid-client";
+
+import { ConfigType } from "../config";
 import { ControllerSignature } from "../type";
-import { UserController } from "./userController";
+import { getUserController, UserController } from "./userController";
+import { getService, ServicesType } from "../services/";
 
 export type RootController = {
   getRoot: ControllerSignature;
@@ -8,26 +12,53 @@ export type RootController = {
   user: UserController;
 };
 
-type Controllers = {
-  user: UserController;
+// export const getController = ({ user }: Controllers): RootController => ({
+//   getRoot: (req: Request, res: Response) => {
+//     res.status(200).send({ message: "OK" });
+//     return;
+//   },
+
+//   getUserinfo: (req: Request, res: Response) => {
+//     const { userId, username } = req.session;
+//     if (!username) {
+//       // UNAUTHORIZED response
+//       return res
+//         .status(401)
+//         .send({ mesaage: "UNAUTHORIZED", location: "/login" });
+//     }
+//     return res.status(200).send({ userId, username });
+//   },
+//   // user controller
+//   user,
+// });
+
+export const getController = (
+  config: ConfigType,
+  services: ServicesType
+): RootController => {
+  return {
+    getRoot: (req: Request, res: Response) => {
+      res.status(200).send({ message: "OK" });
+      return;
+    },
+
+    getUserinfo: (req: Request, res: Response) => {
+      const { userId, username } = req.session;
+      if (!username) {
+        // UNAUTHORIZED response
+        return res
+          .status(401)
+          .send({ mesaage: "UNAUTHORIZED", location: "/login" });
+      }
+      return res.status(200).send({ userId, username });
+    },
+
+    // user controller
+    user: getUserController({
+      oidcClient: config.oidc.client,
+      generators: config.oidc.generators,
+      userService: services.userService,
+      config,
+    }),
+  };
 };
-
-export const getController = ({ user }: Controllers): RootController => ({
-  getRoot: (req: Request, res: Response) => {
-    res.status(200).send({ message: "OK" });
-    return;
-  },
-
-  getUserinfo: (req: Request, res: Response) => {
-    const { userId, username } = req.session;
-    if (!username) {
-      // UNAUTHORIZED response
-      return res
-        .status(401)
-        .send({ mesaage: "UNAUTHORIZED", location: "/login" });
-    }
-    return res.status(200).send({ userId, username });
-  },
-  // user controller
-  user,
-});

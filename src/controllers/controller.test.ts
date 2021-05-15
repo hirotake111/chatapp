@@ -3,7 +3,14 @@ import { v4 as uuid } from "uuid";
 
 import { getController } from "./controller";
 
-const ctlr = getController({} as any);
+const config = {
+  oidc: {
+    client: {},
+  },
+  generator: {},
+} as any;
+const services = {} as any;
+const ctlr = getController(config, services);
 
 /** response mock object */
 const res = {

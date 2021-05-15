@@ -28,7 +28,7 @@ const res = {
   redirect: jest.fn(),
 } as any;
 const redirectMock = res.redirect as jest.Mock;
-const UserService = {
+const userService = {
   getUserByUsername: jest.fn(),
   createUser: jest.fn(),
 } as any;
@@ -44,7 +44,9 @@ const oidcClient = {
   callback: jest.fn().mockReturnValue({ access_token: accessToken }),
   userinfo: jest.fn().mockReturnValue(userInfo),
 } as any;
-const config = {} as any;
+const config = {
+  oidc: { callbackUrl: `https://${nanoid()}.com` },
+} as any;
 const challengeMock = generators.codeChallenge as jest.Mock;
 const authorizationUrlMock = oidcClient.authorizationUrl as jest.Mock;
 
@@ -56,7 +58,7 @@ describe("userController", () => {
         const uc = getUserController({
           oidcClient,
           generators,
-          UserService,
+          userService,
           config,
         });
         await uc.getLogin(req, res);
@@ -84,7 +86,7 @@ describe("userController", () => {
         const uc = getUserController({
           oidcClient,
           generators: generatorsFail,
-          UserService,
+          userService,
           config,
         });
         await uc.getLogin(req, res);
@@ -106,14 +108,14 @@ describe("userController", () => {
         const uc = getUserController({
           oidcClient,
           generators,
-          UserService,
+          userService,
           config,
         });
         await uc.getCallback(req, res);
         // validation
         expect(redirectMock).toHaveBeenCalledTimes(1);
         expect(redirectMock.mock.calls[0][0]).toEqual("/");
-        expect(UserService.createUser).toHaveBeenCalledTimes(1);
+        expect(userService.createUser).toHaveBeenCalledTimes(1);
       } catch (e) {
         throw e;
       }
@@ -123,7 +125,7 @@ describe("userController", () => {
       expect.assertions(3);
       try {
         // set mocks
-        const UserServiceMock = {
+        const userServiceMock = {
           getUserByUsername: jest.fn().mockReturnValue({ id: nanoid() }),
           createUser: jest.fn(),
         } as any;
@@ -131,14 +133,14 @@ describe("userController", () => {
         const uc = getUserController({
           oidcClient,
           generators,
-          UserService: UserServiceMock,
+          userService: userServiceMock,
           config,
         });
         await uc.getCallback(req, res);
         // validation
         expect(redirectMock).toHaveBeenCalledTimes(1);
         expect(redirectMock.mock.calls[0][0]).toEqual("/");
-        expect(UserServiceMock.createUser).toHaveBeenCalledTimes(0);
+        expect(userServiceMock.createUser).toHaveBeenCalledTimes(0);
       } catch (e) {
         throw e;
       }
@@ -158,7 +160,7 @@ describe("userController", () => {
         const uc = getUserController({
           oidcClient: mockClient,
           generators,
-          UserService,
+          userService,
           config,
         });
         await uc.getCallback(req, res);
@@ -185,7 +187,7 @@ describe("userController", () => {
         const uc = getUserController({
           oidcClient: clientFail,
           generators,
-          UserService,
+          userService,
           config,
         });
         await uc.getCallback(req, res);

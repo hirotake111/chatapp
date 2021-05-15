@@ -1,8 +1,9 @@
 import { Client, ClientMetadata, Issuer } from "openid-client";
+import { ConfigType } from "../config";
 
-export const getIssuer = async (URL: string): Promise<Issuer<Client>> => {
+export const getIssuer = async (issuerUrl: string): Promise<Issuer<Client>> => {
   try {
-    return await Issuer.discover(URL);
+    return await Issuer.discover(issuerUrl);
   } catch (e) {
     throw e;
   }

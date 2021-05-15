@@ -13,7 +13,7 @@ import {
 } from "sequelize-typescript";
 
 @Table
-export class User extends Model {
+class User extends Model {
   @IsUUID(4)
   @NotNull
   @PrimaryKey
@@ -53,4 +53,4 @@ export class User extends Model {
   deletedAt?: Date;
 }
 
-export type UserModelFactory = typeof User;
+export default User;

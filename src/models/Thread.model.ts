@@ -1,9 +1,24 @@
-import { Table, Model, Column, HasMany } from "sequelize-typescript";
-import { Message } from "./Message.model";
+import {
+  Table,
+  Model,
+  Column,
+  HasMany,
+  IsUUID,
+  NotNull,
+  PrimaryKey,
+} from "sequelize-typescript";
+import Message from "./Message.model";
 
 @Table
-export class Thread extends Model {
+class Thread extends Model {
+  @IsUUID(4)
+  @NotNull
+  @PrimaryKey
+  @Column({ allowNull: false })
+  id!: string;
+
   @HasMany(() => Message)
-  @Column
-  message!: Message;
+  message?: Message[];
 }
+
+export default Thread;

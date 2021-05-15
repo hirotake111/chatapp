@@ -10,11 +10,12 @@ import {
   NotNull,
   Sequelize,
   BelongsTo,
+  ForeignKey,
 } from "sequelize-typescript";
-import { Thread } from "./Thread.model";
+import Thread from "./Thread.model";
 
 @Table
-export class Message extends Model {
+class Message extends Model {
   @IsUUID(4)
   @NotNull
   @PrimaryKey
@@ -42,7 +43,8 @@ export class Message extends Model {
   @Column({ allowNull: false })
   message!: string;
 
-  @BelongsTo(() => Thread)
-  @Column
+  @ForeignKey(() => Thread)
   thread!: Thread;
 }
+
+export default Message;

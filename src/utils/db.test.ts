@@ -1,18 +1,22 @@
 import { nanoid } from "nanoid";
 import { Sequelize } from "sequelize-typescript";
-import { getDb } from "./dbFactory";
+import { getDb } from "./db";
 
 jest.mock("sequelize-typescript");
 
-const connectionUri = `postgres://${nanoid()}`;
-const models = {} as any;
-const options = {} as any;
+const config = {
+  database: {
+    databaseUri: `postgres://${nanoid()}`,
+    sequelizeoptions: {},
+    modelPath: ["postgres://localhost:5432"],
+  },
+} as any;
 
 describe("getDb()", () => {
   it("should return sequelize object", async () => {
     expect.assertions(2);
     try {
-      const db = await getDb(connectionUri, models, options);
+      const db = await getDb(config);
       expect(db).toBeTruthy();
       expect(Sequelize).toHaveBeenCalledTimes(1);
     } catch (e) {
@@ -28,7 +32,7 @@ describe("getDb()", () => {
       jest.spyOn(Sequelize.prototype, "authenticate").mockImplementation(() => {
         throw new Error(msg);
       });
-      await getDb(connectionUri, models, options);
+      await getDb(config);
     } catch (e) {
       expect(e.message).toEqual(msg);
     }
