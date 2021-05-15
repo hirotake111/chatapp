@@ -5,7 +5,7 @@ import { getConfig } from "./config";
 import { getController } from "./controllers/controller";
 import { useRoute } from "./router";
 import { getDb } from "./utils/db";
-import { getAggrigators } from "./aggrigators";
+import { registerAggrigator } from "./aggrigators";
 import { getService } from "./services";
 
 const app = express();
@@ -39,13 +39,18 @@ const app = express();
     });
 
     // create aggrigators
-    const aggrigators = getAggrigators(config);
+    // const aggrigators = getAggrigators(config);
 
-    // set callback for Kafka topic
+    // register callbacks for Kafka topic
+    // registerAggrigator(config);
     config.kafka.consumer.run({
       eachMessage: async ({ topic, partition, message }) => {
         console.log("==== GET MESSAGE FROM KAFKA ====");
-        console.log({ topic, partition, message: message.value?.toString() });
+        console.log({
+          topic,
+          partition,
+          "message.value": message.value?.toString(),
+        });
       },
     });
 

@@ -1,6 +1,9 @@
 import { nanoid } from "nanoid";
+import { v4 as uuid } from "uuid";
+import { createHash } from "crypto";
 
 import { getUserController } from "./userController";
+import { RegisteredEvent } from "../type";
 
 // constants
 const verifier = nanoid();
@@ -46,13 +49,18 @@ const oidcClient = {
 } as any;
 const config = {
   oidc: { callbackUrl: `https://${nanoid()}.com` },
+  kafka: {
+    topicName: nanoid(),
+    producer: { send: jest.fn() },
+  },
 } as any;
 const challengeMock = generators.codeChallenge as jest.Mock;
 const authorizationUrlMock = oidcClient.authorizationUrl as jest.Mock;
+const producerSendMock = config.kafka.producer.send as jest.Mock;
 
 describe("userController", () => {
   describe("getLogin()", () => {
-    it("should redirect user", async () => {
+    it("should redirect user to authorization URL", async () => {
       expect.assertions(5);
       try {
         const uc = getUserController({
@@ -101,8 +109,8 @@ describe("userController", () => {
   });
 
   describe("getCallback()", () => {
-    it("should create user and redirect to root page", async () => {
-      expect.assertions(3);
+    it("should create createUser event and redirect to root page", async () => {
+      expect.assertions(5);
       try {
         // invoke function
         const uc = getUserController({
@@ -113,9 +121,16 @@ describe("userController", () => {
         });
         await uc.getCallback(req, res);
         // validation
+        expect(producerSendMock).toHaveBeenCalledTimes(1);
+        expect(producerSendMock.mock.calls[0][0].topic).toEqual(
+          config.kafka.topicName
+        );
+        expect(
+          JSON.parse(producerSendMock.mock.calls[0][0].messages[0].value)
+            .metadata.hash
+        ).toEqual(createHash("sha256").update(accessToken).digest("base64"));
         expect(redirectMock).toHaveBeenCalledTimes(1);
         expect(redirectMock.mock.calls[0][0]).toEqual("/");
-        expect(userService.createUser).toHaveBeenCalledTimes(1);
       } catch (e) {
         throw e;
       }

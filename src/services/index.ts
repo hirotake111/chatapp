@@ -5,5 +5,5 @@ export interface ServicesType {
   userService: UserService;
 }
 export const getService = (config: ConfigType): ServicesType => ({
-  userService: getUserService(config.models.User),
+  userService: getUserService(config.database.models.User),
 });

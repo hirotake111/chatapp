@@ -30,8 +30,10 @@ export interface RegisteredEvent {
     displayName: string;
     firstName?: string;
     lastName?: string;
+    hash: string;
   };
   data: {
+    id: string;
     username: string;
     displayName: string;
     firstName?: string;
