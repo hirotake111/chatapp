@@ -110,7 +110,7 @@ export const getUserController = ({
       res.redirect("/");
       return;
     } catch (e) {
-      console.error(e);
+      // console.error(e);
       res.status(500).send({ error: "INTERNAL SERVER ERROR" });
       return;
     }
