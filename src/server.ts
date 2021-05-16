@@ -6,7 +6,7 @@ import { getConfig } from "./config";
 import { getController } from "./controllers/controller";
 import { useRoute } from "./router";
 import { getDb } from "./utils/db";
-import { registerAggrigator } from "./aggrigators";
+import { getAggrigator } from "./aggrigators";
 import { getService } from "./services";
 
 const app = express();
@@ -43,19 +43,6 @@ const app = express();
     // create aggrigators
     // const aggrigators = getAggrigators(config);
 
-    // register callbacks for Kafka topic
-    // registerAggrigator(config);
-    config.kafka.consumer.run({
-      eachMessage: async ({ topic, partition, message }) => {
-        console.log("==== GET MESSAGE FROM KAFKA ====");
-        console.log({
-          topic,
-          partition,
-          "message.value": message.value?.toString(),
-        });
-      },
-    });
-
     // connect to database
     await getDb(config);
     // get service
@@ -64,6 +51,20 @@ const app = express();
     const controller = getController(config, services);
     // use router
     app.use(useRoute(controller));
+
+    // register callbacks for Kafka topic
+    const aggrigator = getAggrigator(config, services);
+    aggrigator.listen();
+    // config.kafka.consumer.run({
+    //   eachMessage: async ({ topic, partition, message }) => {
+    //     console.log("==== GET MESSAGE FROM KAFKA ====");
+    //     console.log({
+    //       topic,
+    //       partition,
+    //       "message.value": message.value?.toString(),
+    //     });
+    //   },
+    // });
 
     app.listen(config.port, () => {
       console.log(`http://${config.hostname}:${config.port}/userinfo`);

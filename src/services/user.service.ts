@@ -52,7 +52,6 @@ export const getUserService = (UserModel: typeof User): UserService => {
           return null;
         }
 
-        const timestamp = Date.now();
         return await UserModel.create({
           id,
           username,

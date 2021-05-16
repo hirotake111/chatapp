@@ -4,7 +4,7 @@ import { Client, generators as Generators } from "openid-client";
 import { ConfigType } from "../config";
 import { ControllerSignature } from "../type";
 import { getUserController, UserController } from "./userController";
-import { getService, ServicesType } from "../services/";
+import { getService, Services } from "../services/";
 
 export type RootController = {
   getRoot: ControllerSignature;
@@ -34,7 +34,7 @@ export type RootController = {
 
 export const getController = (
   config: ConfigType,
-  services: ServicesType
+  services: Services
 ): RootController => {
   return {
     getRoot: (req: Request, res: Response) => {

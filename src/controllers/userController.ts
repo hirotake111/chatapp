@@ -96,10 +96,12 @@ export const getUserController = ({
           topic: config.kafka.topicName,
           messages: [{ value: JSON.stringify(event) }],
         };
+        console.log(
+          `sending message - TOPIC: ${record.topic}, TYPE: ${event.type}`
+        );
         await config.kafka.producer.send(record);
-        console.log("user created");
       } else {
-        // console.log("user already exists.");
+        console.log(`user ${user.username} already exists.`);
       }
       // store session
       req.session.username = userInfo.name;
@@ -108,7 +110,7 @@ export const getUserController = ({
       res.redirect("/");
       return;
     } catch (e) {
-      // console.error(e);
+      console.error(e);
       res.status(500).send({ error: "INTERNAL SERVER ERROR" });
       return;
     }

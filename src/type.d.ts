@@ -21,9 +21,17 @@ type ControllerSignature =
   | ((req: Request, res: Response, next?: NextFunction) => void)
   | ((req: Request, res: Reponse, next?: NextFunction) => Promise<void>);
 
+export interface RegisteredEventData {
+  id: string;
+  username: string;
+  displayName: string;
+  firstName?: string;
+  lastName?: string;
+}
+
 export interface RegisteredEvent {
   id: string;
-  type: string;
+  type: EventType;
   metadata: {
     traceId: string;
     username: string;
@@ -32,11 +40,5 @@ export interface RegisteredEvent {
     lastName?: string;
     hash: string;
   };
-  data: {
-    id: string;
-    username: string;
-    displayName: string;
-    firstName?: string;
-    lastName?: string;
-  };
+  data: RegisteredEventData;
 }
