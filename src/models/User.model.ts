@@ -11,6 +11,7 @@ import {
   NotNull,
   Sequelize,
 } from "sequelize-typescript";
+import { Col } from "sequelize/types/lib/utils";
 
 @Table
 class User extends Model {
@@ -34,6 +35,9 @@ class User extends Model {
 
   @Column
   lastName?: string;
+
+  @Column
+  hash!: string;
 
   @CreatedAt
   @Column({
