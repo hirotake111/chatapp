@@ -1,7 +1,7 @@
-import { User } from "./User.model";
-import { Message } from "./Message.model";
-import { Roster } from "./Roster.model";
-import { Thread } from "./Thread.model";
+import User from "./User.model";
+import Message from "./Message.model";
+import Roster from "./Roster.model";
+import Thread from "./Thread.model";
 
 export interface Models {
   User: typeof User;

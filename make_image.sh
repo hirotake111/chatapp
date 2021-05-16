@@ -4,7 +4,7 @@ read $VAR
 if [ "$VAR" == "prod" ]; then
     if [ ! $IMAGE ]; then
         echo "You need to set IMAGE environment variable before kicking this off"
-        exit 0
+        exit 1
     fi
     # Need to register qemu interpreters with binfmt_misc by hand.
     echo "================"
@@ -12,6 +12,7 @@ if [ "$VAR" == "prod" ]; then
     echo "================"
     docker buildx build --push --platform linux/arm/v7,linux/amd64  -t $IMAGE .
     exit 0
+
 elif [ "$VAR" == "dev" ] || [ -z $VAR ]; then
     echo "================"
     npm run prebuild

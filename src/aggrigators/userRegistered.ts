@@ -12,7 +12,7 @@ export const getUserAggrigator = (userService: UserService) => {
     if (!message.value) {
       throw new Error("message.values is empty");
     }
-    // parse message, check type
+    // parse message
     const event = JSON.parse(message.value.toString()) as RegisteredEvent;
     // if type is registered, then create a new record
     if (event.type === "registered") {

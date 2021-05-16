@@ -1,5 +1,6 @@
 import express from "express";
 import session from "express-session";
+import morgan from "morgan";
 
 import { getConfig } from "./config";
 import { getController } from "./controllers/controller";
@@ -17,6 +18,7 @@ const app = express();
 
     // use middlewares
     app.use(session(config.sessionOptions));
+    app.use(morgan("tiny")); // logger
 
     // connect Kafka cluster
     await config.kafka.producer.connect();
