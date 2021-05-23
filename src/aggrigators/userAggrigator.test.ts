@@ -7,10 +7,9 @@ import { getRegisterUser } from "./userAggrigator";
 const userService = {
   createUser: jest.fn().mockReturnValueOnce({ name: "testuser" }),
 };
-let message: KafkaMessage;
-let event: RegisteredEvent;
+let kafkaMessage: KafkaMessage;
+let registeredEvent: RegisteredEvent;
 let registerUser: (message: KafkaMessage) => Promise<void>;
-let userServiceMock: jest.Mock;
 
 const getMessage = (event: RegisteredEvent) => {
   return {
@@ -27,7 +26,7 @@ describe("getRegisterUser", () => {
   beforeEach(() => {
     registerUser = getRegisterUser(userService as any);
 
-    event = {
+    registeredEvent = {
       id: nanoid(),
       type: "UserRegistered",
       metadata: {
@@ -47,16 +46,16 @@ describe("getRegisterUser", () => {
       },
     };
 
-    message = getMessage(event);
+    kafkaMessage = getMessage(registeredEvent);
   });
 
   it("should create a new user", async () => {
     expect.assertions(2);
     const createUserMock = userService.createUser as jest.Mock;
     try {
-      await registerUser(message);
+      await registerUser(kafkaMessage);
       expect(createUserMock).toHaveBeenCalledTimes(1);
-      expect(createUserMock.mock.calls[0][0]).toEqual(event.data);
+      expect(createUserMock.mock.calls[0][0]).toEqual(registeredEvent.data);
     } catch (e) {
       throw e;
     }
@@ -66,7 +65,7 @@ describe("getRegisterUser", () => {
     expect.assertions(1);
     // const createUserMock = userService.createUser as jest.Mock;
     try {
-      await registerUser(message);
+      await registerUser(kafkaMessage);
       expect(userService.createUser).toHaveBeenCalledTimes(1);
     } catch (e) {
       throw e;
@@ -75,9 +74,9 @@ describe("getRegisterUser", () => {
 
   it("should raise an error if mesage.value is null", async () => {
     expect.assertions(1);
-    message.value = null;
+    kafkaMessage.value = null;
     try {
-      await registerUser(message);
+      await registerUser(kafkaMessage);
     } catch (e) {
       expect(e.message).toEqual("message.values is empty");
     }
@@ -86,7 +85,7 @@ describe("getRegisterUser", () => {
   it("should not create a new user if event.type is not UserRegistered", async () => {
     expect.assertions(1);
     const createUserMock = userService.createUser as jest.Mock;
-    const message = getMessage({ ...event, type: "OtherType" });
+    const message = getMessage({ ...registeredEvent, type: "OtherType" });
     await registerUser(message);
     expect(createUserMock).toHaveBeenCalledTimes(0);
   });
@@ -98,7 +97,7 @@ describe("getRegisterUser", () => {
       userService.createUser = jest.fn().mockImplementation(() => {
         throw new Error(msg);
       });
-      await registerUser(message);
+      await registerUser(kafkaMessage);
     } catch (e) {
       expect(e.message).toEqual(msg);
     }

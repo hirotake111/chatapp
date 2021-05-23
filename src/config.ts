@@ -8,7 +8,9 @@ import Message from "./models/Message.model";
 import Roster from "./models/Roster.model";
 import Thread from "./models/Thread.model";
 import { getIssuer, getOIDCClient } from "./utils/oidc";
-import { SessionOptions } from "express-session";
+import session, { SessionOptions } from "express-session";
+import { createClient, RedisClient } from "redis";
+import connectRedis, { RedisStore } from "connect-redis";
 
 dotenv.config();
 
@@ -44,6 +46,11 @@ export const getConfig = async (): Promise<ConfigType> => {
       }
     : { logging: false };
 
+  const redisUrl = process.env.REDIS_URL;
+  const redisSessionClient = createClient({ url: redisUrl });
+  const redisSessionStore = connectRedis(session);
+  const sessionStore = new redisSessionStore({ client: redisSessionClient });
+
   return {
     // basic configuration
     port: parseInt(process.env.PORT || "3000", 10),
@@ -55,6 +62,7 @@ export const getConfig = async (): Promise<ConfigType> => {
     sessionOptions: {
       secret: secretkey,
       name: "chatappsessionid",
+      store: redisUrl ? sessionStore : undefined, // use either Redis or memory
       resave: false,
       saveUninitialized: false,
       cookie: {
@@ -93,6 +101,13 @@ export const getConfig = async (): Promise<ConfigType> => {
       },
       modelPath: [__dirname + "/models/**/*.model.ts"],
     },
+
+    // Redis configuration
+    redis: {
+      url: redisUrl,
+      client: createClient({ url: redisUrl }),
+      sessionStore,
+    },
   };
 };
 
@@ -119,5 +134,10 @@ export type ConfigType = {
     sequelizeoptions: SequelizeOptions;
     models: Models;
     modelPath: string[];
+  };
+  redis: {
+    url?: string;
+    client: RedisClient;
+    sessionStore: RedisStore;
   };
 };
