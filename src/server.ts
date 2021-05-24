@@ -1,6 +1,8 @@
+import { createServer } from "http";
 import express from "express";
 import session from "express-session";
 import morgan from "morgan";
+import { Server } from "socket.io";
 
 import { getConfig } from "./config";
 import { getController } from "./controllers/controller";
@@ -10,6 +12,8 @@ import { getAggrigator } from "./aggrigators";
 import { getService } from "./services";
 
 const app = express();
+const http = createServer(app);
+const io = new Server(http);
 
 (async () => {
   try {
@@ -66,7 +70,13 @@ const app = express();
     //   },
     // });
 
-    app.listen(config.port, () => {
+    // Websocket listener
+    io.on("connection", (socket) => {
+      console.log("==== WEBSOCKET CONNECTED ===");
+      console.log(socket);
+    });
+
+    http.listen(config.port, () => {
       console.log(`http://${config.hostname}:${config.port}/userinfo`);
       console.log(`http://${config.hostname}:${config.port}/login`);
       console.log(config.oidc.frontendUrl);

@@ -9,7 +9,8 @@ import Roster from "./models/Roster.model";
 import Thread from "./models/Thread.model";
 import { getIssuer, getOIDCClient } from "./utils/oidc";
 import session, { SessionOptions } from "express-session";
-import { createClient, RedisClient } from "redis";
+// import { createClient, RedisClient } from "redis";
+import Redis from "ioredis";
 import connectRedis, { RedisStore } from "connect-redis";
 
 dotenv.config();
@@ -47,9 +48,8 @@ export const getConfig = async (): Promise<ConfigType> => {
     : { logging: false };
 
   const redisUrl = process.env.REDIS_URL;
-  const redisSessionClient = createClient({ url: redisUrl });
   const redisSessionStore = connectRedis(session);
-  const sessionStore = new redisSessionStore({ client: redisSessionClient });
+  const sessionStore = new redisSessionStore({ client: new Redis(redisUrl) });
 
   return {
     // basic configuration
@@ -105,7 +105,8 @@ export const getConfig = async (): Promise<ConfigType> => {
     // Redis configuration
     redis: {
       url: redisUrl,
-      client: createClient({ url: redisUrl }),
+      publisher: new Redis(redisUrl),
+      subscriber: new Redis(redisUrl),
       sessionStore,
     },
   };
@@ -137,7 +138,8 @@ export type ConfigType = {
   };
   redis: {
     url?: string;
-    client: RedisClient;
     sessionStore: RedisStore;
+    publisher: Redis.Redis;
+    subscriber: Redis.Redis;
   };
 };
