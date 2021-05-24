@@ -1,4 +1,3 @@
-import dotenv from "dotenv";
 import { Client, ClientMetadata, generators } from "openid-client";
 import { SequelizeOptions } from "sequelize-typescript";
 import { Consumer, Kafka, Producer } from "kafkajs";
@@ -9,33 +8,24 @@ import Roster from "./models/Roster.model";
 import Thread from "./models/Thread.model";
 import { getIssuer, getOIDCClient } from "./utils/oidc";
 import session, { SessionOptions } from "express-session";
-// import { createClient, RedisClient } from "redis";
 import Redis from "ioredis";
 import connectRedis, { RedisStore } from "connect-redis";
+import { Env } from "./env";
 
-dotenv.config();
-
-export const getConfig = async (): Promise<ConfigType> => {
-  const prod = process.env.NODE_ENV === "production";
-  const secretkey = process.env.SECRETKEY || "sssshhhiiiii";
-
-  const callbackUrl =
-    process.env.CALLBACKURL || "http://localhost:3000/callback";
-  const issuer = await getIssuer(process.env.ISSUER || "https://example.com");
+export const getConfig = async (env: Env): Promise<ConfigType> => {
+  const issuer = await getIssuer(env.ISSUER);
   const metadata: ClientMetadata = {
-    client_id: process.env.OAUTH_CLIENTID || "myid",
-    client_secret: process.env.OAUTH_CLIENTSECRET || "mypass",
-    redirect_uris: [callbackUrl],
+    client_id: env.OAUTH_CLIENTID,
+    client_secret: env.OAUTH_CLIENTSECRET,
+    redirect_uris: [env.CALLBACKURL],
     response_types: ["code"],
   };
   const kafkaInstance = new Kafka({
-    clientId: process.env.KAFKA_CLIENT_ID || "myapp",
-    brokers: process.env.KAFKA_BROKERS
-      ? process.env.KAFKA_BROKERS.split(",").map((sv) => sv.replace(/\s/g, ""))
-      : ["localhost:9029"],
+    clientId: env.KAFKA_CLIENT_ID,
+    brokers: env.KAFKA_BROKERS.split(",").map((sv) => sv.replace(/\s/g, "")),
   });
-  const kafkaGroupId = process.env.KAFKA_GROUP_ID || "mygroup";
-  const sequelizeoptions: SequelizeOptions = prod
+  const kafkaGroupId = env.KAFKA_GROUP_ID;
+  const sequelizeoptions: SequelizeOptions = env.PROD
     ? {
         logging: false,
         dialectOptions: {
@@ -47,28 +37,27 @@ export const getConfig = async (): Promise<ConfigType> => {
       }
     : { logging: false };
 
-  const redisUrl = process.env.REDIS_URL;
+  const redisUrl = env.REDIS_URL;
   const redisSessionStore = connectRedis(session);
   const sessionStore = new redisSessionStore({ client: new Redis(redisUrl) });
 
   return {
     // basic configuration
-    port: parseInt(process.env.PORT || "3000", 10),
-    hostname: process.env.HOSTNAME || "localhost",
-    secretkey,
-    prod,
+    port: parseInt(env.PORT, 10),
+    hostname: env.HOSTNAME,
+    prod: env.PROD,
 
     // session configuration
     sessionOptions: {
-      secret: secretkey,
+      secret: env.SECRETKEY,
       name: "chatappsessionid",
-      store: redisUrl ? sessionStore : undefined, // use either Redis or memory
+      store: sessionStore,
       resave: false,
       saveUninitialized: false,
       cookie: {
         maxAge: 1000 * 60 * 5, // 5 minutes
         sameSite: "lax",
-        secure: prod,
+        secure: env.PROD,
       },
     },
 
@@ -76,21 +65,21 @@ export const getConfig = async (): Promise<ConfigType> => {
     oidc: {
       client: getOIDCClient(issuer, metadata),
       generators,
-      callbackUrl,
-      frontendUrl: process.env.FRONTENDURL || "http://localhost:3000",
+      callbackUrl: env.CALLBACKURL,
+      frontendUrl: env.FRONTENDURL,
     },
 
     // Kafka configuration
     kafka: {
       groupId: kafkaGroupId,
-      topicName: process.env.KAFKA_TOPIC_NAME || "mytopic",
+      topicName: env.KAFKA_TOPIC_NAME,
       producer: kafkaInstance.producer(),
       consumer: kafkaInstance.consumer({ groupId: kafkaGroupId }),
     },
 
     // Database configuration
     database: {
-      databaseUri: process.env.DATABASE_URI || "postgres://localhost:5432/mydb",
+      databaseUri: env.DATABASE_URI,
       sequelizeoptions,
       // model configuration
       models: {
@@ -116,7 +105,6 @@ export type ConfigType = {
   port: number;
   prod: boolean;
   hostname: string;
-  secretkey: string;
   sessionOptions: SessionOptions;
   oidc: {
     client: Client;

@@ -10,6 +10,7 @@ import { useRoute } from "./router";
 import { getDb } from "./utils/db";
 import { getAggrigator } from "./aggrigators";
 import { getService } from "./services";
+import { env } from "./env";
 
 const app = express();
 const http = createServer(app);
@@ -18,7 +19,7 @@ const io = new Server(http);
 (async () => {
   try {
     // get config
-    const config = await getConfig();
+    const config = await getConfig(env);
 
     // use middlewares
     app.use(session(config.sessionOptions));
