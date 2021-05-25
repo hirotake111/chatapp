@@ -14,7 +14,7 @@ services:
       - kafka1
       - kafka2
     # ports:
-    #   - 4444:4444
+    #   - 3000:3000
     environment:
       - "SECRETKEY=${SECRETKEY}"
       - "OAUTH_CLIENTID=${OAUTH_CLIENTID}"
@@ -107,6 +107,16 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  fe: # frontend
+    image: video_chat_frontend-dev
+    container_name: fe
+    volumes:
+      - type: bind
+        source: ./client/src
+        target: /app/src
+    # ports:
+    #   - 3000:3000
 
   # auth_server: # OIDC server
   #   container_name: auth
