@@ -73,7 +73,7 @@ export const getConfig = async (env: Env): Promise<ConfigType> => {
     kafka: {
       groupId: kafkaGroupId,
       topicName: env.KAFKA_TOPIC_NAME,
-      producer: kafkaInstance.producer(),
+      producer: kafkaInstance.producer({ retry: { retries: 10 } }),
       consumer: kafkaInstance.consumer({ groupId: kafkaGroupId }),
     },
 

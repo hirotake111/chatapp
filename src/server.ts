@@ -14,7 +14,9 @@ import { env } from "./env";
 
 const app = express();
 const http = createServer(app);
-const io = new Server(http);
+const io = new Server(http, {
+  cors: { origin: "http://localhost:8888" },
+});
 
 (async () => {
   try {
@@ -74,7 +76,11 @@ const io = new Server(http);
     // Websocket listener
     io.on("connection", (socket) => {
       console.log("==== WEBSOCKET CONNECTED ===");
-      console.log(socket);
+      socket.on("disconnect", (data) => {
+        console.log("client disconnected with data: ", data);
+      });
+      // console.log(socket);
+      // socket.send("hello");
     });
 
     http.listen(config.port, () => {
