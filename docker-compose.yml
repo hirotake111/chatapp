@@ -2,11 +2,11 @@ version: "3.7"
 
 services:
   app: # app
-    image: myapp
+    image: video_chat_api-dev
     container_name: app
     volumes:
       - type: bind
-        source: ./src
+        source: ./api/src
         target: /app/src
     depends_on:
       - app_db

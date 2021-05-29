@@ -23,7 +23,8 @@ elif [ "$VAR" == "dev" ] || [ -z $VAR ]; then
     fi
     echo "================"
     echo "COMPILE STEP SUCCEEDED."
-    docker build -t myapp -f Dockerfile-dev .
+    IMAGE=video_chat_api-dev
+    docker build -t $IMAGE -f Dockerfile-dev .
     exit 0
 fi
 
