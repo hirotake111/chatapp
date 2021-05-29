@@ -1,8 +1,8 @@
 import { createServer } from "http";
-import express from "express";
-import session from "express-session";
+import express, { NextFunction, Request } from "express";
+import sessionMiddleware from "express-session";
 import morgan from "morgan";
-import { Server } from "socket.io";
+import { Server, Socket } from "socket.io";
 
 import { getConfig } from "./config";
 import { getController } from "./controllers/controller";
@@ -11,6 +11,7 @@ import { getDb } from "./utils/db";
 import { getAggrigator } from "./aggrigators";
 import { getService } from "./services";
 import { env } from "./env";
+import { ChatMessage } from "./type";
 
 const app = express();
 const http = createServer(app);
@@ -23,9 +24,17 @@ const io = new Server(http, {
     // get config
     const config = await getConfig(env);
 
+    // session middleware
+    const session = sessionMiddleware(config.sessionOptions);
+
     // use middlewares
-    app.use(session(config.sessionOptions));
+    app.use(session); // session
     app.use(morgan("tiny")); // logger
+    // session for WebSocket
+    io.use((socket, next) => {
+      const request = socket.request as Request;
+      session(request, request.res!, next as NextFunction);
+    });
 
     // connect Kafka cluster
     await config.kafka.producer.connect();
@@ -79,8 +88,33 @@ const io = new Server(http, {
       socket.on("disconnect", (data) => {
         console.log("client disconnected with data: ", data);
       });
-      // console.log(socket);
-      // socket.send("hello");
+      socket.on("chat message", (message: ChatMessage) => {
+        console.log("Received message: ", message);
+        const { username, userId } = socket.request.session;
+        // check if user is authenticated
+        if (!username || !userId) {
+          socket.emit("chat message", {
+            timestamp: Date.now(),
+            content: "Not Authenticated",
+          });
+          return;
+        }
+        // check if authenticated user and sender info in payload is the same
+        if (
+          username !== message.sender.username ||
+          userId !== message.sender.userId
+        ) {
+          socket.emit("chat message", {
+            ...message,
+            error: {
+              code: 400, // bad request
+              reason: "invalid username or user id",
+            },
+          } as ChatMessage);
+        }
+        // send members the message
+        socket.emit("chat message", message);
+      });
     });
 
     http.listen(config.port, () => {

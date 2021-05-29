@@ -104,7 +104,7 @@ export const getUserController = ({
         console.log(`user ${user.username} already exists.`);
       }
       // store session
-      req.session.username = userInfo.name;
+      req.session.username = user.username;
       req.session.userId = userInfo.sub;
       // redirect to SPA root page
       res.redirect("/");
