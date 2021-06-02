@@ -22,8 +22,8 @@ services:
       - "HOSTNAME=${HOSTNAME}"
       - "PORT=${PORT}"
       - "ISSUER=${ISSUER}"
-      - "FRONTENDURL=${FRONTENDURL}"
-      - "CALLBACKURL=${CALLBACKURL}"
+      - "FRONTEND_URL=${FRONTEND_URL}"
+      - "CALLBACK_URL=${CALLBACK_URL}"
       - "DATABASE_URI=${DATABASE_URI}"
       - "NODE_ENV=${NODE_ENV}"
       - "REDIS_URL=${REDIS_URL}"
@@ -31,6 +31,7 @@ services:
       - "KAFKA_BROKERS=${KAFKA_BROKERS}"
       - "KAFKA_GROUP_ID=${KAFKA_GROUP_ID}"
       - "KAFKA_TOPIC_NAME=${KAFKA_TOPIC_NAME}"
+      - "REACT_APP_WS_URL=${REACT_APP_WS_URL}"
 
   app_db: # PostgreSQL
     image: postgres:13.2

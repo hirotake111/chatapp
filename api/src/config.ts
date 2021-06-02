@@ -17,7 +17,7 @@ export const getConfig = async (env: Env): Promise<ConfigType> => {
   const metadata: ClientMetadata = {
     client_id: env.OAUTH_CLIENTID,
     client_secret: env.OAUTH_CLIENTSECRET,
-    redirect_uris: [env.CALLBACKURL],
+    redirect_uris: [env.CALLBACK_URL],
     response_types: ["code"],
   };
   const kafkaInstance = new Kafka({
@@ -65,8 +65,8 @@ export const getConfig = async (env: Env): Promise<ConfigType> => {
     oidc: {
       client: getOIDCClient(issuer, metadata),
       generators,
-      callbackUrl: env.CALLBACKURL,
-      frontendUrl: env.FRONTENDURL,
+      callbackUrl: env.CALLBACK_URL,
+      frontendUrl: env.FRONTEND_URL,
     },
 
     // Kafka configuration
