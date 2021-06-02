@@ -1,7 +1,7 @@
 import { Op } from "sequelize";
 
 import User from "../models/User.model";
-import { CreateUserProps } from "../type";
+// import { CreateUserProps } from "../type";
 
 export interface UserService {
   getUserById: (id: string) => Promise<User | null>;

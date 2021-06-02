@@ -1,15 +1,15 @@
 import { v4 as uuid } from "uuid";
-import { Request, Response } from "express";
+import { Request, Response, RequestHandler } from "express";
 import { Client, generators as Generators } from "openid-client";
 import { UserService } from "../services/user.service";
 import { ConfigType } from "../config";
-import { ControllerSignature, CreateUserProps, RegisteredEvent } from "../type";
+// import { ControllerSignature } from "../type";
 import { ProducerRecord } from "kafkajs";
 import { createHash } from "crypto";
 
 export type UserController = {
-  getLogin: ControllerSignature;
-  getCallback: ControllerSignature;
+  getLogin: RequestHandler;
+  getCallback: RequestHandler;
 };
 
 interface Params {

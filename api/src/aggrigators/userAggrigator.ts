@@ -1,6 +1,6 @@
 import { KafkaMessage } from "kafkajs";
 import { UserService } from "../services/user.service";
-import { RegisteredEvent } from "../type";
+// import { RegisteredEvent } from "../type";
 
 export const getRegisterUser = (userService: UserService) => {
   return async (message: KafkaMessage) => {

@@ -2,7 +2,7 @@ import { createServer } from "http";
 import express, { NextFunction, Request } from "express";
 import sessionMiddleware from "express-session";
 import morgan from "morgan";
-import { Server, Socket } from "socket.io";
+import { Server } from "socket.io";
 
 import { getConfig } from "./config";
 import { getController } from "./controllers/controller";
@@ -11,7 +11,29 @@ import { getDb } from "./utils/db";
 import { getAggrigator } from "./aggrigators";
 import { getService } from "./services";
 import { env } from "./env";
-import { ChatMessage } from "./type";
+// import { ChatMessage } from "./type";
+
+/** fake user db*/
+interface fakeUserRecord {
+  userId: string;
+  username: string;
+  channels: string[];
+}
+const fakeUserDb: fakeUserRecord[] = [
+  {
+    userId: "d46bb0db-9c41-4f40-84e7-d40acf560610",
+    username: "alice",
+    channels: ["channel1", "channel2"],
+  },
+  {
+    userId: "83440b66-11a4-497f-83c4-beaf1eaef9c2",
+    username: "test",
+    channels: ["channel1", "channel3"],
+  },
+];
+/** fake function */
+const getChannels = (userId: string) =>
+  fakeUserDb.filter((record) => record.userId === userId)[0].channels;
 
 const app = express();
 const http = createServer(app);
@@ -85,12 +107,30 @@ const io = new Server(http, {
     // Websocket listener
     io.on("connection", (socket) => {
       console.log("==== WEBSOCKET CONNECTED ===");
+      // validate user
+      const { userId, username } = socket.request.session;
+      if (!userId || !username) {
+        console.log("user is not authenticated");
+        socket.disconnect(true);
+        return;
+      }
+      console.log(`authenticateduser: ${username} (${userId})`);
+
+      // join room(s)
+      const channels = getChannels(userId);
+      console.log("Joining channels: ", channels);
+      socket.join(channels);
+
+      // handler for disconnection
       socket.on("disconnect", (data) => {
         console.log("client disconnected with data: ", data);
       });
+
+      // message handler
       socket.on("chat message", (message: ChatMessage) => {
         console.log("Received message: ", message);
         const { username, userId } = socket.request.session;
+        console.log("socket.handshake.auth: ", socket.handshake.auth);
         // check if user is authenticated
         if (!username || !userId) {
           socket.emit("chat message", {
@@ -113,7 +153,8 @@ const io = new Server(http, {
           } as ChatMessage);
         }
         // send members the message
-        socket.emit("chat message", message);
+        socket.to(message.channelId).emit("chat message", message);
+        // socket.emit("chat message", message);
       });
     });
 
