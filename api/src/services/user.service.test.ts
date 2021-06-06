@@ -3,7 +3,7 @@ import { nanoid } from "nanoid";
 
 import { getUserService } from "./user.service";
 import User from "../models/User.model";
-import { CreateUserProps } from "../type";
+// import { CreateUserProps } from "../type";
 
 // user service
 const userService = getUserService(User);

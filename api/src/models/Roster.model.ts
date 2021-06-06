@@ -2,49 +2,39 @@ import {
   Table,
   Model,
   Column,
-  PrimaryKey,
   IsUUID,
   CreatedAt,
-  UpdatedAt,
   DeletedAt,
   NotNull,
   Sequelize,
-  BelongsTo,
   ForeignKey,
 } from "sequelize-typescript";
-import Thread from "./Thread.model";
+import Channel from "./Channel.model";
 import User from "./User.model";
 
 @Table
 class Roster extends Model {
   @IsUUID(4)
   @NotNull
-  @PrimaryKey
+  @ForeignKey(() => Channel)
   @Column({ allowNull: false })
-  id!: string;
+  channelId!: string;
+
+  @IsUUID(4)
+  @NotNull
+  @ForeignKey(() => User)
+  @Column({ allowNull: false })
+  userId!: string;
 
   @CreatedAt
   @Column({
     defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
     allowNull: false,
   })
-  createdAt!: Date;
-
-  @UpdatedAt
-  @Column({
-    defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
-    allowNull: false,
-  })
-  updatedAt!: Date;
+  joinedAt!: Date;
 
   @DeletedAt
-  deletedAt?: Date;
-
-  @ForeignKey(() => User)
-  User!: User;
-
-  @ForeignKey(() => Thread)
-  thread!: Thread;
+  removedAt?: Date;
 }
 
 export default Roster;

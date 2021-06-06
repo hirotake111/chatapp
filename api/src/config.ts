@@ -5,7 +5,7 @@ import { Models } from "./models";
 import User from "./models/User.model";
 import Message from "./models/Message.model";
 import Roster from "./models/Roster.model";
-import Thread from "./models/Thread.model";
+import Channel from "./models/Channel.model";
 import { getIssuer, getOIDCClient } from "./utils/oidc";
 import session, { SessionOptions } from "express-session";
 import Redis from "ioredis";
@@ -86,7 +86,7 @@ export const getConfig = async (env: Env): Promise<ConfigType> => {
         User,
         Message,
         Roster,
-        Thread,
+        Channel,
       },
       modelPath: [__dirname + "/models/**/*.model.ts"],
     },

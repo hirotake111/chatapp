@@ -30,10 +30,18 @@ const fakeUserDb: fakeUserRecord[] = [
     username: "test",
     channels: ["channel1", "channel3"],
   },
+  {
+    userId: "0d90e798-25d4-407c-afab-f08233cf0548",
+    username: "bob",
+    channels: ["channel1", "chennel2", "channel3"],
+  },
 ];
+
 /** fake function */
-const getChannels = (userId: string) =>
-  fakeUserDb.filter((record) => record.userId === userId)[0].channels;
+const getChannels = (userId: string) => {
+  const record = fakeUserDb.filter((record) => record.userId === userId);
+  return record.length ? record[0].channels : [];
+};
 
 const app = express();
 const http = createServer(app);

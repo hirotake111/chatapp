@@ -3,7 +3,7 @@ import { v4 as uuid } from "uuid";
 import { createHash } from "crypto";
 
 import { getUserController } from "./userController";
-import { RegisteredEvent } from "../type";
+// import { RegisteredEvent } from "../type";
 
 // constants
 const verifier = nanoid();
@@ -30,6 +30,7 @@ const res = {
   send: jest.fn(),
   redirect: jest.fn(),
 } as any;
+const next = {} as any;
 const redirectMock = res.redirect as jest.Mock;
 const userService = {
   getUserByUsername: jest.fn(),
@@ -69,7 +70,7 @@ describe("userController", () => {
           userService,
           config,
         });
-        await uc.getLogin(req, res);
+        await uc.getLogin(req, res, next);
         // validation
         expect(generators.codeVerifier).toHaveBeenCalledTimes(1);
         expect(req.session.verifier).toEqual(verifier);
@@ -97,7 +98,7 @@ describe("userController", () => {
           userService,
           config,
         });
-        await uc.getLogin(req, res);
+        await uc.getLogin(req, res, next);
         expect(statusMock.mock.calls[0][0]).toEqual(500);
         expect(sendMock.mock.calls[0][0]).toEqual({
           error: "INTERNAL SERVER ERROR",
@@ -119,7 +120,7 @@ describe("userController", () => {
           userService,
           config,
         });
-        await uc.getCallback(req, res);
+        await uc.getCallback(req, res, next);
         // validation
         expect(producerSendMock).toHaveBeenCalledTimes(1);
         expect(producerSendMock.mock.calls[0][0].topic).toEqual(
@@ -151,7 +152,7 @@ describe("userController", () => {
           userService: userServiceMock,
           config,
         });
-        await uc.getCallback(req, res);
+        await uc.getCallback(req, res, next);
         // validation
         expect(redirectMock).toHaveBeenCalledTimes(1);
         expect(redirectMock.mock.calls[0][0]).toEqual("/");
@@ -178,7 +179,7 @@ describe("userController", () => {
           userService,
           config,
         });
-        await uc.getCallback(req, res);
+        await uc.getCallback(req, res, next);
         // validation
         expect(statusMock.mock.calls[0][0]).toEqual(500);
         expect(sendMock.mock.calls[0][0]).toEqual({
@@ -205,7 +206,7 @@ describe("userController", () => {
           userService,
           config,
         });
-        await uc.getCallback(req, res);
+        await uc.getCallback(req, res, next);
         expect(statusMock.mock.calls[0][0]).toEqual(500);
         expect(sendMock.mock.calls[0][0]).toEqual({
           error: "INTERNAL SERVER ERROR",

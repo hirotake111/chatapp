@@ -1,5 +1,13 @@
 # Chat App
 
+### TODO
+
+- add query components for Channel and Roster and Message
+- crud api for channels
+- crud api for messages
+- parse HTML data to prevent XSS
+- Database for messages
+
 ### Build docker image
 
 ```bash
@@ -17,44 +25,48 @@
 
 | key         | type              | Description     |
 | ----------- | ----------------- | --------------- |
-| id          | string(UUIDv4) PK | Conversation ID |
-| username    | string unique     | Username        |
-| displayName | string unique     |                 |
-| fistName    | string            |                 |
-| lastName    | string            |                 |
+| id          | string(UUIDv4) PK | conversation ID |
+| username    | string unique     | username        |
+| displayName | string unique     | display name    |
+| fistName    | string            | fist name       |
+| lastName    | string            | last name       |
 | createdAt   | datetime required | time created    |
 | updatedAt   | datetime required | time updated    |
 | deletedAt   | datetime          | time deleted    |
 
 ---
 
-### Conversations table
+### Channel table
 
-| key       | type              | Description     |
-| --------- | ----------------- | --------------- |
-| id        | string(UUIDv4) PK | Conversation ID |
-| createdAt | datetime required | time created    |
-| deletedAt | datetime          | time deleted    |
+| key       | type              | Description  |
+| --------- | ----------------- | ------------ |
+| id        | string(UUIDv4) PK |              |
+| name      | string required   | channel name |
+| createdAt | datetime required | time created |
+| updatedAt | datetime required | time updated |
+| deletedAt | datetime          | time deleted |
 
 ---
 
-### Conversations-Users table
+### Roster table
 
-| key            | type                        | Description |
-| -------------- | --------------------------- | ----------- |
-| conversationId | string (UUIDv4) FK required |
-| user           | string (UUIDv4) FK required | user ID     |
+| key       | type                        | Description  |
+| --------- | --------------------------- | ------------ |
+| channelId | string (UUIDv4) FK required | channel ID   |
+| userId    | string (UUIDv4) FK required | user ID      |
+| joinedAt  | datetime required           | time joined  |
+| removedAt | datetime                    | time removed |
 
 ---
 
 ### Messages table
 
-| key            | type                        | Description                |
-| -------------- | --------------------------- | -------------------------- |
-| id             | string(UUIDv4) PK required  | Message ID                 |
-| conversationId | string (UUIDv4) FK required | conversation it belongs to |
-| sender         | string (UUIDv4) FK required | sender's user ID           |
-| content        | string required             | message content itself     |
-| createdAt      | datetime required           | time created               |
-| updatedAt      | datetime required           | time updated               |
-| deletedAt      | datetime                    | time deleted               |
+| key       | type                        | Description              |
+| --------- | --------------------------- | ------------------------ |
+| id        | string(UUIDv4) PK required  | Message ID               |
+| channelId | string (UUIDv4) FK required | channel ID it belongs to |
+| senderId  | string (UUIDv4) FK required | sender's user ID         |
+| content   | string required             | message content itself   |
+| createdAt | datetime required           | time created             |
+| updatedAt | datetime required           | time updated             |
+| deletedAt | datetime                    | time deleted             |

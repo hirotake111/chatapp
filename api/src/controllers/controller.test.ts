@@ -20,7 +20,7 @@ const res = {
 
 /** request mock object */
 const req = {} as any;
-
+const next = {} as any;
 const statusMock = res.status as jest.Mock;
 const sendMock = res.send as jest.Mock;
 
@@ -29,7 +29,7 @@ describe("getController", () => {
     it("should return OK message", () => {
       expect.assertions(4);
       // invoke function
-      ctlr.getRoot(req, res);
+      ctlr.getRoot(req, res, next);
       expect(res.status).toHaveBeenCalledTimes(1);
       expect(statusMock.mock.calls[0][0]).toEqual(200);
       expect(res.send).toHaveBeenCalledTimes(1);
@@ -45,7 +45,7 @@ describe("getController", () => {
       const username = nanoid();
       const request = { session: { userId, username } } as any;
       // invoke function
-      ctlr.getUserinfo(request, res);
+      ctlr.getUserinfo(request, res, next);
       // validation
       expect(res.status).toHaveBeenCalledTimes(1);
       expect(res.send).toHaveBeenCalledTimes(1);
@@ -56,7 +56,7 @@ describe("getController", () => {
     it("should respond 401 and login endpoint", () => {
       expect.assertions(4);
       // invoke function
-      ctlr.getUserinfo({ session: {} } as any, res);
+      ctlr.getUserinfo({ session: {} } as any, res, next);
       // validation
       expect(res.status).toHaveBeenCalledTimes(1);
       expect(statusMock.mock.calls[0][0]).toEqual(401);

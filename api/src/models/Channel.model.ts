@@ -2,42 +2,26 @@ import {
   Table,
   Model,
   Column,
-  PrimaryKey,
   IsUUID,
+  NotNull,
+  PrimaryKey,
   CreatedAt,
   UpdatedAt,
   DeletedAt,
-  NotNull,
   Sequelize,
-  ForeignKey,
 } from "sequelize-typescript";
 
-import Channel from "./Channel.model";
-import User from "./User.model";
-
 @Table
-class Message extends Model {
+class Channel extends Model {
   @IsUUID(4)
   @NotNull
   @PrimaryKey
   @Column({ allowNull: false })
   id!: string;
 
-  @IsUUID(4)
-  @NotNull
-  @ForeignKey(() => Channel)
-  @Column({ allowNull: false })
-  channelId!: string;
-
-  @IsUUID(4)
-  @NotNull
-  @ForeignKey(() => User)
-  @Column({ allowNull: false })
-  senderId!: string;
-
   @NotNull
   @Column({ allowNull: false })
-  content!: string;
+  name!: string;
 
   @CreatedAt
   @Column({
@@ -57,4 +41,4 @@ class Message extends Model {
   deletedAt?: Date;
 }
 
-export default Message;
+export default Channel;
