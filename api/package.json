@@ -12,7 +12,7 @@
     "make": "bash ./make_image.sh",
     "buildprod": "./make_prod_image.sh",
     "make-dev": "docker build -t myapp -f Dockerfile-dev .",
-    "test": "jest"
+    "test": "docker-compose run app ./node_modules/.bin/jest"
   },
   "keywords": [],
   "author": "",

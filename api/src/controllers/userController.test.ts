@@ -1,5 +1,4 @@
 import { nanoid } from "nanoid";
-import { v4 as uuid } from "uuid";
 import { createHash } from "crypto";
 
 import { getUserController } from "./userController";
@@ -100,9 +99,9 @@ describe("userController", () => {
         });
         await uc.getLogin(req, res, next);
         expect(statusMock.mock.calls[0][0]).toEqual(500);
-        expect(sendMock.mock.calls[0][0]).toEqual({
-          error: "INTERNAL SERVER ERROR",
-        });
+        expect(sendMock.mock.calls[0][0].error).toEqual(
+          "INTERNAL SERVER ERROR"
+        );
       } catch (e) {
         throw e;
       }
@@ -208,9 +207,9 @@ describe("userController", () => {
         });
         await uc.getCallback(req, res, next);
         expect(statusMock.mock.calls[0][0]).toEqual(500);
-        expect(sendMock.mock.calls[0][0]).toEqual({
-          error: "INTERNAL SERVER ERROR",
-        });
+        expect(sendMock.mock.calls[0][0].error).toEqual(
+          "INTERNAL SERVER ERROR"
+        );
       } catch (e) {
         throw e;
       }

@@ -41,7 +41,9 @@ export const getUserController = ({
       return;
     } catch (e) {
       // console.error(e);
-      res.status(500).send({ error: "INTERNAL SERVER ERROR" });
+      res
+        .status(500)
+        .send({ error: "INTERNAL SERVER ERROR", detail: e.message });
       return;
     }
   },
@@ -110,8 +112,9 @@ export const getUserController = ({
       res.redirect("/");
       return;
     } catch (e) {
-      console.error(e);
-      res.status(500).send({ error: "INTERNAL SERVER ERROR" });
+      res
+        .status(500)
+        .send({ error: "INTERNAL SERVER ERROR", detail: e.message });
       return;
     }
   },
