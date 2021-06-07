@@ -73,5 +73,6 @@
   "include": ["src"],
   "ts-node": {
     "files": true // required to load type.d.ts file
-  }
+  },
+  "typeAcquisition": { "include": ["jest"] }
 }
