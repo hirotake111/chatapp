@@ -2,7 +2,6 @@ import { nanoid } from "nanoid";
 import { createHash } from "crypto";
 
 import { getUserController } from "./userController";
-// import { RegisteredEvent } from "../type";
 
 // constants
 const verifier = nanoid();
