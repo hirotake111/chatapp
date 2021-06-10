@@ -98,12 +98,12 @@ export const getUserController = ({
           topic: config.kafka.topicName,
           messages: [{ value: JSON.stringify(event) }],
         };
-        console.log(
-          `sending message - TOPIC: ${record.topic}, TYPE: ${event.type}`
-        );
+        // console.log(
+        //   `sending message - TOPIC: ${record.topic}, TYPE: ${event.type}`
+        // );
         await config.kafka.producer.send(record);
       } else {
-        console.log(`user ${user.username} already exists.`);
+        // console.log(`user ${user.username} already exists.`);
       }
       // store session
       req.session.username = user.username;

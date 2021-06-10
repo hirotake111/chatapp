@@ -21,15 +21,15 @@ export const getRegisterUser = (userService: UserService) => {
       // check event type
       switch (event.type) {
         case "UserRegistered":
-          console.log(
-            `username "${event.data.username}" will be registered to the database`
-          );
+          // console.log(
+          //   `username "${event.data.username}" will be registered to the database`
+          // );
           // keep in mind the inserting a new record must be idemponent
           if (!(await userService.createUser({ ...event.data }))) {
             // If the user already exists, display a log message
-            console.log(
-              `username "${event.data.username}" already exists in the database.`
-            );
+            // console.log(
+            //   `username "${event.data.username}" already exists in the database.`
+            // );
           }
           return;
 

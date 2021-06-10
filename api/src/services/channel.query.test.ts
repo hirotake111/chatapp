@@ -1,6 +1,5 @@
 import { nanoid } from "nanoid";
-import Channel from "../models/Channel.model";
-import { ChannelQuery, getChannelQuery } from "./channel.query";
+import { getChannelQuery } from "./channel.query";
 
 interface ChannelType {
   id: string;
@@ -31,8 +30,19 @@ describe("channel.query", () => {
       findOne: async (param: { where: { id: string } }) => {
         return new Promise<ChannelType | null>((resolve, reject) => {
           const channel = db.filter((ch) => ch.id === param.where.id);
+          // console.log("channel in findOne(): ", channel);
           if (channel.length === 0) resolve(null);
           return resolve(channel[0]);
+        });
+      },
+      update: async (
+        values: { name: string; updatedAt: number },
+        options: { where: { id: string } }
+      ) => {
+        return new Promise((resolve, reject) => {
+          let channels = db.filter((ch) => ch.id === options.where.id);
+          channels[0] = { ...channels[0], ...values };
+          resolve([channels.length, channels]);
         });
       },
     } as any;
@@ -152,7 +162,7 @@ describe("channel.query", () => {
       expect.assertions(1);
       // implement a mehtod that always thow an error
       const msg = "Database Error";
-      model.findOne = (param: any) => {
+      model.findOne = (_: any) => {
         throw new Error(msg);
       };
       try {
@@ -164,22 +174,93 @@ describe("channel.query", () => {
     });
   });
 
-  // describe("updateChannel()", () => {
-  //   it("should return an updated channel", async () => {
-  //     expect.assertions(1);
-  //   });
+  describe("updateChannelbyId()", () => {
+    it("should return an updated channel", async () => {
+      expect.assertions(2);
+      // add a channel directly to db
+      const id = nanoid();
+      const name = nanoid();
+      const createdAt = Date.now();
+      const updatedAt = createdAt;
+      const ch = db.push({ id, name, createdAt, updatedAt });
+      // update channel
+      const newName = nanoid();
+      const query = getChannelQuery(model);
+      try {
+        const updatedChannel = await query.updateChannelbyId(
+          id,
+          newName,
+          updatedAt
+        );
+        if (!updatedChannel) throw new Error("FAIELD UPDATING CHANNEL");
+        expect(updatedChannel.name).toEqual(newName);
+        expect(updatedChannel.id).toEqual(id);
+      } catch (e) {
+        throw e;
+      }
+    });
 
-  //   it("should return a channel even if nothing has changed", async () => {
-  //     expect.assertions(1);
-  //   });
+    it("should return a channel even if nothing has changed", async () => {
+      expect.assertions(2);
+      // add a channel directly to db
+      const id = nanoid();
+      const name = nanoid();
+      const createdAt = Date.now();
+      const updatedAt = createdAt;
+      const ch = db.push({ id, name, createdAt, updatedAt });
+      // update channel
+      const query = getChannelQuery(model);
+      try {
+        const updatedChannel = await query.updateChannelbyId(
+          id,
+          name,
+          updatedAt
+        );
+        if (!updatedChannel) throw new Error("FAIELD UPDATING CHANNEL");
+        expect(updatedChannel.name).toEqual(name);
+        expect(updatedChannel.id).toEqual(id);
+      } catch (e) {
+        throw e;
+      }
+    });
 
-  //   it("should return null if not exists", async () => {
-  //     expect.assertions(1);
-  //   });
-  //   it("should raise an error for other reason", async () => {
-  //     expect.assertions(1);
-  //   });
-  // });
+    it("should raise an erorr if not exists", async () => {
+      expect.assertions(1);
+      // add a channel directly to db
+      const id = nanoid();
+      const name = nanoid();
+      const query = getChannelQuery(model);
+      try {
+        // update channel
+        const updatedChannel = await query.updateChannelbyId(
+          id,
+          name,
+          Date.now()
+        );
+      } catch (e) {
+        expect(e.message).toEqual(`id ${id} does not eixst`);
+      }
+    });
+
+    it("should raise an error for other reason", async () => {
+      expect.assertions(1);
+      // implement method that always throw an error
+      const msg = "database error";
+      model.update = (values: any, options: any) => {
+        throw new Error(msg);
+      };
+      const query = getChannelQuery(model);
+      // add a channel directly to db
+      const id = nanoid();
+      const name = nanoid();
+      db.push({ id, name, updatedAt: Date.now(), createdAt: Date.now() });
+      try {
+        await query.updateChannelbyId(id, name, Date.now());
+      } catch (e) {
+        expect(e.message).toEqual(msg);
+      }
+    });
+  });
 
   // describe("deleteChannel()", () => {
   //   it("should return 1 if scceeded", async () => {

@@ -11,15 +11,14 @@ import { getDb } from "./utils/db";
 import { getAggrigator } from "./aggrigators";
 import { getService } from "./services";
 import { env } from "./env";
-// import { ChatMessage } from "./type";
 
-/** fake user db*/
-interface fakeUserRecord {
+// fake user db
+interface FakeUserRecord {
   userId: string;
   username: string;
   channels: string[];
 }
-const fakeUserDb: fakeUserRecord[] = [
+const fakeUserDb: FakeUserRecord[] = [
   {
     userId: "d46bb0db-9c41-4f40-84e7-d40acf560610",
     username: "alice",
@@ -39,7 +38,7 @@ const fakeUserDb: fakeUserRecord[] = [
 
 /** fake function */
 const getChannels = (userId: string) => {
-  const record = fakeUserDb.filter((record) => record.userId === userId);
+  const record = fakeUserDb.filter((row) => row.userId === userId);
   return record.length ? record[0].channels : [];
 };
 
@@ -137,7 +136,7 @@ const io = new Server(http, {
       // message handler
       socket.on("chat message", (message: ChatMessage) => {
         console.log("Received message: ", message);
-        const { username, userId } = socket.request.session;
+        // const { username, userId } = socket.request.session;
         console.log("socket.handshake.auth: ", socket.handshake.auth);
         // check if user is authenticated
         if (!username || !userId) {

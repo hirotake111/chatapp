@@ -3,7 +3,7 @@ import Channel from "../models/Channel.model";
 export interface ChannelQuery {
   createChannel: (id: string, name: string) => Promise<Channel | null>;
   getChannelById: (id: string) => Promise<Channel | null>;
-  updateChannel: (
+  updateChannelbyId: (
     id: string,
     name: string,
     updatedAt: number
@@ -15,7 +15,7 @@ export const getChannelQuery = (ChannelModel: typeof Channel): ChannelQuery => {
   return {
     async createChannel(id: string, name: string): Promise<Channel | null> {
       try {
-        console.log("ChannelModel", ChannelModel);
+        // console.log("ChannelModel", ChannelModel);
         // check to see if the id already exists
         if (await ChannelModel.findOne({ where: { id } })) {
           return null;
@@ -34,13 +34,26 @@ export const getChannelQuery = (ChannelModel: typeof Channel): ChannelQuery => {
       }
     },
 
-    async updateChannel(
+    async updateChannelbyId(
       id: string,
       name: string,
       updatedAt: number
     ): Promise<Channel | null> {
-      throw new Error("NotImplemented");
+      try {
+        if (!(await ChannelModel.findOne({ where: { id } })))
+          throw new Error(`id ${id} does not eixst`);
+        const [count, ch] = await ChannelModel.update(
+          { name, updatedAt },
+          { where: { id } }
+        );
+        // console.log("result: ", count, ch);
+        if (count === 0) throw new Error("error");
+        return ch[0];
+      } catch (e) {
+        throw e;
+      }
     },
+
     async deleteChannel(id: string): Promise<number> {
       throw new Error("NotImplemented");
     },
