@@ -11,16 +11,16 @@ export interface ChannelQuery {
   deleteChannel: (id: string) => Promise<number>;
 }
 
-export const getChannelQuery = (ChannelModel: typeof Channel): ChannelQuery => {
+export const getChannelQuery = (model: typeof Channel): ChannelQuery => {
   return {
     async createChannel(id: string, name: string): Promise<Channel | null> {
       try {
         // console.log("ChannelModel", ChannelModel);
         // check to see if the id already exists
-        if (await ChannelModel.findOne({ where: { id } })) {
+        if (await model.findOne({ where: { id } })) {
           return null;
         }
-        return await ChannelModel.create({ id, name });
+        return await model.create({ id, name });
       } catch (e) {
         throw e;
       }
@@ -28,7 +28,7 @@ export const getChannelQuery = (ChannelModel: typeof Channel): ChannelQuery => {
 
     async getChannelById(id: string): Promise<Channel | null> {
       try {
-        return await ChannelModel.findOne({ where: { id } });
+        return await model.findOne({ where: { id } });
       } catch (e) {
         throw e;
       }
@@ -40,9 +40,9 @@ export const getChannelQuery = (ChannelModel: typeof Channel): ChannelQuery => {
       updatedAt: number
     ): Promise<Channel | null> {
       try {
-        if (!(await ChannelModel.findOne({ where: { id } })))
+        if (!(await model.findOne({ where: { id } })))
           throw new Error(`id ${id} does not eixst`);
-        const [count, ch] = await ChannelModel.update(
+        const [count, ch] = await model.update(
           { name, updatedAt },
           { where: { id } }
         );
@@ -55,7 +55,12 @@ export const getChannelQuery = (ChannelModel: typeof Channel): ChannelQuery => {
     },
 
     async deleteChannel(id: string): Promise<number> {
-      throw new Error("NotImplemented");
+      try {
+        const result = await model.destroy({ where: { id } });
+        return result;
+      } catch (e) {
+        throw e;
+      }
     },
   };
 };

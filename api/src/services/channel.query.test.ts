@@ -12,6 +12,18 @@ interface ChannelType {
 let db: ChannelType[];
 let model: any;
 
+// helper function to add a channel to db
+const addChannel = (): ChannelType => {
+  const ch: ChannelType = {
+    id: nanoid(),
+    name: nanoid(),
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+  };
+  db.push({ ...ch });
+  return ch;
+};
+
 describe("channel.query", () => {
   beforeEach(() => {
     db = [];
@@ -39,10 +51,17 @@ describe("channel.query", () => {
         values: { name: string; updatedAt: number },
         options: { where: { id: string } }
       ) => {
-        return new Promise((resolve, reject) => {
+        return new Promise<[number, ChannelType[]]>((resolve, reject) => {
           let channels = db.filter((ch) => ch.id === options.where.id);
           channels[0] = { ...channels[0], ...values };
           resolve([channels.length, channels]);
+        });
+      },
+      destroy: async (options: { where: { id: string } }) => {
+        return new Promise<number>((resolve, reject) => {
+          const previous = db.length;
+          db = db.filter((row) => row.id !== options.where.id);
+          resolve(previous - db.length);
         });
       },
     } as any;
@@ -69,9 +88,7 @@ describe("channel.query", () => {
     it("should return null if the same ID already exists", async () => {
       expect.assertions(1);
       // add a channel directly to db
-      const id = nanoid();
-      const name = nanoid();
-      db.push({ id, name, createdAt: Date.now(), updatedAt: Date.now() });
+      const { id } = addChannel();
       try {
         // create a new channel with the same ID
         const query = getChannelQuery(model);
@@ -143,11 +160,7 @@ describe("channel.query", () => {
     it("should return null if not exists", async () => {
       expect.assertions(1);
       // add a new channel to db
-      const id = nanoid();
-      const name = nanoid();
-      const createdAt = Date.now();
-      const updatedAt = createdAt;
-      db.push({ id, name, createdAt, updatedAt });
+      addChannel();
       try {
         const query = getChannelQuery(model);
         // fetch a channel by ID that does not exist
@@ -178,11 +191,7 @@ describe("channel.query", () => {
     it("should return an updated channel", async () => {
       expect.assertions(2);
       // add a channel directly to db
-      const id = nanoid();
-      const name = nanoid();
-      const createdAt = Date.now();
-      const updatedAt = createdAt;
-      const ch = db.push({ id, name, createdAt, updatedAt });
+      const { id, updatedAt } = addChannel();
       // update channel
       const newName = nanoid();
       const query = getChannelQuery(model);
@@ -207,7 +216,7 @@ describe("channel.query", () => {
       const name = nanoid();
       const createdAt = Date.now();
       const updatedAt = createdAt;
-      const ch = db.push({ id, name, createdAt, updatedAt });
+      db.push({ id, name, createdAt, updatedAt });
       // update channel
       const query = getChannelQuery(model);
       try {
@@ -232,11 +241,7 @@ describe("channel.query", () => {
       const query = getChannelQuery(model);
       try {
         // update channel
-        const updatedChannel = await query.updateChannelbyId(
-          id,
-          name,
-          Date.now()
-        );
+        await query.updateChannelbyId(id, name, Date.now());
       } catch (e) {
         expect(e.message).toEqual(`id ${id} does not eixst`);
       }
@@ -262,17 +267,64 @@ describe("channel.query", () => {
     });
   });
 
-  // describe("deleteChannel()", () => {
-  //   it("should return 1 if scceeded", async () => {
-  //     expect.assertions(1);
-  //   });
+  describe("deleteChannel()", () => {
+    it("should return 1 if scceeded", async () => {
+      expect.assertions(2);
+      // add a channel to db directly
+      const id = nanoid();
+      const name = nanoid();
+      const createdAt = Date.now();
+      const updatedAt = createdAt;
+      db.push({ id, name, createdAt, updatedAt });
+      const query = getChannelQuery(model);
+      try {
+        // delete item
+        const count = await query.deleteChannel(id);
+        expect(count).toEqual(1);
+        expect(db.length).toEqual(0);
+      } catch (e) {
+        throw e;
+      }
+    });
 
-  //   it("should return 0 if not exists", async () => {
-  //     expect.assertions(1);
-  //   });
+    it("should return 0 if not exists", async () => {
+      expect.assertions(2);
+      // add a channel to db directly
+      const id = nanoid();
+      const name = nanoid();
+      const createdAt = Date.now();
+      const updatedAt = createdAt;
+      db.push({ id, name, createdAt, updatedAt });
+      const query = getChannelQuery(model);
+      try {
+        // delete another item
+        const newId = nanoid();
+        const count = await query.deleteChannel(newId);
+        expect(count).toEqual(0);
+        expect(db.length).toEqual(1);
+      } catch (e) {
+        throw e;
+      }
+    });
 
-  //   it("should raise an error for other reason", async () => {
-  //     expect.assertions(1);
-  //   });
-  // });
+    it("should raise an error for other reason", async () => {
+      expect.assertions(1);
+      // implement method that always throw an error
+      const msg = "database error";
+      model.destroy = (options: any) => {
+        throw new Error(msg);
+      };
+      const query = getChannelQuery(model);
+      // add a channel directly to db
+      const id = nanoid();
+      const name = nanoid();
+      db.push({ id, name, updatedAt: Date.now(), createdAt: Date.now() });
+      try {
+        // delete channel
+        await query.deleteChannel(id);
+      } catch (e) {
+        expect(e.message).toEqual(msg);
+      }
+    });
+  });
 });
