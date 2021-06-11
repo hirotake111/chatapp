@@ -102,9 +102,7 @@ describe("channel.query", () => {
     it("should return a new channel even if the same name already exists", async () => {
       expect.assertions(2);
       // add a channel directly to db
-      const id = nanoid();
-      const name = nanoid();
-      db.push({ id, name, createdAt: Date.now(), updatedAt: Date.now() });
+      const { id, name } = addChannel();
       try {
         // create a new channel with the same name
         const query = getChannelQuery(model);
@@ -141,11 +139,7 @@ describe("channel.query", () => {
     it("should return a channel", async () => {
       expect.assertions(1);
       // add a new channel to db
-      const id = nanoid();
-      const name = nanoid();
-      const createdAt = Date.now();
-      const updatedAt = createdAt;
-      db.push({ id, name, createdAt, updatedAt });
+      const { id, name } = addChannel();
       // get the channel by ID
       const query = getChannelQuery(model);
       try {
@@ -212,11 +206,7 @@ describe("channel.query", () => {
     it("should return a channel even if nothing has changed", async () => {
       expect.assertions(2);
       // add a channel directly to db
-      const id = nanoid();
-      const name = nanoid();
-      const createdAt = Date.now();
-      const updatedAt = createdAt;
-      db.push({ id, name, createdAt, updatedAt });
+      const { id, name, updatedAt } = addChannel();
       // update channel
       const query = getChannelQuery(model);
       try {
@@ -235,13 +225,11 @@ describe("channel.query", () => {
 
     it("should raise an erorr if not exists", async () => {
       expect.assertions(1);
-      // add a channel directly to db
       const id = nanoid();
-      const name = nanoid();
       const query = getChannelQuery(model);
       try {
         // update channel
-        await query.updateChannelbyId(id, name, Date.now());
+        await query.updateChannelbyId(id, nanoid(), Date.now());
       } catch (e) {
         expect(e.message).toEqual(`id ${id} does not eixst`);
       }
@@ -271,11 +259,7 @@ describe("channel.query", () => {
     it("should return 1 if scceeded", async () => {
       expect.assertions(2);
       // add a channel to db directly
-      const id = nanoid();
-      const name = nanoid();
-      const createdAt = Date.now();
-      const updatedAt = createdAt;
-      db.push({ id, name, createdAt, updatedAt });
+      const { id } = addChannel();
       const query = getChannelQuery(model);
       try {
         // delete item
@@ -290,11 +274,7 @@ describe("channel.query", () => {
     it("should return 0 if not exists", async () => {
       expect.assertions(2);
       // add a channel to db directly
-      const id = nanoid();
-      const name = nanoid();
-      const createdAt = Date.now();
-      const updatedAt = createdAt;
-      db.push({ id, name, createdAt, updatedAt });
+      addChannel();
       const query = getChannelQuery(model);
       try {
         // delete another item
