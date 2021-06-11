@@ -1,6 +1,6 @@
 import Channel from "../models/Channel.model";
 
-export interface ChannelQuery {
+interface ChannelQuery {
   createChannel: (id: string, name: string) => Promise<Channel | null>;
   getChannelById: (id: string) => Promise<Channel | null>;
   updateChannelbyId: (
@@ -8,7 +8,7 @@ export interface ChannelQuery {
     name: string,
     updatedAt: number
   ) => Promise<Channel | null>;
-  deleteChannel: (id: string) => Promise<number>;
+  deleteChannelById: (id: string) => Promise<number>;
 }
 
 export const getChannelQuery = (model: typeof Channel): ChannelQuery => {
@@ -54,7 +54,7 @@ export const getChannelQuery = (model: typeof Channel): ChannelQuery => {
       }
     },
 
-    async deleteChannel(id: string): Promise<number> {
+    async deleteChannelById(id: string): Promise<number> {
       try {
         const result = await model.destroy({ where: { id } });
         return result;

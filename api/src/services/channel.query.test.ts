@@ -263,7 +263,7 @@ describe("channel.query", () => {
       const query = getChannelQuery(model);
       try {
         // delete item
-        const count = await query.deleteChannel(id);
+        const count = await query.deleteChannelById(id);
         expect(count).toEqual(1);
         expect(db.length).toEqual(0);
       } catch (e) {
@@ -279,7 +279,7 @@ describe("channel.query", () => {
       try {
         // delete another item
         const newId = nanoid();
-        const count = await query.deleteChannel(newId);
+        const count = await query.deleteChannelById(newId);
         expect(count).toEqual(0);
         expect(db.length).toEqual(1);
       } catch (e) {
@@ -301,7 +301,7 @@ describe("channel.query", () => {
       db.push({ id, name, updatedAt: Date.now(), createdAt: Date.now() });
       try {
         // delete channel
-        await query.deleteChannel(id);
+        await query.deleteChannelById(id);
       } catch (e) {
         expect(e.message).toEqual(msg);
       }
