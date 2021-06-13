@@ -1,15 +1,20 @@
 import { Router } from "express";
 import { RootController } from "./controllers/controller";
-import { setNoCache } from "./middleware";
+import { authenticateUser, setNoCache } from "./middleware";
 
 export const useRoute = (controller: RootController) => {
   const router = Router();
 
   router.get("/", controller.getRoot);
 
-  router.get("/users", setNoCache, controller.user.getUsers);
+  router.get("/users", setNoCache, authenticateUser, controller.user.getUsers);
 
-  router.get("/users/me", setNoCache, controller.getUserinfo);
+  router.get(
+    "/users/me",
+    setNoCache,
+    authenticateUser,
+    controller.user.getUserInfo
+  );
 
   router.get("/login", setNoCache, controller.user.getLogin);
 

@@ -1,5 +1,5 @@
 import { v4 as uuid } from "uuid";
-import { Request, Response, RequestHandler } from "express";
+import { Request, Response, RequestHandler, request } from "express";
 import { Client, generators as Generators } from "openid-client";
 import { UserService } from "../services/user.service";
 import { ConfigType } from "../config";
@@ -11,6 +11,7 @@ export type UserController = {
   getLogin: RequestHandler;
   getCallback: RequestHandler;
   getUsers: RequestHandler;
+  getUserInfo: RequestHandler;
 };
 
 interface Params {
@@ -121,17 +122,33 @@ export const getUserController = ({
   },
 
   getUsers: async (req: Request, res: Response) => {
-    const { userId, username } = req.session;
-    if (!username) {
-      // unauthorized response
-      return res
-        .status(401)
-        .send({ mesaage: "UNAUTHORIZED", location: "/login" });
-    }
+    const { userId } = req.session;
     try {
       // get a list of other users
       res.status(200).send(await userService.getOtherUsers(userId));
       return;
+    } catch (e) {
+      res
+        .status(500)
+        .send({ error: "INTERNAL SERVER ERROR", detail: e.message });
+      return;
+    }
+  },
+
+  getUserInfo: async (req: Request, res: Response) => {
+    const { userId } = req.session;
+    try {
+      // get user info from db
+      const userInfo = await userService.getUserById(userId);
+      if (!userInfo) throw new Error("Could not found user info in database");
+      const { username, displayName, firstName, lastName } = userInfo;
+      return res.status(200).send({
+        userId,
+        username,
+        displayName,
+        firstName,
+        lastName,
+      });
     } catch (e) {
       res
         .status(500)
