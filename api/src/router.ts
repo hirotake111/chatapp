@@ -7,14 +7,8 @@ export const useRoute = (controller: RootController) => {
 
   router.get("/", controller.getRoot);
 
-  router.get("/users", setNoCache, (req, res) => {
-    res.json({
-      users: [
-        { id: "aaa-aaa-aaa-aaa", username: "otheruser1" },
-        { id: "aaa-aaa-aaa-aab", username: "otheruser2" },
-      ],
-    });
-  });
+  router.get("/users", setNoCache, controller.user.getUsers);
+
   router.get("/users/me", setNoCache, controller.getUserinfo);
 
   router.get("/login", setNoCache, controller.user.getLogin);
