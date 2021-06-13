@@ -11,6 +11,10 @@ import { getDb } from "./utils/db";
 import { getAggrigator } from "./aggrigators";
 import { getService } from "./services";
 import { env } from "./env";
+import Channel from "./models/Channel.model";
+import User from "./models/User.model";
+import { getRosterQuery } from "./services/roster.qeury";
+import Roster from "./models/Roster.model";
 
 // fake user db
 interface FakeUserRecord {
@@ -36,10 +40,32 @@ const fakeUserDb: FakeUserRecord[] = [
   },
 ];
 
-/** fake function */
-const getChannels = (userId: string) => {
-  const record = fakeUserDb.filter((row) => row.userId === userId);
-  return record.length ? record[0].channels : [];
+/** fake function returns an array of channel IDs*/
+const getChannels = async (userId: string) => {
+  // const channels = await Channel.findAll({
+  //   include: [User],
+  // });
+  // const channels = await Roster.findAll({ where: { userId } });
+  const query = getRosterQuery({
+    user: User,
+    channel: Channel,
+    roster: Roster,
+  });
+  try {
+    // const user = await User.findOne({
+    //   where: { id: userId },
+    //   include: [Channel],
+    // });
+    // if (!user) throw new Error("Unable to fetch user info");
+    // const channels = user.channels.map((channel) => channel.id);
+    const channels = await query.getChannelsByUserId({ userId });
+    console.log("channels: ", channels);
+    return channels;
+    // const record = fakeUserDb.filter((row) => row.userId === userId);
+    // return record.length ? record[0].channels : [];
+  } catch (e) {
+    throw e;
+  }
 };
 
 const app = express();
@@ -112,7 +138,7 @@ const io = new Server(http, {
     // });
 
     // Websocket listener
-    io.on("connection", (socket) => {
+    io.on("connection", async (socket) => {
       console.log("==== WEBSOCKET CONNECTED ===");
       // validate user
       const { userId, username } = socket.request.session;
@@ -124,9 +150,10 @@ const io = new Server(http, {
       console.log(`authenticateduser: ${username} (${userId})`);
 
       // join room(s)
-      const channels = getChannels(userId);
-      console.log("Joining channels: ", channels);
-      socket.join(channels);
+      const channels = await getChannels(userId);
+      const ids = channels.map((ch) => ch.id);
+      console.log("Joining channel IDs: ", ids);
+      socket.join(ids);
 
       // handler for disconnection
       socket.on("disconnect", (data) => {

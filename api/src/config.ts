@@ -35,7 +35,9 @@ export const getConfig = async (env: Env): Promise<ConfigType> => {
           },
         },
       }
-    : { logging: false };
+    : {
+        // logging: false,
+      };
 
   const redisUrl = env.REDIS_URL;
   const redisSessionStore = connectRedis(session);
@@ -55,7 +57,7 @@ export const getConfig = async (env: Env): Promise<ConfigType> => {
       resave: false,
       saveUninitialized: false,
       cookie: {
-        maxAge: 1000 * 60 * 5, // 5 minutes
+        maxAge: 1000 * 60 * 30, // 30 minutes
         sameSite: "lax",
         secure: env.PROD,
       },

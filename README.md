@@ -2,6 +2,7 @@
 
 ### TODO
 
+- api to list other users
 - add query components for Channel and Roster and Message
 - crud api for channels
 - crud api for messages

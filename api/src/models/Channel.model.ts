@@ -9,7 +9,10 @@ import {
   UpdatedAt,
   DeletedAt,
   Sequelize,
+  BelongsToMany,
 } from "sequelize-typescript";
+import Roster from "./Roster.model";
+import User from "./User.model";
 
 @Table
 class Channel extends Model {
@@ -39,6 +42,9 @@ class Channel extends Model {
 
   @DeletedAt
   deletedAt?: Date;
+
+  @BelongsToMany(() => User, () => Roster)
+  users!: User[];
 }
 
 export default Channel;

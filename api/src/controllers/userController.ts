@@ -10,6 +10,7 @@ import { createHash } from "crypto";
 export type UserController = {
   getLogin: RequestHandler;
   getCallback: RequestHandler;
+  getUsers: RequestHandler;
 };
 
 interface Params {
@@ -110,6 +111,26 @@ export const getUserController = ({
       req.session.userId = userInfo.sub;
       // redirect to SPA root page
       res.redirect("/");
+      return;
+    } catch (e) {
+      res
+        .status(500)
+        .send({ error: "INTERNAL SERVER ERROR", detail: e.message });
+      return;
+    }
+  },
+
+  getUsers: async (req: Request, res: Response) => {
+    const { userId, username } = req.session;
+    if (!username) {
+      // unauthorized response
+      return res
+        .status(401)
+        .send({ mesaage: "UNAUTHORIZED", location: "/login" });
+    }
+    try {
+      // get a list of other users
+      res.status(200).send(await userService.getOtherUsers(userId));
       return;
     } catch (e) {
       res

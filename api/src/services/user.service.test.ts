@@ -1,9 +1,9 @@
 import { v4 as uuid } from "uuid";
 import { nanoid } from "nanoid";
+import { Op } from "sequelize";
 
 import { getUserService } from "./user.service";
 import User from "../models/User.model";
-// import { CreateUserProps } from "../type";
 
 // user service
 const userService = getUserService(User);
@@ -173,6 +173,29 @@ describe("UserService", () => {
         await userService.deleteUserById(nanoid());
       } catch (e) {
         expect(e.message).toEqual(msg);
+      }
+    });
+  });
+
+  describe("getOtherUsers", () => {
+    it("should return an array of users except the user itself", async () => {
+      expect.assertions(2);
+      const id = uuid();
+      const otherUsers = [
+        { id: "id1", username: "alice" },
+        { id: "id2", usename: "bob" },
+      ];
+      // User.findAll should return a list of other users
+      User.findAll = jest.fn().mockReturnValue(otherUsers);
+      const findAllMock = User.findAll as jest.Mock;
+      try {
+        const users = await userService.getOtherUsers(id);
+        expect(users).toEqual(otherUsers);
+        expect(findAllMock.mock.calls[0][0]).toEqual({
+          where: { id: { [Op.ne]: id } },
+        });
+      } catch (e) {
+        throw e;
       }
     });
   });

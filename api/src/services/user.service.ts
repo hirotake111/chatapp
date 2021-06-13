@@ -1,13 +1,13 @@
 import { Op } from "sequelize";
 
 import User from "../models/User.model";
-// import { CreateUserProps } from "../type";
 
 export interface UserService {
   getUserById: (id: string) => Promise<User | null>;
   getUserByUsername: (username: string) => Promise<User | null>;
   createUser: (user: CreateUserProps) => Promise<User | null>;
   deleteUserById: (id: string) => Promise<number>;
+  getOtherUsers: (id: string) => Promise<User[] | null>;
 }
 
 export const getUserService = (UserModel: typeof User): UserService => {
@@ -67,6 +67,18 @@ export const getUserService = (UserModel: typeof User): UserService => {
     async deleteUserById(id: string): Promise<number> {
       try {
         return await UserModel.destroy({ where: { id } });
+      } catch (e) {
+        throw e;
+      }
+    },
+
+    async getOtherUsers(id: string): Promise<User[] | null> {
+      try {
+        // get other users expect user itself
+        const users = await UserModel.findAll({
+          where: { id: { [Op.ne]: id } },
+        });
+        return users;
       } catch (e) {
         throw e;
       }

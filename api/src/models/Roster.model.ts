@@ -4,10 +4,10 @@ import {
   Column,
   IsUUID,
   CreatedAt,
-  DeletedAt,
   NotNull,
   Sequelize,
   ForeignKey,
+  UpdatedAt,
 } from "sequelize-typescript";
 import Channel from "./Channel.model";
 import User from "./User.model";
@@ -33,8 +33,12 @@ class Roster extends Model {
   })
   joinedAt!: Date;
 
-  @DeletedAt
-  removedAt?: Date;
+  @UpdatedAt
+  @Column({
+    defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
+    allowNull: false,
+  })
+  updatedAt!: Date;
 }
 
 export default Roster;
