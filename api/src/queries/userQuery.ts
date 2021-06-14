@@ -2,7 +2,7 @@ import { Op } from "sequelize";
 
 import User from "../models/User.model";
 
-export interface UserService {
+export interface UserQuery {
   getUserById: (id: string) => Promise<User | null>;
   getUserByUsername: (username: string) => Promise<User | null>;
   createUser: (user: CreateUserProps) => Promise<User | null>;
@@ -10,7 +10,7 @@ export interface UserService {
   getOtherUsers: (id: string) => Promise<User[] | null>;
 }
 
-export const getUserService = (UserModel: typeof User): UserService => {
+export const getUserService = (UserModel: typeof User): UserQuery => {
   return {
     /**
      * returns User model

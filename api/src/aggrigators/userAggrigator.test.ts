@@ -1,6 +1,6 @@
 import { KafkaMessage } from "kafkajs";
 import { nanoid } from "nanoid";
-import { UserService } from "../services/user.service";
+import { UserQuery } from "../queries/userQuery";
 // import { RegisteredEvent } from "../type";
 import { getRegisterUser } from "./userAggrigator";
 

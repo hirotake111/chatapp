@@ -4,12 +4,14 @@ import { Request, RequestHandler, Response } from "express";
 import { ConfigType } from "../config";
 // import { ControllerSignature } from "../type";
 import { getUserController, UserController } from "./userController";
-import { Services } from "../services/";
+import { Services } from "../queries";
+import { ChannelController, getChannelController } from "./channelController";
 
 export type RootController = {
   getRoot: RequestHandler;
   getUserinfo: RequestHandler;
   user: UserController;
+  channel: ChannelController;
 };
 
 export const getController = (
@@ -40,5 +42,8 @@ export const getController = (
       userService: services.userService,
       config,
     }),
+
+    // channel controler
+    channel: getChannelController({ query: services.channelQuery }),
   };
 };

@@ -1,5 +1,5 @@
 import { ConfigType } from "../config";
-import { Services } from "../services";
+import { Services } from "../queries";
 import { getRegisterUser } from "./userAggrigator";
 
 export const getAggrigator = (config: ConfigType, services: Services) => {

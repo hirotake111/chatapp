@@ -1,6 +1,6 @@
 import Channel from "../models/Channel.model";
 
-interface ChannelQuery {
+export interface ChannelQuery {
   createChannel: (id: string, name: string) => Promise<Channel | null>;
   getChannelById: (id: string) => Promise<Channel | null>;
   updateChannelbyId: (

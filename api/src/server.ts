@@ -9,11 +9,11 @@ import { getController } from "./controllers/controller";
 import { useRoute } from "./router";
 import { getDb } from "./utils/db";
 import { getAggrigator } from "./aggrigators";
-import { getService } from "./services";
+import { getService } from "./queries";
 import { env } from "./env";
 import Channel from "./models/Channel.model";
 import User from "./models/User.model";
-import { getRosterQuery } from "./services/roster.qeury";
+import { getRosterQuery } from "./queries/rosterQeury";
 import Roster from "./models/Roster.model";
 
 // fake user db

@@ -2,7 +2,7 @@ import { v4 as uuid } from "uuid";
 import { nanoid } from "nanoid";
 import { Op } from "sequelize";
 
-import { getUserService } from "./user.service";
+import { getUserService } from "./userQuery";
 import User from "../models/User.model";
 
 // user service

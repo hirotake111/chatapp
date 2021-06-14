@@ -1,7 +1,7 @@
 import { v4 as uuid } from "uuid";
-import { Request, Response, RequestHandler, request } from "express";
+import { Request, Response, RequestHandler } from "express";
 import { Client, generators as Generators } from "openid-client";
-import { UserService } from "../services/user.service";
+import { UserQuery } from "../queries/userQuery";
 import { ConfigType } from "../config";
 // import { ControllerSignature } from "../type";
 import { ProducerRecord } from "kafkajs";
@@ -17,7 +17,7 @@ export type UserController = {
 interface Params {
   oidcClient: Client;
   generators: typeof Generators;
-  userService: UserService;
+  userService: UserQuery;
   config: ConfigType;
 }
 

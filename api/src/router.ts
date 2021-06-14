@@ -7,18 +7,33 @@ export const useRoute = (controller: RootController) => {
 
   router.get("/", controller.getRoot);
 
-  router.get("/users", setNoCache, authenticateUser, controller.user.getUsers);
+  // OIDC endpoints
+  router.get("/login", setNoCache, controller.user.getLogin);
+
+  router.get("/callback", setNoCache, controller.user.getCallback);
+
+  // users endpoint
+  router.get(
+    "/api/users",
+    setNoCache,
+    authenticateUser,
+    controller.user.getUsers
+  );
 
   router.get(
-    "/users/me",
+    "/api/users/me",
     setNoCache,
     authenticateUser,
     controller.user.getUserInfo
   );
 
-  router.get("/login", setNoCache, controller.user.getLogin);
-
-  router.get("/callback", setNoCache, controller.user.getCallback);
+  // Channel Endpoints
+  router.post(
+    "/api/channels",
+    setNoCache,
+    authenticateUser,
+    controller.channel.postChannel
+  );
 
   return router;
 };

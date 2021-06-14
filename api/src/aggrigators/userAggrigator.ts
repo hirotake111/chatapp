@@ -1,8 +1,8 @@
 import { KafkaMessage } from "kafkajs";
-import { UserService } from "../services/user.service";
+import { UserQuery } from "../queries/userQuery";
 // import { RegisteredEvent } from "../type";
 
-export const getRegisterUser = (userService: UserService) => {
+export const getRegisterUser = (userService: UserQuery) => {
   return async (message: KafkaMessage) => {
     // if message.value is empty, raise an error
     if (!message.value) {

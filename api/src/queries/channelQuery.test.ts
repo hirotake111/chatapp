@@ -1,5 +1,5 @@
 import { nanoid } from "nanoid";
-import { getChannelQuery } from "./channel.query";
+import { getChannelQuery } from "./channelQuery";
 
 interface ChannelType {
   id: string;
