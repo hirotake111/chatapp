@@ -83,6 +83,7 @@ const io = new Server(http, {
     const session = sessionMiddleware(config.sessionOptions);
 
     // use middlewares
+    app.use(express.json()); // body parser
     app.use(session); // session
     app.use(morgan("tiny")); // logger
     // session for WebSocket

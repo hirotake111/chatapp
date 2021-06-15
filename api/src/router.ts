@@ -35,5 +35,12 @@ export const useRoute = (controller: RootController) => {
     controller.channel.postChannel
   );
 
+  // for testing purpose
+  router.get(
+    "/api/users/me/v2",
+    authenticateUser,
+    controller.channel.getChannel
+  );
+
   return router;
 };
