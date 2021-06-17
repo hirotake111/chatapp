@@ -2,12 +2,11 @@ import Channel from "../models/Channel.model";
 import Roster from "../models/Roster.model";
 import User from "../models/User.model";
 
-interface RosterQuery {
-  // returns roster record
+export interface RosterQuery {
+  // adds and returns roster record
   addUserToChannel: (param: {
     channelId: string;
     userId: string;
-    joinedAt: number;
   }) => Promise<Roster>;
   // returns an array of user
   getUsersByChannelId: (param: { channelId: string }) => Promise<User[]>;
@@ -19,32 +18,43 @@ interface RosterQuery {
 }
 
 export const getRosterQuery = (models: {
-  user: typeof User;
-  channel: typeof Channel;
-  roster: typeof Roster;
+  User: typeof User;
+  Channel: typeof Channel;
+  Roster: typeof Roster;
 }): RosterQuery => {
   return {
-    addUserToChannel(param: {
+    async addUserToChannel({
+      channelId,
+      userId,
+    }: {
       channelId: string;
       userId: string;
-      joinedAt: number;
     }): Promise<Roster> {
-      throw new Error("Not Implemented");
+      try {
+        const roster = await Roster.create({ channelId, userId });
+        if (!roster)
+          throw new Error(
+            `failed to add user ${userId} to channel ${channelId}`
+          );
+        return roster;
+      } catch (e) {
+        throw e;
+      }
     },
 
-    getUsersByChannelId(param: { channelId: string }): Promise<User[]> {
+    async getUsersByChannelId(param: { channelId: string }): Promise<User[]> {
       throw new Error("Not Implemented");
     },
 
     async getChannelsByUserId(param: { userId: string }): Promise<Channel[]> {
       try {
-        const user = await models.user.findOne({
+        const user = await models.User.findOne({
           where: { id: param.userId },
           include: [Channel],
         });
         if (!user) throw new Error(`User ${param.userId} doesn't exist`);
         const { channels } = user;
-        console.log("channels: ", channels);
+        // console.log("channels: ", channels);
         return channels;
       } catch (e) {
         throw e;

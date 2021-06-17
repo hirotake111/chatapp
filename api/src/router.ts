@@ -35,6 +35,13 @@ export const useRoute = (controller: RootController) => {
     controller.channel.postChannel
   );
 
+  router.get(
+    "/api/channels",
+    setNoCache,
+    authenticateUser,
+    controller.channel.getChannel
+  );
+
   // for testing purpose
   router.get(
     "/api/users/me/v2",

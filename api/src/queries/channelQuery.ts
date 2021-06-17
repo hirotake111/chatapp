@@ -1,6 +1,11 @@
 import Channel from "../models/Channel.model";
 
 export interface ChannelQuery {
+  /**
+   * createChannel
+   * - creates a new channel and returns it
+   * - returns null if ID already exists
+   */
   createChannel: (id: string, name: string) => Promise<Channel | null>;
   getChannelById: (id: string) => Promise<Channel | null>;
   updateChannelbyId: (
@@ -15,7 +20,6 @@ export const getChannelQuery = (model: typeof Channel): ChannelQuery => {
   return {
     async createChannel(id: string, name: string): Promise<Channel | null> {
       try {
-        // console.log("ChannelModel", ChannelModel);
         // check to see if the id already exists
         if (await model.findOne({ where: { id } })) {
           return null;
