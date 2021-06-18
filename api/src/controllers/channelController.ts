@@ -23,55 +23,42 @@ export const getChannelController = ({
         // validate parameters (channel ID, name, member IDs)
         if (!req.body) throw new Error("HTTP request has no body");
         const {
-          id,
-          name,
-          participants,
+          channelId,
+          channelName,
         }: {
-          id: string;
-          name: string;
-          participants?: string | string[];
+          channelId: string;
+          channelName: string;
         } = req.body;
-        const { userId: requesterId } = req.session;
-        if (!(id && name && requesterId)) {
+        const { userId } = req.session;
+        if (!(channelId && channelName && userId)) {
           throw new Error("invalid HTTP body");
         }
 
-        // create members array
-        const members =
-          participants === undefined
-            ? []
-            : typeof participants === "string"
-            ? [participants]
-            : participants;
-        members.push(requesterId);
-
         // create a new channel
-        const channel = await channelQuery.createChannel(id, name);
+        const channel = await channelQuery.createChannel(
+          channelId,
+          channelName
+        );
         if (!channel) {
           res.status(400).send({ error: "channel already exists." });
           return;
         }
 
-        // add other participatns to channel
-        const rosters = await Promise.all(
-          members.map(async (member) =>
-            rosterQuery.addUserToChannel({
-              channelId: id,
-              userId: member,
-            })
-          )
-        );
+        // add requester to channel
+        const roster = await rosterQuery.addUserToChannel({
+          channelId,
+          userId,
+        });
 
         // return the result
         res.status(200).send({
-          result: {
-            channelId: channel.id,
-            name: channel.name,
-            createdAt: channel.createdAt,
-            members: rosters.map((r) => ({
-              userId: r.userId,
-              joinedAt: r.joinedAt,
-            })),
+          detail: "channel is successfully created",
+          channelId,
+          channelName,
+          createdAt: channel.createdAt,
+          member: {
+            userId,
+            joinedAt: roster.joinedAt,
           },
         });
         return;
