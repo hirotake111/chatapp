@@ -177,7 +177,7 @@ describe("channel.query", () => {
       const { id, name } = addChannel();
       // get the channel by ID
       try {
-        const ch = await query.getChannelById({ channelId: id });
+        const ch = await query.getChannelById(id);
         if (!ch) throw new Error(`UNABLE TO GET CHANNEL BY ID ${id}`);
         expect(ch.name).toEqual(name);
       } catch (e) {
@@ -189,7 +189,7 @@ describe("channel.query", () => {
       expect.assertions(1);
       // get a channel with ID (not uuidv4)
       try {
-        await query.getChannelById({ channelId: nanoid() });
+        await query.getChannelById(nanoid());
       } catch (e) {
         expect(e.message).toEqual("invalid input");
       }

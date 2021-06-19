@@ -36,10 +36,7 @@ describe("RosterQuery", () => {
       const userId = uuid();
       // add a user to the channel
       try {
-        const roster = await rosterQuery.addUserToChannel({
-          channelId,
-          userId,
-        });
+        const roster = await rosterQuery.addUserToChannel(channelId, userId);
         if (roster) {
           expect(roster.channelId).toEqual(channelId);
           expect(roster.userId).toEqual(userId);
@@ -57,10 +54,7 @@ describe("RosterQuery", () => {
         throw new Error(msg);
       };
       try {
-        await rosterQuery.addUserToChannel({
-          channelId: uuid(),
-          userId: uuid(),
-        });
+        await rosterQuery.addUserToChannel(uuid(), uuid());
       } catch (e) {
         expect(e.message).toEqual(msg);
       }

@@ -14,10 +14,10 @@ export interface ChannelQuery {
    * getChannelById
    * - returns a specific channel to mainly retrieve channel name
    */
-  getChannelById: (params: { channelId: string }) => Promise<Channel | null>;
+  getChannelById: (channelId: string) => Promise<Channel | null>;
   getChannelsByUserId: (userId: string) => Promise<Channel[]>;
   updateChannelbyId: (
-    id: string,
+    channelId: string,
     name: string,
     updatedAt: number
   ) => Promise<Channel | null>;
@@ -44,14 +44,12 @@ export const getChannelQuery = ({
       }
     },
 
-    async getChannelById(params: {
-      channelId: string;
-    }): Promise<Channel | null> {
+    async getChannelById(channelId: string): Promise<Channel | null> {
       // validate input
-      if (!validate(params.channelId)) throw new Error("invalid input");
+      if (!validate(channelId)) throw new Error("invalid input");
       // retrieve a channel with channel ID
       try {
-        return await ChannelModel.findOne({ where: { id: params.channelId } });
+        return await ChannelModel.findOne({ where: { id: channelId } });
       } catch (e) {
         throw e;
       }
@@ -70,18 +68,17 @@ export const getChannelQuery = ({
     },
 
     async updateChannelbyId(
-      id: string,
+      channelId: string,
       name: string,
       updatedAt: number
     ): Promise<Channel | null> {
       try {
-        if (!(await ChannelModel.findOne({ where: { id } })))
-          throw new Error(`id ${id} does not eixst`);
+        if (!(await ChannelModel.findOne({ where: { id: channelId } })))
+          throw new Error(`id ${channelId} does not eixst`);
         const [count, ch] = await ChannelModel.update(
           { name, updatedAt },
-          { where: { id } }
+          { where: { id: channelId } }
         );
-        // console.log("result: ", count, ch);
         if (count === 0) throw new Error("error");
         return ch[0];
       } catch (e) {

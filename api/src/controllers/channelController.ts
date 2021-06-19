@@ -41,10 +41,7 @@ export const getChannelController = ({
         }
 
         // add requester to channel
-        const roster = await rosterQuery.addUserToChannel({
-          channelId,
-          userId,
-        });
+        const roster = await rosterQuery.addUserToChannel(channelId, userId);
 
         // return the result
         res.status(200).send({

@@ -4,16 +4,11 @@ import User from "../models/User.model";
 
 export interface RosterQuery {
   // adds and returns roster record
-  addUserToChannel: (param: {
-    channelId: string;
-    userId: string;
-  }) => Promise<Roster>;
+  addUserToChannel: (channelId: string, userId: string) => Promise<Roster>;
   // returns an array of user
   getChannelsByUserId: (param: { userId: string }) => Promise<Channel[]>;
-  deleteUserFromChannel: (param: {
-    channelId: string;
-    userId: string;
-  }) => Promise<number>;
+  // delete and return 1 if succeeded
+  deleteUserFromChannel: (channelId: string, userId: string) => Promise<number>;
 }
 
 export const getRosterQuery = ({
@@ -26,13 +21,7 @@ export const getRosterQuery = ({
   RosterModel: typeof Roster;
 }): RosterQuery => {
   return {
-    async addUserToChannel({
-      channelId,
-      userId,
-    }: {
-      channelId: string;
-      userId: string;
-    }): Promise<Roster> {
+    async addUserToChannel(channelId: string, userId: string): Promise<Roster> {
       try {
         const roster = await RosterModel.create({ channelId, userId });
         if (!roster)
@@ -60,10 +49,7 @@ export const getRosterQuery = ({
       }
     },
 
-    deleteUserFromChannel(param: {
-      channelId: string;
-      userId: string;
-    }): Promise<number> {
+    deleteUserFromChannel(channelId: string, userId: string): Promise<number> {
       throw new Error("Not Implemented");
     },
   };
