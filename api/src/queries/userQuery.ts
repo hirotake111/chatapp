@@ -10,7 +10,11 @@ export interface UserQuery {
   getOtherUsers: (id: string) => Promise<User[] | null>;
 }
 
-export const getUserService = (UserModel: typeof User): UserQuery => {
+export const getUserQuery = ({
+  UserModel,
+}: {
+  UserModel: typeof User;
+}): UserQuery => {
   return {
     /**
      * returns User model

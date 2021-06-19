@@ -2,11 +2,11 @@ import { v4 as uuid } from "uuid";
 import { nanoid } from "nanoid";
 import { Op } from "sequelize";
 
-import { getUserService } from "./userQuery";
+import { getUserQuery } from "./userQuery";
 import User from "../models/User.model";
 
 // user service
-const userService = getUserService(User);
+const userService = getUserQuery({ UserModel: User });
 
 // helper function
 const getErrorMsg = () => `DATABSE ERROR: ${nanoid()}`;

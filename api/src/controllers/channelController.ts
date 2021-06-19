@@ -1,4 +1,4 @@
-import { RequestHandler, Request, Response, query } from "express";
+import { RequestHandler, Request, Response } from "express";
 import Channel from "../models/Channel.model";
 import User from "../models/User.model";
 import { ChannelQuery } from "../queries/channelQuery";
@@ -22,17 +22,13 @@ export const getChannelController = ({
       try {
         // validate parameters (channel ID, name, member IDs)
         if (!req.body) throw new Error("HTTP request has no body");
-        const {
-          channelId,
-          channelName,
-        }: {
-          channelId: string;
-          channelName: string;
-        } = req.body;
+        const { channelId, channelName } = req.body;
         const { userId } = req.session;
         if (!(channelId && channelName && userId)) {
           throw new Error("invalid HTTP body");
         }
+        if (!(typeof channelId === "string" && typeof channelName === "string"))
+          throw new Error(`either channelId or channelName has invalid type`);
 
         // create a new channel
         const channel = await channelQuery.createChannel(

@@ -4,21 +4,23 @@ import { Request, RequestHandler, Response } from "express";
 import { ConfigType } from "../config";
 // import { ControllerSignature } from "../type";
 import { getUserController, UserController } from "./userController";
-import { Services } from "../queries";
+import { Queries } from "../queries";
 import { ChannelController, getChannelController } from "./channelController";
+import { getRosterContoller, RosterController } from "./rosterController";
 
 export type RootController = {
   getRoot: RequestHandler;
   getUserinfo: RequestHandler;
   user: UserController;
   channel: ChannelController;
+  roster: RosterController;
 };
 
 export const getController = (
   config: ConfigType,
-  services: Services
+  queries: Queries
 ): RootController => {
-  const { channelQuery, rosterQuery } = services;
+  const { channelQuery, rosterQuery } = queries;
   return {
     getRoot: (req: Request, res: Response) => {
       res.status(200).send({ message: "OK" });
@@ -40,11 +42,14 @@ export const getController = (
     user: getUserController({
       oidcClient: config.oidc.client,
       generators: config.oidc.generators,
-      userService: services.userService,
+      userQuery: queries.userQuery,
       config,
     }),
 
     // channel controler
     channel: getChannelController({ channelQuery, rosterQuery }),
+
+    // roster controller
+    roster: getRosterContoller({ rosterQuery }),
   };
 };

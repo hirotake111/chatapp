@@ -65,7 +65,7 @@ describe("userController", () => {
         const uc = getUserController({
           oidcClient,
           generators,
-          userService,
+          userQuery: userService,
           config,
         });
         await uc.getLogin(req, res, next);
@@ -93,7 +93,7 @@ describe("userController", () => {
         const uc = getUserController({
           oidcClient,
           generators: generatorsFail,
-          userService,
+          userQuery: userService,
           config,
         });
         await uc.getLogin(req, res, next);
@@ -115,7 +115,7 @@ describe("userController", () => {
         const uc = getUserController({
           oidcClient,
           generators,
-          userService,
+          userQuery: userService,
           config,
         });
         await uc.getCallback(req, res, next);
@@ -147,7 +147,7 @@ describe("userController", () => {
         const uc = getUserController({
           oidcClient,
           generators,
-          userService: userServiceMock,
+          userQuery: userServiceMock,
           config,
         });
         await uc.getCallback(req, res, next);
@@ -174,7 +174,7 @@ describe("userController", () => {
         const uc = getUserController({
           oidcClient: mockClient,
           generators,
-          userService,
+          userQuery: userService,
           config,
         });
         await uc.getCallback(req, res, next);
@@ -201,7 +201,7 @@ describe("userController", () => {
         const uc = getUserController({
           oidcClient: clientFail,
           generators,
-          userService,
+          userQuery: userService,
           config,
         });
         await uc.getCallback(req, res, next);

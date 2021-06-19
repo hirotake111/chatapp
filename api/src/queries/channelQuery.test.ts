@@ -1,5 +1,5 @@
 import { nanoid } from "nanoid";
-import { getChannelQuery } from "./channelQuery";
+import { ChannelQuery, getChannelQuery } from "./channelQuery";
 
 interface ChannelType {
   id: string;
@@ -11,6 +11,7 @@ interface ChannelType {
 
 let db: ChannelType[];
 let model: any;
+let query: ChannelQuery;
 
 // helper function to add a channel to db
 const addChannel = (): ChannelType => {
@@ -65,6 +66,10 @@ describe("channel.query", () => {
         });
       },
     } as any;
+    query = getChannelQuery({
+      ChannelModel: model,
+      UserModel: {} as any,
+    });
   });
 
   describe("createChannel()", () => {
@@ -72,7 +77,6 @@ describe("channel.query", () => {
       expect.assertions(4);
       const id = nanoid();
       const name = nanoid();
-      const query = getChannelQuery(model);
       try {
         const ch = await query.createChannel(id, name);
         if (!ch) throw new Error("FAILED CREATING OR FETCHING CHANNEL");
@@ -91,7 +95,6 @@ describe("channel.query", () => {
       const { id } = addChannel();
       try {
         // create a new channel with the same ID
-        const query = getChannelQuery(model);
         const ch = await query.createChannel(id, nanoid());
         expect(ch).toBeNull();
       } catch (e) {
@@ -105,7 +108,6 @@ describe("channel.query", () => {
       const { id, name } = addChannel();
       try {
         // create a new channel with the same name
-        const query = getChannelQuery(model);
         const newId = nanoid();
         const ch = await query.createChannel(newId, name);
         if (!ch)
@@ -127,7 +129,6 @@ describe("channel.query", () => {
         throw new Error(msg);
       };
       try {
-        const query = getChannelQuery(model);
         await query.createChannel(nanoid(), nanoid());
       } catch (e) {
         expect(e.message).toEqual(msg);
@@ -141,9 +142,8 @@ describe("channel.query", () => {
       // add a new channel to db
       const { id, name } = addChannel();
       // get the channel by ID
-      const query = getChannelQuery(model);
       try {
-        const ch = await query.getChannelById(id);
+        const ch = await query.getChannelByUserId(id);
         if (!ch) throw new Error(`UNABLE TO GET CHANNEL BY ID ${id}`);
         expect(ch.name).toEqual(name);
       } catch (e) {
@@ -156,9 +156,8 @@ describe("channel.query", () => {
       // add a new channel to db
       addChannel();
       try {
-        const query = getChannelQuery(model);
         // fetch a channel by ID that does not exist
-        const ch = await query.getChannelById(nanoid());
+        const ch = await query.getChannelByUserId(nanoid());
         expect(ch).toBeNull();
       } catch (e) {
         throw e;
@@ -173,8 +172,7 @@ describe("channel.query", () => {
         throw new Error(msg);
       };
       try {
-        const query = getChannelQuery(model);
-        await query.getChannelById(nanoid());
+        await query.getChannelByUserId(nanoid());
       } catch (e) {
         expect(e.message).toEqual(msg);
       }
@@ -188,7 +186,6 @@ describe("channel.query", () => {
       const { id, updatedAt } = addChannel();
       // update channel
       const newName = nanoid();
-      const query = getChannelQuery(model);
       try {
         const updatedChannel = await query.updateChannelbyId(
           id,
@@ -208,7 +205,6 @@ describe("channel.query", () => {
       // add a channel directly to db
       const { id, name, updatedAt } = addChannel();
       // update channel
-      const query = getChannelQuery(model);
       try {
         const updatedChannel = await query.updateChannelbyId(
           id,
@@ -226,7 +222,6 @@ describe("channel.query", () => {
     it("should raise an erorr if not exists", async () => {
       expect.assertions(1);
       const id = nanoid();
-      const query = getChannelQuery(model);
       try {
         // update channel
         await query.updateChannelbyId(id, nanoid(), Date.now());
@@ -242,7 +237,6 @@ describe("channel.query", () => {
       model.update = (values: any, options: any) => {
         throw new Error(msg);
       };
-      const query = getChannelQuery(model);
       // add a channel directly to db
       const id = nanoid();
       const name = nanoid();
@@ -260,7 +254,6 @@ describe("channel.query", () => {
       expect.assertions(2);
       // add a channel to db directly
       const { id } = addChannel();
-      const query = getChannelQuery(model);
       try {
         // delete item
         const count = await query.deleteChannelById(id);
@@ -275,7 +268,6 @@ describe("channel.query", () => {
       expect.assertions(2);
       // add a channel to db directly
       addChannel();
-      const query = getChannelQuery(model);
       try {
         // delete another item
         const newId = nanoid();
@@ -294,7 +286,6 @@ describe("channel.query", () => {
       model.destroy = (options: any) => {
         throw new Error(msg);
       };
-      const query = getChannelQuery(model);
       // add a channel directly to db
       const id = nanoid();
       const name = nanoid();

@@ -1,9 +1,9 @@
 import { ConfigType } from "../config";
-import { Services } from "../queries";
+import { Queries } from "../queries";
 import { getRegisterUser } from "./userAggrigator";
 
-export const getAggrigator = (config: ConfigType, services: Services) => {
-  const registerUser = getRegisterUser(services.userService);
+export const getAggrigator = (config: ConfigType, queries: Queries) => {
+  const registerUser = getRegisterUser(queries.userQuery);
 
   return {
     listen: async () => {

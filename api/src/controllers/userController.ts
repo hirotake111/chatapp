@@ -14,19 +14,17 @@ export type UserController = {
   getUserInfo: RequestHandler;
 };
 
-interface Params {
-  oidcClient: Client;
-  generators: typeof Generators;
-  userService: UserQuery;
-  config: ConfigType;
-}
-
 export const getUserController = ({
   oidcClient,
   generators,
-  userService,
+  userQuery,
   config,
-}: Params): UserController => ({
+}: {
+  oidcClient: Client;
+  generators: typeof Generators;
+  userQuery: UserQuery;
+  config: ConfigType;
+}): UserController => ({
   getLogin: async (req: Request, res: Response) => {
     try {
       // generate and store code verifier
@@ -81,7 +79,7 @@ export const getUserController = ({
       };
 
       // if user does not exist, store it in the database
-      if (!(await userService.getUserByUsername(user.username))) {
+      if (!(await userQuery.getUserByUsername(user.username))) {
         // await userService.createUser({ ...user });
         const event: RegisteredEvent = {
           id: uuid(),
@@ -125,7 +123,7 @@ export const getUserController = ({
     const { userId } = req.session;
     try {
       // get a list of other users
-      res.status(200).send(await userService.getOtherUsers(userId));
+      res.status(200).send(await userQuery.getOtherUsers(userId));
       return;
     } catch (e) {
       res
@@ -139,7 +137,7 @@ export const getUserController = ({
     const { userId } = req.session;
     try {
       // get user info from db
-      const userInfo = await userService.getUserById(userId);
+      const userInfo = await userQuery.getUserById(userId);
       if (!userInfo) throw new Error("Could not found user info in database");
       const { username, displayName, firstName, lastName } = userInfo;
       return res.status(200).send({

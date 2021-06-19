@@ -46,7 +46,11 @@ const getChannels = async (userId: string) => {
   //   include: [User],
   // });
   // const channels = await Roster.findAll({ where: { userId } });
-  const query = getRosterQuery({ User, Channel, Roster });
+  const query = getRosterQuery({
+    UserModel: User,
+    ChannelModel: Channel,
+    RosterModel: Roster,
+  });
   try {
     // const user = await User.findOne({
     //   where: { id: userId },

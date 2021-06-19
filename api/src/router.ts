@@ -35,11 +35,23 @@ export const useRoute = (controller: RootController) => {
     controller.channel.postChannel
   );
 
+  router.post(
+    "/api/channels/:channelId",
+    authenticateUser,
+    controller.roster.addChannelMember
+  );
+
+  router.delete(
+    "/api/channels/:channelId",
+    authenticateUser,
+    controller.roster.removeChannelMember
+  );
+
   router.get(
     "/api/channels",
     setNoCache,
     authenticateUser,
-    controller.channel.getChannel
+    controller.channel.getChannelMembers
   );
 
   // for testing purpose

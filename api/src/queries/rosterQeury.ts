@@ -18,9 +18,9 @@ export interface RosterQuery {
 }
 
 export const getRosterQuery = (models: {
-  User: typeof User;
-  Channel: typeof Channel;
-  Roster: typeof Roster;
+  UserModel: typeof User;
+  ChannelModel: typeof Channel;
+  RosterModel: typeof Roster;
 }): RosterQuery => {
   return {
     async addUserToChannel({
@@ -48,7 +48,7 @@ export const getRosterQuery = (models: {
 
     async getChannelsByUserId(param: { userId: string }): Promise<Channel[]> {
       try {
-        const user = await models.User.findOne({
+        const user = await models.UserModel.findOne({
           where: { id: param.userId },
           include: [Channel],
         });
