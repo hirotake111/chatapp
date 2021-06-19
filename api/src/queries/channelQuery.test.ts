@@ -1,6 +1,9 @@
 import { nanoid } from "nanoid";
-import { ChannelQuery, getChannelQuery } from "./channelQuery";
+import { v4 as uuid } from "uuid";
 
+import { ChannelQuery, getChannelQuery } from "./channelQuery";
+import User from "../models/User.model";
+import Roster from "../models/Roster.model";
 interface ChannelType {
   id: string;
   name: string;
@@ -10,14 +13,17 @@ interface ChannelType {
 }
 
 let db: ChannelType[];
+let userDb: User[];
+let rosterDb: Roster[];
 let model: any;
+let UserModel: any;
 let query: ChannelQuery;
 
 // helper function to add a channel to db
-const addChannel = (): ChannelType => {
+const addChannel = (id: string = uuid()): ChannelType => {
   const ch: ChannelType = {
-    id: nanoid(),
-    name: nanoid(),
+    id,
+    name: uuid(),
     createdAt: Date.now(),
     updatedAt: Date.now(),
   };
@@ -25,9 +31,21 @@ const addChannel = (): ChannelType => {
   return ch;
 };
 
+// helper function to add a roster to db
+const addRoter = (channelId: string, userId: string) => {
+  rosterDb.push({ id: uuid(), channelId, userId } as Roster);
+};
+
+// helper function to add a user to db
+const addUser = (userId: string) => {
+  userDb.push({ id: userId } as User);
+};
+
 describe("channel.query", () => {
   beforeEach(() => {
     db = [];
+    userDb = [];
+    rosterDb = [];
     model = {
       create: async (params: { id: string; name: string }) => {
         const { id, name } = params;
@@ -66,17 +84,33 @@ describe("channel.query", () => {
         });
       },
     } as any;
+    UserModel = {
+      findOne: async (options: { where: { id: string } }) => {
+        return new Promise<User | null>((resolve) => {
+          const id = options.where.id;
+          // get a user
+          const user = userDb.filter((row) => row.id === id)[0];
+          if (!user) resolve(null);
+          const rosters = rosterDb.filter((row) => row.userId === id);
+          resolve({
+            id,
+            username: user.username,
+            channels: rosters.map((row) => row.channelId),
+          } as any);
+        });
+      },
+    };
     query = getChannelQuery({
       ChannelModel: model,
-      UserModel: {} as any,
+      UserModel,
     });
   });
 
   describe("createChannel()", () => {
     it("should return a new channel", async () => {
       expect.assertions(4);
-      const id = nanoid();
-      const name = nanoid();
+      const id = uuid();
+      const name = uuid();
       try {
         const ch = await query.createChannel(id, name);
         if (!ch) throw new Error("FAILED CREATING OR FETCHING CHANNEL");
@@ -95,7 +129,7 @@ describe("channel.query", () => {
       const { id } = addChannel();
       try {
         // create a new channel with the same ID
-        const ch = await query.createChannel(id, nanoid());
+        const ch = await query.createChannel(id, uuid());
         expect(ch).toBeNull();
       } catch (e) {
         throw e;
@@ -108,7 +142,7 @@ describe("channel.query", () => {
       const { id, name } = addChannel();
       try {
         // create a new channel with the same name
-        const newId = nanoid();
+        const newId = uuid();
         const ch = await query.createChannel(newId, name);
         if (!ch)
           throw new Error(
@@ -129,7 +163,7 @@ describe("channel.query", () => {
         throw new Error(msg);
       };
       try {
-        await query.createChannel(nanoid(), nanoid());
+        await query.createChannel(uuid(), uuid());
       } catch (e) {
         expect(e.message).toEqual(msg);
       }
@@ -139,11 +173,11 @@ describe("channel.query", () => {
   describe("getChannelById()", () => {
     it("should return a channel", async () => {
       expect.assertions(1);
-      // add a new channel to db
+      // add a new channel directly to db
       const { id, name } = addChannel();
       // get the channel by ID
       try {
-        const ch = await query.getChannelByUserId(id);
+        const ch = await query.getChannelById({ channelId: id });
         if (!ch) throw new Error(`UNABLE TO GET CHANNEL BY ID ${id}`);
         expect(ch.name).toEqual(name);
       } catch (e) {
@@ -151,14 +185,44 @@ describe("channel.query", () => {
       }
     });
 
-    it("should return null if not exists", async () => {
+    it("should validate input", async () => {
+      expect.assertions(1);
+      // get a channel with ID (not uuidv4)
+      try {
+        await query.getChannelById({ channelId: nanoid() });
+      } catch (e) {
+        expect(e.message).toEqual("invalid input");
+      }
+    });
+  });
+
+  describe("getChannelsByUserId", () => {
+    it("should return channels by user ID", async () => {
+      expect.assertions(1);
+      const userId = uuid();
+      // add some channels directly to db;
+      addRoter(uuid(), userId);
+      addRoter(uuid(), userId);
+      addRoter(uuid(), uuid());
+      // add user record to user db
+      addUser(userId);
+      try {
+        // get channel by userId
+        const ch = await query.getChannelsByUserId(userId);
+        expect(ch.length).toEqual(2);
+      } catch (e) {
+        throw e;
+      }
+    });
+
+    it("should return [] if  user does not exists", async () => {
       expect.assertions(1);
       // add a new channel to db
       addChannel();
       try {
         // fetch a channel by ID that does not exist
-        const ch = await query.getChannelByUserId(nanoid());
-        expect(ch).toBeNull();
+        const ch = await query.getChannelsByUserId(uuid());
+        expect(ch).toEqual([]);
       } catch (e) {
         throw e;
       }
@@ -168,11 +232,11 @@ describe("channel.query", () => {
       expect.assertions(1);
       // implement a mehtod that always thow an error
       const msg = "Database Error";
-      model.findOne = (_: any) => {
+      UserModel.findOne = (_: any) => {
         throw new Error(msg);
       };
       try {
-        await query.getChannelByUserId(nanoid());
+        await query.getChannelsByUserId(uuid());
       } catch (e) {
         expect(e.message).toEqual(msg);
       }
@@ -185,7 +249,7 @@ describe("channel.query", () => {
       // add a channel directly to db
       const { id, updatedAt } = addChannel();
       // update channel
-      const newName = nanoid();
+      const newName = uuid();
       try {
         const updatedChannel = await query.updateChannelbyId(
           id,
@@ -221,10 +285,10 @@ describe("channel.query", () => {
 
     it("should raise an erorr if not exists", async () => {
       expect.assertions(1);
-      const id = nanoid();
+      const id = uuid();
       try {
         // update channel
-        await query.updateChannelbyId(id, nanoid(), Date.now());
+        await query.updateChannelbyId(id, uuid(), Date.now());
       } catch (e) {
         expect(e.message).toEqual(`id ${id} does not eixst`);
       }
@@ -238,8 +302,8 @@ describe("channel.query", () => {
         throw new Error(msg);
       };
       // add a channel directly to db
-      const id = nanoid();
-      const name = nanoid();
+      const id = uuid();
+      const name = uuid();
       db.push({ id, name, updatedAt: Date.now(), createdAt: Date.now() });
       try {
         await query.updateChannelbyId(id, name, Date.now());
@@ -270,7 +334,7 @@ describe("channel.query", () => {
       addChannel();
       try {
         // delete another item
-        const newId = nanoid();
+        const newId = uuid();
         const count = await query.deleteChannelById(newId);
         expect(count).toEqual(0);
         expect(db.length).toEqual(1);
@@ -287,8 +351,8 @@ describe("channel.query", () => {
         throw new Error(msg);
       };
       // add a channel directly to db
-      const id = nanoid();
-      const name = nanoid();
+      const id = uuid();
+      const name = uuid();
       db.push({ id, name, updatedAt: Date.now(), createdAt: Date.now() });
       try {
         // delete channel

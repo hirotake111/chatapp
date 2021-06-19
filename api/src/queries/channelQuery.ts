@@ -1,3 +1,5 @@
+import { validate } from "uuid";
+
 import Channel from "../models/Channel.model";
 import User from "../models/User.model";
 
@@ -8,7 +10,12 @@ export interface ChannelQuery {
    * - returns null if ID already exists
    */
   createChannel: (id: string, name: string) => Promise<Channel | null>;
-  getChannelByUserId: (id: string) => Promise<Channel | null>;
+  /**
+   * getChannelById
+   * - returns a specific channel to mainly retrieve channel name
+   */
+  getChannelById: (params: { channelId: string }) => Promise<Channel | null>;
+  getChannelsByUserId: (userId: string) => Promise<Channel[]>;
   updateChannelbyId: (
     id: string,
     name: string,
@@ -37,9 +44,26 @@ export const getChannelQuery = ({
       }
     },
 
-    async getChannelByUserId(id: string): Promise<Channel | null> {
+    async getChannelById(params: {
+      channelId: string;
+    }): Promise<Channel | null> {
+      // validate input
+      if (!validate(params.channelId)) throw new Error("invalid input");
+      // retrieve a channel with channel ID
       try {
-        return await ChannelModel.findOne({ where: { id } });
+        return await ChannelModel.findOne({ where: { id: params.channelId } });
+      } catch (e) {
+        throw e;
+      }
+    },
+
+    async getChannelsByUserId(userId: string): Promise<Channel[]> {
+      try {
+        const user = await UserModel.findOne({
+          where: { id: userId },
+          include: [ChannelModel],
+        });
+        return user ? user.channels : [];
       } catch (e) {
         throw e;
       }

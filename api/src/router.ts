@@ -27,7 +27,9 @@ export const useRoute = (controller: RootController) => {
     controller.user.getUserInfo
   );
 
-  // Channel Endpoints
+  /**
+   * Channel endpoints
+   */
   router.post(
     "/api/channels",
     setNoCache,
@@ -53,6 +55,12 @@ export const useRoute = (controller: RootController) => {
     authenticateUser,
     controller.channel.getChannelMembers
   );
+
+  // router.get(
+  //   "/api/channels/:channelId",
+  //   authenticateUser,
+  //   controller.roster.getChannelMembers
+  // );
 
   // for testing purpose
   router.get(

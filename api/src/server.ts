@@ -15,6 +15,7 @@ import { getRosterQuery } from "./queries/rosterQeury";
 import Channel from "./models/Channel.model";
 import User from "./models/User.model";
 import Roster from "./models/Roster.model";
+import { getChannelQuery } from "./queries/channelQuery";
 
 // fake user db
 interface FakeUserRecord {
@@ -46,11 +47,12 @@ const getChannels = async (userId: string) => {
   //   include: [User],
   // });
   // const channels = await Roster.findAll({ where: { userId } });
-  const query = getRosterQuery({
-    UserModel: User,
-    ChannelModel: Channel,
-    RosterModel: Roster,
-  });
+  // const query = getRosterQuery({
+  //   UserModel: User,
+  //   ChannelModel: Channel,
+  //   RosterModel: Roster,
+  // });
+  const query = getChannelQuery({ ChannelModel: Channel, UserModel: User });
   try {
     // const user = await User.findOne({
     //   where: { id: userId },
@@ -58,7 +60,7 @@ const getChannels = async (userId: string) => {
     // });
     // if (!user) throw new Error("Unable to fetch user info");
     // const channels = user.channels.map((channel) => channel.id);
-    const channels = await query.getChannelsByUserId({ userId });
+    const channels = await query.getChannelsByUserId(userId);
     // console.log("channels: ", channels);
     return channels;
     // const record = fakeUserDb.filter((row) => row.userId === userId);

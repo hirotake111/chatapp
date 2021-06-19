@@ -9,7 +9,6 @@ export interface RosterQuery {
     userId: string;
   }) => Promise<Roster>;
   // returns an array of user
-  getUsersByChannelId: (param: { channelId: string }) => Promise<User[]>;
   getChannelsByUserId: (param: { userId: string }) => Promise<Channel[]>;
   deleteUserFromChannel: (param: {
     channelId: string;
@@ -17,7 +16,11 @@ export interface RosterQuery {
   }) => Promise<number>;
 }
 
-export const getRosterQuery = (models: {
+export const getRosterQuery = ({
+  UserModel,
+  ChannelModel,
+  RosterModel,
+}: {
   UserModel: typeof User;
   ChannelModel: typeof Channel;
   RosterModel: typeof Roster;
@@ -31,7 +34,7 @@ export const getRosterQuery = (models: {
       userId: string;
     }): Promise<Roster> {
       try {
-        const roster = await Roster.create({ channelId, userId });
+        const roster = await RosterModel.create({ channelId, userId });
         if (!roster)
           throw new Error(
             `failed to add user ${userId} to channel ${channelId}`
@@ -42,15 +45,11 @@ export const getRosterQuery = (models: {
       }
     },
 
-    async getUsersByChannelId(param: { channelId: string }): Promise<User[]> {
-      throw new Error("Not Implemented");
-    },
-
     async getChannelsByUserId(param: { userId: string }): Promise<Channel[]> {
       try {
-        const user = await models.UserModel.findOne({
+        const user = await UserModel.findOne({
           where: { id: param.userId },
-          include: [Channel],
+          include: [ChannelModel],
         });
         if (!user) throw new Error(`User ${param.userId} doesn't exist`);
         const { channels } = user;
