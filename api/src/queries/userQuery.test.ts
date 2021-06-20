@@ -6,7 +6,7 @@ import { getUserQuery } from "./userQuery";
 import User from "../models/User.model";
 
 // user service
-const userService = getUserQuery({ UserModel: User });
+const userQuery = getUserQuery({ UserModel: User });
 
 // helper function
 const getErrorMsg = () => `DATABSE ERROR: ${nanoid()}`;
@@ -28,7 +28,7 @@ describe("UserService", () => {
         const id = uuid();
         User.findOne = jest.fn().mockReturnValue({ id });
         const findOneMock = User.findOne as jest.Mock;
-        const user = await userService.getUserById(id);
+        const user = await userQuery.getUserById(id);
         expect(user).toEqual({ id });
         expect(findOneMock.mock.calls[0][0]).toEqual({ where: { id } });
       } catch (e) {
@@ -42,7 +42,7 @@ describe("UserService", () => {
         const id = uuid();
         User.findOne = jest.fn().mockReturnValue(null);
         const findOneMock = User.findOne as jest.Mock;
-        const user = await userService.getUserById(id);
+        const user = await userQuery.getUserById(id);
         expect(user).toEqual(null);
         expect(findOneMock.mock.calls[0][0]).toEqual({ where: { id } });
       } catch (e) {
@@ -58,7 +58,7 @@ describe("UserService", () => {
         User.findOne = jest.fn().mockImplementation(() => {
           throw new Error(msg);
         });
-        await userService.getUserById(id);
+        await userQuery.getUserById(id);
       } catch (e) {
         expect(e.message).toEqual(msg);
       }
@@ -71,7 +71,7 @@ describe("UserService", () => {
       try {
         const username = nanoid();
         User.findOne = jest.fn().mockReturnValue({ username });
-        const user = await userService.getUserByUsername(username);
+        const user = await userQuery.getUserByUsername(username);
         expect(user?.username).toEqual(username);
       } catch (e) {
         throw e;
@@ -81,7 +81,7 @@ describe("UserService", () => {
       expect.assertions(1);
       try {
         User.findOne = jest.fn().mockReturnValue(null);
-        expect(await userService.getUserByUsername(nanoid())).toEqual(null);
+        expect(await userQuery.getUserByUsername(nanoid())).toEqual(null);
       } catch (e) {
         throw e;
       }
@@ -94,7 +94,7 @@ describe("UserService", () => {
         User.findOne = jest.fn().mockImplementation(() => {
           throw new Error(msg);
         });
-        await userService.getUserByUsername(nanoid());
+        await userQuery.getUserByUsername(nanoid());
       } catch (e) {
         expect(e.message).toEqual(msg);
       }
@@ -109,7 +109,7 @@ describe("UserService", () => {
         User.findOne = jest.fn();
         User.create = jest.fn().mockReturnValue({ id: user.id });
         const createMock = User.create as jest.Mock;
-        const newUser = await userService.createUser({ ...user });
+        const newUser = await userQuery.createUser({ ...user });
         expect(User.findOne).toHaveBeenCalledTimes(1);
         expect(createMock.mock.calls[0][0].username).toEqual(user.username);
         expect(createMock.mock.calls[0][0].displayName).toEqual(
@@ -128,7 +128,7 @@ describe("UserService", () => {
       try {
         const user = getUser();
         User.findOne = jest.fn().mockReturnValue(true);
-        const newUser = await userService.createUser({ ...user });
+        const newUser = await userQuery.createUser({ ...user });
         expect(User.findOne).toHaveBeenCalledTimes(1);
         expect(newUser).toEqual(null);
       } catch (e) {
@@ -144,7 +144,7 @@ describe("UserService", () => {
         User.create = jest.fn().mockImplementation(() => {
           throw new Error(msg);
         });
-        await userService.createUser({} as any);
+        await userQuery.createUser({} as any);
       } catch (e) {
         expect(e.message).toEqual(msg);
       }
@@ -156,7 +156,7 @@ describe("UserService", () => {
       expect.assertions(1);
       try {
         User.destroy = jest.fn().mockReturnValue(1);
-        const result = await userService.deleteUserById(nanoid());
+        const result = await userQuery.deleteUserById(nanoid());
         expect(result).toEqual(1);
       } catch (e) {
         throw e;
@@ -170,7 +170,7 @@ describe("UserService", () => {
         User.destroy = jest.fn().mockImplementation(() => {
           throw new Error(msg);
         });
-        await userService.deleteUserById(nanoid());
+        await userQuery.deleteUserById(nanoid());
       } catch (e) {
         expect(e.message).toEqual(msg);
       }
@@ -189,13 +189,26 @@ describe("UserService", () => {
       User.findAll = jest.fn().mockReturnValue(otherUsers);
       const findAllMock = User.findAll as jest.Mock;
       try {
-        const users = await userService.getOtherUsers(id);
+        const users = await userQuery.getOtherUsers(id);
         expect(users).toEqual(otherUsers);
         expect(findAllMock.mock.calls[0][0]).toEqual({
           where: { id: { [Op.ne]: id } },
         });
       } catch (e) {
         throw e;
+      }
+    });
+
+    it("should raise an error for any other errors", async () => {
+      expect.assertions(1);
+      const msg = "database error!";
+      User.findAll = jest.fn().mockImplementation(async () => {
+        throw new Error(msg);
+      });
+      try {
+        await userQuery.getOtherUsers(uuid());
+      } catch (e) {
+        expect(e.message).toEqual(msg);
       }
     });
   });

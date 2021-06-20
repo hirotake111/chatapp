@@ -24,10 +24,6 @@ export const getRosterQuery = ({
     async addUserToChannel(channelId: string, userId: string): Promise<Roster> {
       try {
         const roster = await RosterModel.create({ channelId, userId });
-        if (!roster)
-          throw new Error(
-            `failed to add user ${userId} to channel ${channelId}`
-          );
         return roster;
       } catch (e) {
         throw e;

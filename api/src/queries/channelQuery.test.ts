@@ -194,6 +194,19 @@ describe("channel.query", () => {
         expect(e.message).toEqual("invalid input");
       }
     });
+
+    it("should raise an erro for any other errors", async () => {
+      expect.assertions(1);
+      const msg = "db error";
+      model.findOne = async (values: any) => {
+        throw new Error(msg);
+      };
+      try {
+        await query.getChannelById(uuid());
+      } catch (e) {
+        expect(e.message).toEqual(msg);
+      }
+    });
   });
 
   describe("getChannelsByUserId", () => {

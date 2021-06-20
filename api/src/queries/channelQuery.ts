@@ -73,13 +73,14 @@ export const getChannelQuery = ({
       updatedAt: number
     ): Promise<Channel | null> {
       try {
+        // throw an error if channel doesn't exist
         if (!(await ChannelModel.findOne({ where: { id: channelId } })))
           throw new Error(`id ${channelId} does not eixst`);
-        const [count, ch] = await ChannelModel.update(
+        // update channel
+        const [_, ch] = await ChannelModel.update(
           { name, updatedAt },
           { where: { id: channelId } }
         );
-        if (count === 0) throw new Error("error");
         return ch[0];
       } catch (e) {
         throw e;
