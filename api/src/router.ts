@@ -50,7 +50,7 @@ export const useRoute = (controller: RootController) => {
   );
 
   router.get(
-    "/api/channels",
+    "/api/channels/:channelId/members",
     setNoCache,
     authenticateUser,
     controller.channel.getChannelMembers

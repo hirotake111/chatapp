@@ -3,6 +3,7 @@ import { validate } from "uuid";
 
 import { ChannelQuery } from "../queries/channelQuery";
 import { RosterQuery } from "../queries/rosterQeury";
+import { UserQuery } from "../queries/userQuery";
 
 export interface ChannelController {
   postChannel: RequestHandler;
@@ -13,9 +14,11 @@ export interface ChannelController {
 export const getChannelController = ({
   channelQuery,
   rosterQuery,
+  userQuery,
 }: {
   channelQuery: ChannelQuery;
   rosterQuery: RosterQuery;
+  userQuery: UserQuery;
 }): ChannelController => {
   return {
     postChannel: async (req: Request, res: Response) => {
@@ -94,10 +97,28 @@ export const getChannelController = ({
      */
     getChannelMembers: async (req: Request, res: Response) => {
       try {
-        throw new Error("getChannelMembers not implemented");
-        // validate input
+        const { channelId } = req.params;
+        const { userId } = req.session;
+        // validate channelId
+        if (!validate(channelId)) {
+          res.status(400).send({
+            detail: `invalid channel ID: ${channelId}`,
+          });
+          return;
+        }
+        // validate userId
+        if (!validate(userId)) {
+          res.status(400).send({ detail: `invalid user ID: ${userId}` });
+        }
         // fetch channel members
+        const members = await userQuery.getUsersByChannelId(channelId);
+        // check if the requester is a member of the channel
         // respond
+        res.status(200).send({
+          detail: "success",
+          members,
+        });
+        return;
       } catch (e) {
         res
           .status(500)

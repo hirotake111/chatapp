@@ -1,13 +1,16 @@
 import { Request, NextFunction, Response } from "express";
 import { nanoid } from "nanoid";
 import { v4 as uuid } from "uuid";
+import User from "../models/User.model";
 import { ChannelQuery } from "../queries/channelQuery";
 import { RosterQuery } from "../queries/rosterQeury";
+import { UserQuery } from "../queries/userQuery";
 import { ChannelController, getChannelController } from "./channelController";
 
 let controller: ChannelController;
 let channelQuery: ChannelQuery;
 let rosterQuery: RosterQuery;
+let userQuery: UserQuery;
 let req: Request;
 let res: Response;
 let next: NextFunction;
@@ -42,7 +45,15 @@ describe("channelController", () => {
       addUserToChannel: jest.fn().mockReturnValue({ joinedAt: Date.now() }),
       deleteUserFromChannel: jest.fn(),
     };
-    controller = getChannelController({ channelQuery, rosterQuery });
+    userQuery = {
+      getUserById: jest.fn(),
+      createUser: jest.fn(),
+      getOtherUsers: jest.fn(),
+      getUserByUsername: jest.fn(),
+      deleteUserById: jest.fn(),
+      getUsersByChannelId: jest.fn(),
+    };
+    controller = getChannelController({ channelQuery, rosterQuery, userQuery });
   });
 
   describe("postChannel", () => {
@@ -175,17 +186,71 @@ describe("channelController", () => {
   });
 
   describe("getChannelMembers", () => {
+    let users: User[];
+    beforeEach(() => {
+      req = {
+        params: { channelId: uuid() },
+        session: { userId: uuid() },
+      } as any;
+      // mock that returns an array of users
+      users = [{ userId: uuid() }, { userId: uuid() }] as any[];
+      userQuery.getUsersByChannelId = jest.fn().mockReturnValue(users);
+    });
+
     it("should respond members of a channel", async () => {
-      // expect.assertions(2);
-      // try {
-      //   const users = [{ userId: uuid() }, { userId: uuid() }];
-      //   // channelQuery.
-      //   await controller.getChannelMembers(req, res, next);
-      //   expect(statusMock.mock.calls[0][0]).toEqual(200);
-      //   expect(sendMock.mock.calls[0][0].members);
-      // } catch (e) {
-      //   throw e;
-      // }
+      expect.assertions(2);
+      try {
+        await controller.getChannelMembers(req, res, next);
+        expect(statusMock.mock.calls[0][0]).toEqual(200);
+        expect(sendMock.mock.calls[0][0].members).toEqual(users);
+      } catch (e) {
+        throw e;
+      }
+    });
+
+    it("should respond HTTP 400 if input is invalid", async () => {
+      expect.assertions(4);
+      // invalid channelId
+      const channelId = nanoid();
+      req.params.channelId = channelId;
+      try {
+        await controller.getChannelMembers(req, res, next);
+        expect(statusMock.mock.calls[0][0]).toEqual(400);
+        expect(sendMock.mock.calls[0][0].detail).toEqual(
+          `invalid channel ID: ${channelId}`
+        );
+      } catch (e) {
+        throw e;
+      }
+      // invalid user ID
+      req.params.channelId = uuid();
+      const userId = nanoid();
+      req.session.userId = userId;
+      try {
+        await controller.getChannelMembers(req, res, next);
+        expect(statusMock.mock.calls[1][0]).toEqual(400);
+        expect(sendMock.mock.calls[1][0].detail).toEqual(
+          `invalid user ID: ${userId}`
+        );
+      } catch (e) {
+        throw e;
+      }
+    });
+
+    it("should raise an error for any other reasons", async () => {
+      expect.assertions(2);
+      const msg = "db err";
+      // this always throw an error
+      userQuery.getUsersByChannelId = jest.fn().mockImplementation(() => {
+        throw new Error(msg);
+      });
+      try {
+        await controller.getChannelMembers(req, res, next);
+        expect(statusMock.mock.calls[0][0]).toEqual(500);
+        expect(sendMock.mock.calls[0][0].detail).toEqual(msg);
+      } catch (e) {
+        throw e;
+      }
     });
   });
 });
