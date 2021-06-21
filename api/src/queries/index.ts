@@ -13,10 +13,6 @@ export const getService = (config: ConfigType): Queries => {
   return {
     userQuery: getUserQuery({ UserModel: User }),
     channelQuery: getChannelQuery({ ChannelModel: Channel, UserModel: User }),
-    rosterQuery: getRosterQuery({
-      UserModel: User,
-      ChannelModel: Channel,
-      RosterModel: Roster,
-    }),
+    rosterQuery: getRosterQuery({ RosterModel: Roster }),
   };
 };

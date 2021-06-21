@@ -5,8 +5,6 @@ import { getRosterQuery, RosterQuery } from "./rosterQeury";
 
 let rosterDb: Roster[];
 let RosterModel: typeof Roster;
-let UserModel = {} as any;
-let ChannelModel = {} as any;
 let rosterQuery: RosterQuery;
 
 describe("RosterQuery", () => {
@@ -37,7 +35,7 @@ describe("RosterQuery", () => {
         return result;
       },
     } as any;
-    rosterQuery = getRosterQuery({ UserModel, ChannelModel, RosterModel });
+    rosterQuery = getRosterQuery({ RosterModel });
   });
 
   describe("addUserToChannel()", () => {

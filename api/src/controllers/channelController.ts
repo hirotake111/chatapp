@@ -1,6 +1,6 @@
 import { RequestHandler, Request, Response } from "express";
-import Channel from "../models/Channel.model";
-import User from "../models/User.model";
+import { validate } from "uuid";
+
 import { ChannelQuery } from "../queries/channelQuery";
 import { RosterQuery } from "../queries/rosterQeury";
 
@@ -20,14 +20,15 @@ export const getChannelController = ({
   return {
     postChannel: async (req: Request, res: Response) => {
       try {
-        // validate parameters (channel ID, name, member IDs)
+        // if request doesn't have body, throw an error => HTTP 500
         if (!req.body) throw new Error("HTTP request has no body");
+        // validate parameters (channel ID, name, member IDs)
         const { channelId, channelName } = req.body;
         const { userId } = req.session;
         if (!(channelId && channelName && userId)) {
           throw new Error("invalid HTTP body");
         }
-        if (!(typeof channelId === "string" && typeof channelName === "string"))
+        if (!(validate(channelId) && typeof channelName === "string"))
           throw new Error(`either channelId or channelName has invalid type`);
 
         // create a new channel
@@ -35,8 +36,11 @@ export const getChannelController = ({
           channelId,
           channelName
         );
+
         if (!channel) {
-          res.status(400).send({ error: "channel already exists." });
+          res
+            .status(400)
+            .send({ error: "bad request", detail: "channel already exists" });
           return;
         }
 
@@ -65,23 +69,13 @@ export const getChannelController = ({
 
     getChannel: async (req: Request, res: Response) => {
       try {
-        const user = await User.findOne({
-          include: [Channel],
-          where: { id: req.session.userId },
-        });
+        const channels = await channelQuery.getChannelsByUserId(
+          req.session.userId
+        );
 
-        if (!user) throw new Error("user not found on database");
-        const { id, username, displayName, firstName, lastName, channels } =
-          user;
         res.status(200).send({
-          user: {
-            id,
-            username,
-            displayName,
-            firstName,
-            lastName,
-            channels: channels.map(({ id, name }) => ({ id, name })),
-          },
+          detail: "success",
+          channels: channels.map(({ id, name }) => ({ id, name })),
         });
         return;
       } catch (e) {
@@ -102,6 +96,7 @@ export const getChannelController = ({
       try {
         throw new Error("getChannelMembers not implemented");
         // validate if the requester belongs to the channel
+        const channel = channelQuery.getChannelById;
         // fetch channel members
         // respond
       } catch (e) {

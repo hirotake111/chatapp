@@ -30,7 +30,7 @@ const res = {
 } as any;
 const next = {} as any;
 const redirectMock = res.redirect as jest.Mock;
-const userService = {
+const userQuery = {
   getUserByUsername: jest.fn(),
   createUser: jest.fn(),
 } as any;
@@ -65,7 +65,7 @@ describe("userController", () => {
         const uc = getUserController({
           oidcClient,
           generators,
-          userQuery: userService,
+          userQuery,
           config,
         });
         await uc.getLogin(req, res, next);
@@ -93,7 +93,7 @@ describe("userController", () => {
         const uc = getUserController({
           oidcClient,
           generators: generatorsFail,
-          userQuery: userService,
+          userQuery: userQuery,
           config,
         });
         await uc.getLogin(req, res, next);
@@ -115,7 +115,7 @@ describe("userController", () => {
         const uc = getUserController({
           oidcClient,
           generators,
-          userQuery: userService,
+          userQuery: userQuery,
           config,
         });
         await uc.getCallback(req, res, next);
@@ -174,7 +174,7 @@ describe("userController", () => {
         const uc = getUserController({
           oidcClient: mockClient,
           generators,
-          userQuery: userService,
+          userQuery: userQuery,
           config,
         });
         await uc.getCallback(req, res, next);
@@ -201,7 +201,7 @@ describe("userController", () => {
         const uc = getUserController({
           oidcClient: clientFail,
           generators,
-          userQuery: userService,
+          userQuery: userQuery,
           config,
         });
         await uc.getCallback(req, res, next);

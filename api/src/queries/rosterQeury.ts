@@ -11,15 +11,10 @@ export interface RosterQuery {
   deleteUserFromChannel: (channelId: string, userId: string) => Promise<number>;
 }
 
-export const getRosterQuery = ({
-  UserModel,
-  ChannelModel,
-  RosterModel,
-}: {
-  UserModel: typeof User;
-  ChannelModel: typeof Channel;
+export const getRosterQuery = (params: {
   RosterModel: typeof Roster;
 }): RosterQuery => {
+  const { RosterModel } = params;
   return {
     async addUserToChannel(channelId: string, userId: string): Promise<Roster> {
       try {
