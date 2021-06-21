@@ -1,6 +1,6 @@
 import { ConfigType } from "../config";
 import { ChannelQuery, getChannelQuery } from "./channelQuery";
-import { getRosterQuery, RosterQuery } from "./rosterQeury";
+import { getRosterQuery, RosterQuery } from "./rosterQuery";
 import { getUserQuery, UserQuery } from "./userQuery";
 
 export interface Queries {

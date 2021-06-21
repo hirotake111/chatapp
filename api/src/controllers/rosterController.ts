@@ -1,7 +1,7 @@
 import { RequestHandler, Request, Response } from "express";
 import { validate as uuidValidate } from "uuid";
 
-import { RosterQuery } from "../queries/rosterQeury";
+import { RosterQuery } from "../queries/rosterQuery";
 import { UserQuery } from "../queries/userQuery";
 
 export interface RosterController {

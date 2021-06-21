@@ -1,7 +1,7 @@
 import { nanoid } from "nanoid";
 import { v4 as uuid } from "uuid";
 import Roster from "../models/Roster.model";
-import { getRosterQuery, RosterQuery } from "./rosterQeury";
+import { getRosterQuery, RosterQuery } from "./rosterQuery";
 
 let rosterDb: Roster[];
 let RosterModel: typeof Roster;

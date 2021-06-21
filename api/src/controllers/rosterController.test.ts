@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { nanoid } from "nanoid";
 import { v4 as uuid } from "uuid";
 
-import { RosterQuery } from "../queries/rosterQeury";
+import { RosterQuery } from "../queries/rosterQuery";
 import { UserQuery } from "../queries/userQuery";
 import { getRosterContoller, RosterController } from "./rosterController";
 

@@ -2,7 +2,7 @@ import { RequestHandler, Request, Response } from "express";
 import { validate } from "uuid";
 
 import { ChannelQuery } from "../queries/channelQuery";
-import { RosterQuery } from "../queries/rosterQeury";
+import { RosterQuery } from "../queries/rosterQuery";
 import { UserQuery } from "../queries/userQuery";
 
 export interface ChannelController {

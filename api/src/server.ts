@@ -11,7 +11,7 @@ import { getDb } from "./utils/db";
 import { getAggrigator } from "./aggrigators";
 import { getService } from "./queries";
 import { env } from "./env";
-import { getRosterQuery } from "./queries/rosterQeury";
+import { getRosterQuery } from "./queries/rosterQuery";
 import Channel from "./models/Channel.model";
 import User from "./models/User.model";
 import Roster from "./models/Roster.model";
