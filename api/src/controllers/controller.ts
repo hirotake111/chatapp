@@ -20,7 +20,7 @@ export const getController = (
   config: ConfigType,
   queries: Queries
 ): RootController => {
-  const { channelQuery, rosterQuery } = queries;
+  const { channelQuery, rosterQuery, userQuery } = queries;
   return {
     getRoot: (req: Request, res: Response) => {
       res.status(200).send({ message: "OK" });
@@ -47,9 +47,9 @@ export const getController = (
     }),
 
     // channel controler
-    channel: getChannelController({ channelQuery, rosterQuery }),
+    channel: getChannelController({ channelQuery, rosterQuery, userQuery }),
 
     // roster controller
-    roster: getRosterContoller({ rosterQuery }),
+    roster: getRosterContoller({ rosterQuery, userQuery }),
   };
 };
