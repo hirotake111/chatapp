@@ -259,10 +259,7 @@ describe("UserService", () => {
       userQuery = getUserQuery({ UserModel, ChannelModel });
       try {
         // get users
-        const users = await userQuery.getUsersByChannelId(
-          channelId,
-          requesterId
-        );
+        const users = await userQuery.getUsersByChannelId(channelId);
         expect(users.length).toEqual(2);
         expect(findOneChannelMock.mock.calls[0][0].where).toEqual({
           id: channelId,
@@ -272,15 +269,23 @@ describe("UserService", () => {
       }
     });
 
-    it("should raise an error if requester is not a member of channel", async () => {
+    it("should raise an error if input is invalid", async () => {
       expect.assertions(1);
-      ChannelModel.findOne = jest
-        .fn()
-        .mockReturnValue({ users: [{ id: uuid() }] });
       try {
-        await userQuery.getUsersByChannelId(uuid(), uuid());
+        await userQuery.getUsersByChannelId(nanoid());
       } catch (e) {
-        expect(e.message).toEqual("requester doesn't belong to the channel");
+        expect(e.message).toEqual("invalid input");
+      }
+    });
+
+    it("should raise an error if channel doesn't exist", async () => {
+      expect.assertions(1);
+      const channelId = uuid();
+      ChannelModel.findOne = jest.fn().mockReturnValue(null);
+      try {
+        await userQuery.getUsersByChannelId(channelId);
+      } catch (e) {
+        expect(e.message).toEqual(`channel ID ${channelId} doesn't exist`);
       }
     });
 
@@ -292,7 +297,7 @@ describe("UserService", () => {
       });
       userQuery = getUserQuery({ UserModel, ChannelModel });
       try {
-        await userQuery.getUsersByChannelId(uuid(), uuid());
+        await userQuery.getUsersByChannelId(uuid());
       } catch (e) {
         expect(e.message).toEqual(msg);
       }

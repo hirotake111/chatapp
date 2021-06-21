@@ -95,8 +95,7 @@ export const getChannelController = ({
     getChannelMembers: async (req: Request, res: Response) => {
       try {
         throw new Error("getChannelMembers not implemented");
-        // validate if the requester belongs to the channel
-        const channel = channelQuery.getChannelById;
+        // validate input
         // fetch channel members
         // respond
       } catch (e) {

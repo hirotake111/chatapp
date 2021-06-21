@@ -10,10 +10,7 @@ export interface UserQuery {
   createUser: (user: CreateUserProps) => Promise<User | null>;
   deleteUserById: (id: string) => Promise<number>;
   getOtherUsers: (id: string) => Promise<User[] | null>;
-  getUsersByChannelId: (
-    channelId: string,
-    requesterId: string
-  ) => Promise<User[]>;
+  getUsersByChannelId: (channelId: string) => Promise<User[]>;
 }
 
 export const getUserQuery = ({
@@ -98,11 +95,9 @@ export const getUserQuery = ({
 
     /**
      * returns an array of members specific channel
+     * raise an error if requester is not a member of the channel
      */
-    async getUsersByChannelId(
-      channelId: string,
-      requesterId: string
-    ): Promise<User[]> {
+    async getUsersByChannelId(channelId: string): Promise<User[]> {
       // validate channel ID
       if (!validate(channelId)) throw new Error("invalid input");
       // get channel
@@ -113,10 +108,6 @@ export const getUserQuery = ({
         });
         // if channel doesn't exist throw error
         if (!channel) throw new Error(`channel ID ${channelId} doesn't exist`);
-        // check if requester is a member of the channel
-        const users = channel.users.filter((user) => user.id === requesterId);
-        if (users.length === 0)
-          throw new Error("requester doesn't belong to the channel");
         // return members
         return channel.users;
       } catch (e) {
