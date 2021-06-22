@@ -1,4 +1,4 @@
-import { RequestHandler, Request, Response } from "express";
+import { RequestHandler, Request, Response, NextFunction } from "express";
 import { validate } from "uuid";
 
 import { ChannelQuery } from "../queries/channelQuery";
@@ -8,7 +8,9 @@ import { UserQuery } from "../queries/userQuery";
 export interface ChannelController {
   postChannel: RequestHandler;
   getChannel: RequestHandler;
+  getChannelDetail: RequestHandler;
   getChannelMembers: RequestHandler;
+  deleteChannel: RequestHandler;
 }
 
 export const getChannelController = ({
@@ -124,6 +126,62 @@ export const getChannelController = ({
           .status(500)
           .send({ error: "INTERNAL SERVER ERROR", detail: e.message });
         return;
+      }
+    },
+
+    getChannelDetail: async (
+      req: Request,
+      res: Response,
+      next: NextFunction
+    ) => {
+      const { channelId } = req.params;
+      const { userId } = req.session;
+      // validate channelId
+      if (!validate(channelId)) {
+        res.status(400).send({
+          detail: `invalid channel ID: ${channelId}`,
+        });
+        return;
+      }
+      // validate userId
+      if (!validate(userId)) {
+        res.status(400).send({ detail: `invalid user ID: ${userId}` });
+      }
+      try {
+        // check if the requester is a member of the channel
+        const members = await userQuery.getUsersByChannelId(channelId);
+        if (!members.map((member) => member.id).includes(userId))
+          return res
+            .status(400)
+            .send({ detail: "requester is not a member of channel" });
+        // fetch channel details
+        const channel = await channelQuery.getChannelById(channelId);
+        // respond
+        if (channel)
+          return res.status(200).send({
+            detail: "success",
+            channel: {
+              id: channel.id,
+              name: channel.name,
+              cratedAt: channel.createdAt,
+              updatedAt: channel.updatedAt,
+            },
+          });
+        return res.status(400).send({ detail: "channel doesn't exist" });
+      } catch (e) {
+        return res
+          .status(500)
+          .send({ error: "INTERNAL SERVER ERROR", detail: e.message });
+      }
+    },
+
+    deleteChannel: async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        throw new Error("not implemented");
+      } catch (e) {
+        return res
+          .status(500)
+          .send({ error: "INTERNAL SERVER ERROR", detail: e.message });
       }
     },
   };

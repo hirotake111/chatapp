@@ -8,10 +8,10 @@ export interface Queries {
   channelQuery: ChannelQuery;
   rosterQuery: RosterQuery;
 }
-export const getService = (config: ConfigType): Queries => {
+export const getQueries = (config: ConfigType): Queries => {
   const { User, Channel, Roster } = config.database.models;
   return {
-    userQuery: getUserQuery({ UserModel: User }),
+    userQuery: getUserQuery({ UserModel: User, ChannelModel: Channel }),
     channelQuery: getChannelQuery({ ChannelModel: Channel, UserModel: User }),
     rosterQuery: getRosterQuery({ RosterModel: Roster }),
   };

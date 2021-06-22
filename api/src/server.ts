@@ -9,12 +9,10 @@ import { getController } from "./controllers/controller";
 import { useRoute } from "./router";
 import { getDb } from "./utils/db";
 import { getAggrigator } from "./aggrigators";
-import { getService } from "./queries";
+import { getQueries } from "./queries";
 import { env } from "./env";
-import { getRosterQuery } from "./queries/rosterQuery";
 import Channel from "./models/Channel.model";
 import User from "./models/User.model";
-import Roster from "./models/Roster.model";
 import { getChannelQuery } from "./queries/channelQuery";
 
 // fake user db
@@ -80,10 +78,8 @@ const io = new Server(http, {
   try {
     // get config
     const config = await getConfig(env);
-
     // session middleware
     const session = sessionMiddleware(config.sessionOptions);
-
     // use middlewares
     app.use(express.json()); // body parser
     app.use(session); // session
@@ -114,31 +110,17 @@ const io = new Server(http, {
       }
     });
 
-    // create aggrigators
-    // const aggrigators = getAggrigators(config);
-
     // connect to database
     await getDb(config);
     // get service
-    const services = getService(config);
+    const queries = getQueries(config);
     // get controller
-    const controller = getController(config, services);
+    const controller = getController(config, queries);
     // use router
     app.use(useRoute(controller));
-
     // register callbacks for Kafka topic
-    const aggrigator = getAggrigator(config, services);
+    const aggrigator = getAggrigator(config, queries);
     aggrigator.listen();
-    // config.kafka.consumer.run({
-    //   eachMessage: async ({ topic, partition, message }) => {
-    //     console.log("==== GET MESSAGE FROM KAFKA ====");
-    //     console.log({
-    //       topic,
-    //       partition,
-    //       "message.value": message.value?.toString(),
-    //     });
-    //   },
-    // });
 
     // Websocket listener
     io.on("connection", async (socket) => {
