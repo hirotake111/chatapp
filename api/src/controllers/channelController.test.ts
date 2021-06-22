@@ -19,12 +19,17 @@ let sendMock: jest.Mock;
 
 describe("channelController", () => {
   let channelId: string;
+  let channelName: string;
+  let requesterId: string;
+
   beforeEach(() => {
     channelId = uuid();
+    channelName = nanoid();
+    requesterId = uuid();
     req = {
       params: { channelId },
-      body: { channelId, channelName: nanoid() },
-      session: { userId: uuid() },
+      body: { channelId, channelName },
+      session: { userId: requesterId },
     } as any;
     res = {
       status: jest.fn().mockReturnThis(),
@@ -37,12 +42,14 @@ describe("channelController", () => {
       createChannel: jest
         .fn()
         .mockReturnValue({ id: uuid(), createdAt: Date.now() }),
-      getChannelById: jest.fn(),
+      getChannelById: jest
+        .fn()
+        .mockReturnValue({ id: channelId, name: channelName }),
       getChannelsByUserId: jest
         .fn()
         .mockReturnValue([{ id: uuid(), name: nanoid() }]),
       updateChannelbyId: jest.fn(),
-      deleteChannelById: jest.fn(),
+      deleteChannelById: jest.fn().mockReturnValue(1),
     };
     rosterQuery = {
       addUserToChannel: jest.fn().mockReturnValue({ joinedAt: Date.now() }),
@@ -54,7 +61,9 @@ describe("channelController", () => {
       getOtherUsers: jest.fn(),
       getUserByUsername: jest.fn(),
       deleteUserById: jest.fn(),
-      getUsersByChannelId: jest.fn(),
+      getUsersByChannelId: jest
+        .fn()
+        .mockReturnValue([{ id: requesterId }, { id: uuid() }]),
     };
     controller = getChannelController({ channelQuery, rosterQuery, userQuery });
   });
@@ -87,7 +96,7 @@ describe("channelController", () => {
       }
     });
 
-    it("should validate chanel name", async () => {
+    it("should validate channel name", async () => {
       expect.assertions(2);
       try {
         // invalid channel name
@@ -141,6 +150,21 @@ describe("channelController", () => {
         throw e;
       }
     });
+
+    it("should respond HTTP 500 for any other errors", async () => {
+      expect.assertions(2);
+      const msg = nanoid();
+      channelQuery.createChannel = jest.fn().mockImplementation(() => {
+        throw new Error(msg);
+      });
+      try {
+        await controller.createNewChannel(req, res, next);
+        expect(statusMock.mock.calls[0][0]).toEqual(500);
+        expect(sendMock.mock.calls[0][0].detail).toEqual(msg);
+      } catch (e) {
+        throw e;
+      }
+    });
   });
 
   describe("getMyChannels", () => {
@@ -150,6 +174,20 @@ describe("channelController", () => {
         await controller.getMyChannels(req, res, next);
         expect(statusMock.mock.calls[0][0]).toEqual(200);
         expect(sendMock.mock.calls[0][0].detail).toEqual("success");
+      } catch (e) {
+        throw e;
+      }
+    });
+
+    it("should validate requester ID", async () => {
+      expect.assertions(2);
+      try {
+        req.session.userId = nanoid();
+        await controller.getMyChannels(req, res, next);
+        expect(statusMock.mock.calls[0][0]).toEqual(400);
+        expect(sendMock.mock.calls[0][0].detail).toEqual(
+          "invalid requester ID"
+        );
       } catch (e) {
         throw e;
       }
@@ -171,25 +209,83 @@ describe("channelController", () => {
   });
 
   describe("getChannelDetail", () => {
-    it("should get channel Id and channel name", async () => {
-      // expect.assertions(2);
+    it("should get channel ID and channel name", async () => {
+      expect.assertions(2);
       try {
+        await controller.getChannelDetail(req, res, next);
+        expect(sendMock.mock.calls[0][0].channel.name).toEqual(channelName);
+        expect(statusMock.mock.calls[0][0]).toEqual(200);
       } catch (e) {
         throw e;
       }
     });
 
     it("should validate if requester is not a member of it", async () => {
-      // expect.assertions(2);
+      expect.assertions(2);
       try {
+        userQuery.getUsersByChannelId = jest
+          .fn()
+          .mockReturnValue([{ id: uuid() }]);
+        await controller.getChannelDetail(req, res, next);
+        expect(sendMock.mock.calls[0][0].detail).toEqual(
+          "requester is not a member of channel"
+        );
+        expect(statusMock.mock.calls[0][0]).toEqual(400);
+      } catch (e) {
+        throw e;
+      }
+    });
+
+    it("should validate channelId", async () => {
+      expect.assertions(2);
+      try {
+        req.params.channelId = nanoid();
+        await controller.getChannelDetail(req, res, next);
+        expect(sendMock.mock.calls[0][0].detail).toEqual("invalid channel ID");
+        expect(statusMock.mock.calls[0][0]).toEqual(400);
+      } catch (e) {
+        throw e;
+      }
+    });
+
+    it("should validate requesterId", async () => {
+      expect.assertions(2);
+      try {
+        req.session.userId = nanoid();
+        await controller.getChannelDetail(req, res, next);
+        expect(sendMock.mock.calls[0][0].detail).toEqual(
+          `invalid requester ID: ${req.session.userId}`
+        );
+        expect(statusMock.mock.calls[0][0]).toEqual(400);
+      } catch (e) {
+        throw e;
+      }
+    });
+
+    it("should respond HTTP 400 if channel doesn't exist", async () => {
+      expect.assertions(2);
+      try {
+        channelQuery.getChannelById = jest.fn().mockReturnValue(null);
+        await controller.getChannelDetail(req, res, next);
+        expect(sendMock.mock.calls[0][0].detail).toEqual(
+          "channel doesn't exist"
+        );
+        expect(statusMock.mock.calls[0][0]).toEqual(400);
       } catch (e) {
         throw e;
       }
     });
 
     it("should respond HTTP 500 for any other errors", async () => {
-      // expect.assertions(2);
+      expect.assertions(2);
+      const msg = nanoid();
       try {
+        userQuery.getUsersByChannelId = jest.fn().mockImplementation(() => {
+          throw new Error(msg);
+        });
+        await controller.getChannelDetail(req, res, next);
+        expect(sendMock.mock.calls[0][0].detail).toEqual(msg);
+        expect(statusMock.mock.calls[0][0]).toEqual(500);
       } catch (e) {
         throw e;
       }
@@ -232,24 +328,65 @@ describe("channelController", () => {
 
   describe("deleteChannel", () => {
     it("should delete existing channel", async () => {
-      // expect.assertions(2);
+      expect.assertions(1);
       try {
+        await controller.deleteChannel(req, res, next);
+        expect(statusMock.mock.calls[0][0]).toEqual(204);
+      } catch (e) {
+        throw e;
+      }
+    });
+
+    it("should validate channelId", async () => {
+      expect.assertions(2);
+      req.params.channelId = nanoid();
+      try {
+        await controller.deleteChannel(req, res, next);
+        expect(statusMock.mock.calls[0][0]).toEqual(400);
+        expect(sendMock.mock.calls[0][0].detail).toEqual("invalid channel ID");
+      } catch (e) {
+        throw e;
+      }
+    });
+
+    it("should validate requesterId", async () => {
+      expect.assertions(2);
+      req.session.userId = nanoid();
+      try {
+        await controller.deleteChannel(req, res, next);
+        expect(statusMock.mock.calls[0][0]).toEqual(400);
+        expect(sendMock.mock.calls[0][0].detail).toEqual(
+          "invalid requester ID"
+        );
       } catch (e) {
         throw e;
       }
     });
 
     it("should validate if requester is not a member of it", async () => {
-      // expect.assertions(2);
+      expect.assertions(2);
+      userQuery.getUsersByChannelId = jest.fn().mockReturnValue([]);
       try {
+        await controller.deleteChannel(req, res, next);
+        expect(statusMock.mock.calls[0][0]).toEqual(400);
+        expect(sendMock.mock.calls[0][0].detail).toEqual(
+          "requester is not a member of channel"
+        );
       } catch (e) {
         throw e;
       }
     });
 
     it("should respond HTTP 500 for any other errors", async () => {
-      // expect.assertions(2);
+      expect.assertions(2);
+      const msg = "db error!!!";
+      userQuery.getUsersByChannelId = jest.fn().mockImplementation(() => {
+        throw new Error(msg);
+      });
       try {
+        await controller.deleteChannel(req, res, next);
+        expect(statusMock.mock.calls[0][0]).toEqual(500);
+        expect(sendMock.mock.calls[0][0].detail).toEqual(msg);
       } catch (e) {
         throw e;
       }
