@@ -6,11 +6,12 @@ import { RosterQuery } from "../queries/rosterQuery";
 import { UserQuery } from "../queries/userQuery";
 
 export interface ChannelController {
-  postChannel: RequestHandler;
-  getChannel: RequestHandler;
+  getMyChannels: RequestHandler;
+  createNewChannel: RequestHandler;
   getChannelDetail: RequestHandler;
-  getChannelMembers: RequestHandler;
+  updateChannel: RequestHandler;
   deleteChannel: RequestHandler;
+  getChannelMembers: RequestHandler;
 }
 
 export const getChannelController = ({
@@ -23,19 +24,22 @@ export const getChannelController = ({
   userQuery: UserQuery;
 }): ChannelController => {
   return {
-    postChannel: async (req: Request, res: Response) => {
+    createNewChannel: async (req: Request, res: Response) => {
       try {
         // if request doesn't have body, throw an error => HTTP 500
-        if (!req.body) throw new Error("HTTP request has no body");
-        // validate parameters (channel ID, name, member IDs)
+        if (!req.body)
+          return res.status(400).send({ detail: "HTTP request has no body" });
         const { channelId, channelName } = req.body;
         const { userId } = req.session;
-        if (!(channelId && channelName && userId)) {
-          throw new Error("invalid HTTP body");
-        }
-        if (!(validate(channelId) && typeof channelName === "string"))
-          throw new Error(`either channelId or channelName has invalid type`);
-
+        // validate channel name
+        if (!(typeof channelName === "string"))
+          return res.status(400).send({ detail: "invalid channel name" });
+        // validate channel ID
+        if (!validate(channelId))
+          return res.status(400).send({ detail: "invalid channel ID" });
+        // check if params.channelId and body.channelId are the same
+        if (!(req.params.channelId === channelId))
+          return res.status(400).send({ detail: "invalid channel ID" });
         // create a new channel
         const channel = await channelQuery.createChannel(
           channelId,
@@ -72,7 +76,7 @@ export const getChannelController = ({
       }
     },
 
-    getChannel: async (req: Request, res: Response) => {
+    getMyChannels: async (req: Request, res: Response) => {
       try {
         const channels = await channelQuery.getChannelsByUserId(
           req.session.userId
@@ -176,6 +180,16 @@ export const getChannelController = ({
     },
 
     deleteChannel: async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        throw new Error("not implemented");
+      } catch (e) {
+        return res
+          .status(500)
+          .send({ error: "INTERNAL SERVER ERROR", detail: e.message });
+      }
+    },
+
+    updateChannel: async (req: Request, res: Response, next: NextFunction) => {
       try {
         throw new Error("not implemented");
       } catch (e) {

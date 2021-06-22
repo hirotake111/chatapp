@@ -28,9 +28,13 @@ export const useRoute = (controller: RootController) => {
   );
 
   /**
-   * Channel endpoints
+   * channels endpoints
    */
-  router.get("/api/channels", authenticateUser, controller.channel.getChannel);
+  router.get(
+    "/api/channels",
+    authenticateUser,
+    controller.channel.getMyChannels
+  );
 
   router.get(
     "/api/channels/:channelId",
@@ -39,10 +43,16 @@ export const useRoute = (controller: RootController) => {
   );
 
   router.post(
-    "/api/channels",
+    "/api/channels/:channelId",
     setNoCache,
     authenticateUser,
-    controller.channel.postChannel
+    controller.channel.createNewChannel
+  );
+
+  router.put(
+    "/api/channels/:channelId",
+    authenticateUser,
+    controller.channel.updateChannel
   );
 
   router.delete(
@@ -50,6 +60,10 @@ export const useRoute = (controller: RootController) => {
     authenticateUser,
     controller.channel.deleteChannel
   );
+
+  /**
+   * channel members endpoints
+   */
 
   router.get(
     "/api/channels/:channelId/members",
