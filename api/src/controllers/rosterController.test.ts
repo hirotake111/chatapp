@@ -58,7 +58,8 @@ describe("rosterController", () => {
         expect(sendMock.mock.calls[0][0]).toEqual({
           detail: "success",
           channelId,
-          userIds,
+          added: userIds,
+          skipped: [],
         });
         expect(statusMock.mock.calls[0][0]).toEqual(200);
       } catch (e) {
@@ -137,6 +138,26 @@ describe("rosterController", () => {
         expect(sendMock.mock.calls[0][0].detail).toEqual(
           "you are not a member of the channel"
         );
+      } catch (e) {
+        throw e;
+      }
+    });
+
+    it("should respond HTTP 200 if user is already a member of channel", async () => {
+      expect.assertions(2);
+      const currentMembers = [{ id: requesterId }, { id: userId }];
+      const newMembers = [uuid(), uuid()];
+      req.body.userIds = [userId, ...newMembers];
+      userQuery.getUsersByChannelId = jest.fn().mockReturnValue(currentMembers);
+      try {
+        await rosterController.addChannelMember(req, res, next);
+        expect(sendMock.mock.calls[0][0]).toEqual({
+          detail: "success",
+          channelId,
+          added: newMembers,
+          skipped: [userId],
+        });
+        expect(statusMock.mock.calls[0][0]).toEqual(200);
       } catch (e) {
         throw e;
       }

@@ -1,5 +1,5 @@
 import { RequestHandler, Request, Response, NextFunction } from "express";
-import { validate } from "uuid";
+import { validate, v4 as uuid } from "uuid";
 
 import { ChannelQuery } from "../queries/channelQuery";
 import { RosterQuery } from "../queries/rosterQuery";
@@ -25,21 +25,17 @@ export const getChannelController = ({
 }): ChannelController => {
   return {
     createNewChannel: async (req: Request, res: Response) => {
+      // if request doesn't have body, throw an error => HTTP 500
+      if (!req.body)
+        return res.status(400).send({ detail: "HTTP request has no body" });
+      const { channelName } = req.body;
+      const { userId } = req.session;
+      // validate channel name
+      if (!(typeof channelName === "string"))
+        return res.status(400).send({ detail: "invalid channel name" });
+      // generate channel ID
+      const channelId = uuid();
       try {
-        // if request doesn't have body, throw an error => HTTP 500
-        if (!req.body)
-          return res.status(400).send({ detail: "HTTP request has no body" });
-        const { channelId, channelName } = req.body;
-        const { userId } = req.session;
-        // validate channel name
-        if (!(typeof channelName === "string"))
-          return res.status(400).send({ detail: "invalid channel name" });
-        // validate channel ID
-        if (!validate(channelId))
-          return res.status(400).send({ detail: "invalid channel ID" });
-        // check if params.channelId and body.channelId are the same
-        if (!(req.params.channelId === channelId))
-          return res.status(400).send({ detail: "invalid channel ID" });
         // create a new channel
         const channel = await channelQuery.createChannel(
           channelId,

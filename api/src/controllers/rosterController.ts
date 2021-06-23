@@ -43,16 +43,23 @@ export const getRosterContoller = ({
       const { channelId } = req.params;
       const { userIds } = req.body;
       const { userId: requesterId } = req.session;
+      const added: string[] = [];
+      const skipped: string[] = [];
       // validate channelId
       if (!uuidValidate(channelId))
         return res.status(400).send({ detail: "invalid channel ID" });
       // validate userIds
-      const ids = checkArrayOfUuidv4(userIds);
-      if (!ids) return res.status(400).send({ detail: "invalid user IDs" });
+      let idsToBeAdded = checkArrayOfUuidv4(userIds);
+      if (!idsToBeAdded)
+        return res.status(400).send({ detail: "invalid user IDs" });
       // validate requesterId
       if (!uuidValidate(requesterId))
         return res.status(400).send({ detail: "invalid requester ID" });
       try {
+        // get current user IDs
+        const currentUserIds = (
+          await userQuery.getUsersByChannelId(channelId)
+        ).map((user) => user.id);
         // check if the requester is member of the channel
         if (!(await validateRequester(channelId, requesterId)))
           return res
@@ -60,9 +67,15 @@ export const getRosterContoller = ({
             .send({ detail: "you are not a member of the channel" });
         // add members to the channel
         await Promise.all(
-          ids.map((userId) => rosterQuery.addUserToChannel(channelId, userId))
+          idsToBeAdded.map((userId) => {
+            if (!currentUserIds.includes(userId)) {
+              added.push(userId);
+              return rosterQuery.addUserToChannel(channelId, userId);
+            }
+            skipped.push(userId);
+          })
         );
-        res.status(200).send({ detail: "success", channelId, userIds: ids });
+        res.status(200).send({ detail: "success", channelId, added, skipped });
         return;
       } catch (e) {
         res

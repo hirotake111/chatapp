@@ -113,32 +113,6 @@ describe("channelController", () => {
       }
     });
 
-    it("should validate chanel ID", async () => {
-      expect.assertions(2);
-      try {
-        // invalid channel ID
-        req.body.channelId = nanoid();
-        await controller.createNewChannel(req, res, next);
-        expect(statusMock.mock.calls[0][0]).toEqual(400);
-        expect(sendMock.mock.calls[0][0].detail).toEqual("invalid channel ID");
-      } catch (e) {
-        throw e;
-      }
-    });
-
-    it("should validate chanel ID (params and body)", async () => {
-      expect.assertions(2);
-      try {
-        // invalid channel ID
-        req.body.channelId = uuid();
-        await controller.createNewChannel(req, res, next);
-        expect(statusMock.mock.calls[0][0]).toEqual(400);
-        expect(sendMock.mock.calls[0][0].detail).toEqual("invalid channel ID");
-      } catch (e) {
-        throw e;
-      }
-    });
-
     it("should respond HTTP 400 if channel already exists", async () => {
       expect.assertions(2);
       channelQuery.createChannel = jest.fn().mockReturnValue(null);

@@ -36,17 +36,17 @@ export const useRoute = (controller: RootController) => {
     controller.channel.getMyChannels
   );
 
+  router.post(
+    "/api/channels/",
+    setNoCache,
+    authenticateUser,
+    controller.channel.createNewChannel
+  );
+
   router.get(
     "/api/channels/:channelId",
     authenticateUser,
     controller.channel.getChannelDetail
-  );
-
-  router.post(
-    "/api/channels/:channelId",
-    setNoCache,
-    authenticateUser,
-    controller.channel.createNewChannel
   );
 
   router.put(
