@@ -9,7 +9,7 @@ export interface UserQuery {
   getUserByUsername: (username: string) => Promise<User | null>;
   createUser: (user: CreateUserProps) => Promise<User | null>;
   deleteUserById: (id: string) => Promise<number>;
-  getOtherUsers: (id: string) => Promise<User[] | null>;
+  getOtherUsers: (id: string) => Promise<User[]>;
   getUsersByChannelId: (channelId: string) => Promise<User[]>;
 }
 
@@ -81,7 +81,7 @@ export const getUserQuery = ({
       }
     },
 
-    async getOtherUsers(id: string): Promise<User[] | null> {
+    async getOtherUsers(id: string): Promise<User[]> {
       try {
         // get other users expect user itself
         const users = await UserModel.findAll({

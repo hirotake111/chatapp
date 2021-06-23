@@ -20,7 +20,17 @@
 
 ---
 
-## Dtabase Design
+### Unit testing
+
+Go to each folder and run tests
+
+```bash
+# let's say if you want to test api service...
+cd api
+npm test
+```
+
+### Dtabase Design
 
 ### Users table
 

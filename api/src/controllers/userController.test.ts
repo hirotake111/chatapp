@@ -1,7 +1,10 @@
 import { nanoid } from "nanoid";
 import { createHash } from "crypto";
+import { v4 as uuid } from "uuid";
 
-import { getUserController } from "./userController";
+import { getUserController, UserController } from "./userController";
+import { UserQuery } from "../queries/userQuery";
+import { Request, Response, NextFunction } from "express";
 
 // constants
 const verifier = nanoid();
@@ -209,6 +212,98 @@ describe("userController", () => {
         expect(sendMock.mock.calls[0][0].error).toEqual(
           "INTERNAL SERVER ERROR"
         );
+      } catch (e) {
+        throw e;
+      }
+    });
+  });
+
+  describe("getusers()", () => {
+    let controller: UserController;
+    let userQuery: UserQuery;
+    let req: Request;
+    let res: Response;
+    let next: NextFunction;
+    let userId: string;
+    let statusMock: jest.Mock;
+    let sendMock: jest.Mock;
+
+    beforeEach(() => {
+      userId = uuid();
+      req = { session: { userId } } as any;
+      res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+      } as any;
+      next = {} as any;
+      statusMock = res.status as jest.Mock;
+      sendMock = res.send as jest.Mock;
+      userQuery = {
+        getUserById: jest.fn(),
+        getOtherUsers: jest.fn().mockReturnValue([
+          {
+            id: uuid(),
+            username: nanoid(),
+            displayName: nanoid(),
+            firstname: nanoid(),
+            lastName: nanoid(),
+          },
+          {
+            id: uuid(),
+            username: nanoid(),
+            displayName: nanoid(),
+            firstname: nanoid(),
+            lastName: nanoid(),
+          },
+        ]),
+        getUserByUsername: jest.fn(),
+        createUser: jest.fn(),
+        deleteUserById: jest.fn(),
+        getUsersByChannelId: jest.fn(),
+      };
+      controller = getUserController({
+        oidcClient,
+        generators,
+        userQuery,
+        config,
+      });
+    });
+
+    it("should return users", async () => {
+      expect.assertions(2);
+      try {
+        await controller.getUsers(req, res, next);
+        expect(statusMock.mock.calls[0][0]).toEqual(200);
+        expect(sendMock.mock.calls[0][0].users.length).toEqual(2);
+      } catch (e) {
+        throw e;
+      }
+    });
+
+    it("should validate requesterid", async () => {
+      expect.assertions(2);
+      req.session.userId = nanoid();
+      try {
+        await controller.getUsers(req, res, next);
+        expect(statusMock.mock.calls[0][0]).toEqual(400);
+        expect(sendMock.mock.calls[0][0].detail).toEqual(
+          "invalid requester ID"
+        );
+      } catch (e) {
+        throw e;
+      }
+    });
+
+    it("should respond HTTP 500 for any other errors", async () => {
+      expect.assertions(2);
+      const msg = "db error";
+      userQuery.getOtherUsers = jest.fn().mockImplementation(() => {
+        throw new Error(msg);
+      });
+      try {
+        await controller.getUsers(req, res, next);
+        expect(statusMock.mock.calls[0][0]).toEqual(500);
+        expect(sendMock.mock.calls[0][0].detail).toEqual(msg);
       } catch (e) {
         throw e;
       }

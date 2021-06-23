@@ -1,4 +1,4 @@
-import { v4 as uuid } from "uuid";
+import { v4 as uuid, validate } from "uuid";
 import { Request, Response, RequestHandler } from "express";
 import { Client, generators as Generators } from "openid-client";
 import { UserQuery } from "../queries/userQuery";
@@ -120,10 +120,23 @@ export const getUserController = ({
   },
 
   getUsers: async (req: Request, res: Response) => {
-    const { userId } = req.session;
+    const { userId: requesterId } = req.session;
+    // validate requester ID
+    if (!validate(requesterId))
+      return res.status(400).send({ detail: "invalid requester ID" });
     try {
       // get a list of other users
-      res.status(200).send(await userQuery.getOtherUsers(userId));
+      const users = await userQuery.getOtherUsers(requesterId);
+      res.status(200).send({
+        detail: "success",
+        users: users.map((user) => ({
+          id: user.id,
+          username: user.username,
+          displayName: user.displayName,
+          firstname: user.firstName,
+          lastName: user.lastName,
+        })),
+      });
       return;
     } catch (e) {
       res
