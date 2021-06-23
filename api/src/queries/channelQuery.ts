@@ -18,8 +18,7 @@ export interface ChannelQuery {
   getChannelsByUserId: (userId: string) => Promise<Channel[]>;
   updateChannelbyId: (
     channelId: string,
-    name: string,
-    updatedAt: number
+    newChannelName: string
   ) => Promise<Channel | null>;
   deleteChannelById: (id: string) => Promise<number>;
 }
@@ -69,8 +68,7 @@ export const getChannelQuery = ({
 
     async updateChannelbyId(
       channelId: string,
-      name: string,
-      updatedAt: number
+      newChannelName: string
     ): Promise<Channel | null> {
       try {
         // throw an error if channel doesn't exist
@@ -78,7 +76,7 @@ export const getChannelQuery = ({
           throw new Error(`id ${channelId} does not eixst`);
         // update channel
         const [_, ch] = await ChannelModel.update(
-          { name, updatedAt },
+          { name: newChannelName },
           { where: { id: channelId } }
         );
         return ch[0];

@@ -264,11 +264,7 @@ describe("channel.query", () => {
       // update channel
       const newName = uuid();
       try {
-        const updatedChannel = await query.updateChannelbyId(
-          id,
-          newName,
-          updatedAt
-        );
+        const updatedChannel = await query.updateChannelbyId(id, newName);
         if (!updatedChannel) throw new Error("FAIELD UPDATING CHANNEL");
         expect(updatedChannel.name).toEqual(newName);
         expect(updatedChannel.id).toEqual(id);
@@ -283,11 +279,7 @@ describe("channel.query", () => {
       const { id, name, updatedAt } = addChannel();
       // update channel
       try {
-        const updatedChannel = await query.updateChannelbyId(
-          id,
-          name,
-          updatedAt
-        );
+        const updatedChannel = await query.updateChannelbyId(id, name);
         if (!updatedChannel) throw new Error("FAIELD UPDATING CHANNEL");
         expect(updatedChannel.name).toEqual(name);
         expect(updatedChannel.id).toEqual(id);
@@ -301,7 +293,7 @@ describe("channel.query", () => {
       const id = uuid();
       try {
         // update channel
-        await query.updateChannelbyId(id, uuid(), Date.now());
+        await query.updateChannelbyId(id, uuid());
       } catch (e) {
         expect(e.message).toEqual(`id ${id} does not eixst`);
       }
@@ -319,7 +311,7 @@ describe("channel.query", () => {
       const name = uuid();
       db.push({ id, name, updatedAt: Date.now(), createdAt: Date.now() });
       try {
-        await query.updateChannelbyId(id, name, Date.now());
+        await query.updateChannelbyId(id, name);
       } catch (e) {
         expect(e.message).toEqual(msg);
       }

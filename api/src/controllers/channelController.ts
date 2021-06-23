@@ -97,40 +97,45 @@ export const getChannelController = ({
     },
 
     /**
-     *
-     * @param req TODO
-     * @param res
-     * @returns
+     * getChannelMembers returns an array of user ID and name
      */
-    getChannelMembers: async (req: Request, res: Response) => {
+    getChannelMembers: async (
+      req: Request,
+      res: Response,
+      next: NextFunction
+    ) => {
       try {
         const { channelId } = req.params;
-        const { userId } = req.session;
+        const { userId: requesterId } = req.session;
         // validate channelId
-        if (!validate(channelId)) {
-          res.status(400).send({
+        if (!validate(channelId))
+          return res.status(400).send({
             detail: `invalid channel ID: ${channelId}`,
           });
-          return;
-        }
         // validate userId
-        if (!validate(userId)) {
-          res.status(400).send({ detail: `invalid user ID: ${userId}` });
-        }
+        if (!validate(requesterId))
+          return res
+            .status(400)
+            .send({ detail: `invalid requester ID: ${requesterId}` });
+
         // fetch channel members
         const members = await userQuery.getUsersByChannelId(channelId);
         // check if the requester is a member of the channel
         // respond
-        res.status(200).send({
+        return res.status(200).send({
           detail: "success",
-          members,
+          members: members.map((m) => ({
+            id: m.id,
+            username: m.username,
+            displayName: m.displayName,
+            firstName: m.firstName,
+            lastName: m.lastName,
+          })),
         });
-        return;
       } catch (e) {
-        res
+        return res
           .status(500)
           .send({ error: "INTERNAL SERVER ERROR", detail: e.message });
-        return;
       }
     },
 
@@ -209,8 +214,33 @@ export const getChannelController = ({
     },
 
     updateChannel: async (req: Request, res: Response, next: NextFunction) => {
+      const { userId: requesterId } = req.session;
+      const { channelId } = req.params;
+      const { channelName } = req.body;
+      // validate requesterId
+      if (!validate(requesterId))
+        return res.status(400).send({ detail: "invalid requester ID" });
+      // validate channelId
+      if (!validate(channelId))
+        return res.status(400).send({ detail: "invalid channel ID" });
+      // validate channelName
+      if (!(typeof channelName === "string"))
+        return res.status(400).send({ detail: "invalid channel name" });
       try {
-        throw new Error("not implemented");
+        // check if the requester is a member of the channel
+        // upcate the channel
+        const channel = await channelQuery.updateChannelbyId(
+          channelId,
+          channelName
+        );
+        // if channel is null, then respond HTTP 400
+        if (!channel)
+          return res
+            .status(400)
+            .send({ detail: "unable to update channel with given parameters" });
+        return res
+          .status(200)
+          .send({ detail: "success", id: channelId, name: channelName });
       } catch (e) {
         return res
           .status(500)
