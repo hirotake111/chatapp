@@ -147,14 +147,21 @@ export const getUserController = ({
   },
 
   getUserInfo: async (req: Request, res: Response) => {
-    const { userId } = req.session;
+    const { userId: requesterId } = req.session;
+    // validate requesterId
+    if (!validate(requesterId))
+      return res.status(400).send({ detail: "invalid requester ID" });
     try {
       // get user info from db
-      const userInfo = await userQuery.getUserById(userId);
-      if (!userInfo) throw new Error("Could not found user info in database");
+      const userInfo = await userQuery.getUserById(requesterId);
+      if (!userInfo)
+        return res
+          .status(400)
+          .send({ detail: "couldn't retrieve user info with your ID" });
       const { username, displayName, firstName, lastName } = userInfo;
       return res.status(200).send({
-        userId,
+        detail: "success",
+        userId: requesterId,
         username,
         displayName,
         firstName,
