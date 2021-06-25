@@ -219,7 +219,7 @@ describe("rosterController", () => {
       rosterQuery.deleteUserFromChannel = jest.fn().mockReturnValue(1);
       try {
         await rosterController.removeChannelMember(req, res, next);
-        expect(statusMock.mock.calls[0][0]).toEqual(200);
+        expect(statusMock.mock.calls[0][0]).toEqual(204);
         expect(sendMock.mock.calls[0][0].detail).toEqual("success");
       } catch (e) {
         throw e;

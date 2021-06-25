@@ -10,7 +10,9 @@ import {
   DeletedAt,
   Sequelize,
   BelongsToMany,
+  HasMany,
 } from "sequelize-typescript";
+import Message from "./Message.model";
 import Roster from "./Roster.model";
 import User from "./User.model";
 
@@ -45,6 +47,9 @@ class Channel extends Model {
 
   @BelongsToMany(() => User, () => Roster)
   users!: User[];
+
+  @HasMany(() => Message)
+  messages!: Message[];
 }
 
 export default Channel;

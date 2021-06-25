@@ -25,7 +25,7 @@ const getUser = (): CreateUserProps => ({
   lastName: nanoid(),
 });
 
-describe("UserService", () => {
+describe("userQuery", () => {
   beforeEach(() => {
     ChannelModel = {
       findOne: jest.fn(),

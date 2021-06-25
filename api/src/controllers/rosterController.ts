@@ -110,7 +110,7 @@ export const getRosterContoller = ({
             rosterQuery.deleteUserFromChannel(channelId, userId)
           )
         );
-        res.status(200).send({ detail: "success", channelId, userIds });
+        res.status(204).send({ detail: "success", channelId, userIds });
         return;
       } catch (e) {
         res

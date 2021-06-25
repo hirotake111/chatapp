@@ -144,9 +144,7 @@ export const getChannelController = ({
       const { userId: requesterId } = req.session;
       // validate channelId
       if (!validate(channelId)) {
-        return res.status(400).send({
-          detail: "invalid channel ID",
-        });
+        return res.status(400).send({ detail: "invalid channel ID" });
       }
       // validate userId
       if (!validate(requesterId)) {
@@ -155,26 +153,25 @@ export const getChannelController = ({
           .send({ detail: `invalid requester ID: ${requesterId}` });
       }
       try {
+        // fetch channel details
+        const channel = await channelQuery.getChannelById(channelId);
+        if (!channel)
+          return res.status(400).send({ detail: "channel doesn't exist" });
         // check if the requester is a member of the channel
         const members = await userQuery.getUsersByChannelId(channelId);
         if (!members.map((member) => member.id).includes(requesterId))
           return res
             .status(400)
             .send({ detail: "requester is not a member of channel" });
-        // fetch channel details
-        const channel = await channelQuery.getChannelById(channelId);
-        // respond
-        if (channel)
-          return res.status(200).send({
-            detail: "success",
-            channel: {
-              id: channel.id,
-              name: channel.name,
-              cratedAt: channel.createdAt,
-              updatedAt: channel.updatedAt,
-            },
-          });
-        return res.status(400).send({ detail: "channel doesn't exist" });
+        return res.status(200).send({
+          detail: "success",
+          channel: {
+            id: channel.id,
+            name: channel.name,
+            cratedAt: channel.createdAt,
+            updatedAt: channel.updatedAt,
+          },
+        });
       } catch (e) {
         return res
           .status(500)

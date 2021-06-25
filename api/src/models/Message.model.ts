@@ -10,6 +10,7 @@ import {
   NotNull,
   Sequelize,
   ForeignKey,
+  BelongsTo,
 } from "sequelize-typescript";
 
 import Channel from "./Channel.model";
@@ -55,6 +56,9 @@ class Message extends Model {
 
   @DeletedAt
   deletedAt?: Date;
+
+  @BelongsTo(() => Channel)
+  channel!: Channel;
 }
 
 export default Message;
