@@ -7,6 +7,7 @@ import { getUserController, UserController } from "./userController";
 import { Queries } from "../queries";
 import { ChannelController, getChannelController } from "./channelController";
 import { getRosterContoller, RosterController } from "./rosterController";
+import { getMessageController, MessageController } from "./messageController";
 
 export type RootController = {
   getRoot: RequestHandler;
@@ -14,13 +15,14 @@ export type RootController = {
   user: UserController;
   channel: ChannelController;
   roster: RosterController;
+  message: MessageController;
 };
 
 export const getController = (
   config: ConfigType,
   queries: Queries
 ): RootController => {
-  const { channelQuery, rosterQuery, userQuery } = queries;
+  const { channelQuery, rosterQuery, userQuery, messageQuery } = queries;
   return {
     getRoot: (req: Request, res: Response) => {
       res.status(200).send({ message: "OK" });
@@ -45,11 +47,11 @@ export const getController = (
       userQuery: queries.userQuery,
       config,
     }),
-
     // channel controler
     channel: getChannelController({ channelQuery, rosterQuery, userQuery }),
-
     // roster controller
     roster: getRosterContoller({ rosterQuery, userQuery }),
+    // message controller
+    message: getMessageController({ messageQuery }),
   };
 };
