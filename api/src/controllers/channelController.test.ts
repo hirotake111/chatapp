@@ -47,6 +47,7 @@ describe("channelController", () => {
       getChannelById: jest
         .fn()
         .mockReturnValue({ id: channelId, name: channelName }),
+      getChannelByChannelIdWithMessages: jest.fn(),
       getChannelsByUserId: jest
         .fn()
         .mockReturnValue([{ id: uuid(), name: nanoid() }]),
@@ -506,6 +507,117 @@ describe("channelController", () => {
         await controller.updateChannel(req, res, next);
         expect(statusMock.mock.calls[0][0]).toEqual(500);
         expect(sendMock.mock.calls[0][0].detail).toEqual(msg);
+      } catch (e) {
+        throw e;
+      }
+    });
+  });
+
+  describe("getChannelDetailWithMessages", () => {
+    let channel: any;
+
+    beforeEach(() => {
+      channel = {
+        id: uuid(),
+        name: nanoid(),
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        messages: [{ id: uuid() }, { id: uuid() }],
+      };
+      channelQuery.getChannelByChannelIdWithMessages = jest
+        .fn()
+        .mockReturnValue(channel);
+    });
+
+    it("should respond channel info and messages", async () => {
+      expect.assertions(2);
+      try {
+        await controller.getChannelDetailWithMessages(req, res, next);
+        expect(statusMock.mock.calls[0][0]).toEqual(200);
+        expect(sendMock.mock.calls[0][0]).toEqual({
+          detail: "success",
+          channel: channel,
+        });
+      } catch (e) {
+        throw e;
+      }
+    });
+
+    it("should validate channelId", async () => {
+      expect.assertions(2);
+      req.params.channelId = nanoid();
+      try {
+        await controller.getChannelDetailWithMessages(req, res, next);
+        expect(statusMock.mock.calls[0][0]).toEqual(400);
+        expect(sendMock.mock.calls[0][0]).toEqual({
+          detail: `invalid channel ID: ${req.params.channelId}`,
+        });
+      } catch (e) {
+        throw e;
+      }
+    });
+
+    it("should validate requester ID", async () => {
+      expect.assertions(2);
+      req.session.userId = nanoid();
+      try {
+        await controller.getChannelDetailWithMessages(req, res, next);
+        expect(statusMock.mock.calls[0][0]).toEqual(400);
+        expect(sendMock.mock.calls[0][0]).toEqual({
+          detail: `invalid requester ID: ${req.session.userId}`,
+        });
+      } catch (e) {
+        throw e;
+      }
+    });
+
+    it("should respond HTTP 400 if channel doesn't exist", async () => {
+      expect.assertions(2);
+      channelQuery.getChannelByChannelIdWithMessages = jest
+        .fn()
+        .mockReturnValue(null);
+      try {
+        await controller.getChannelDetailWithMessages(req, res, next);
+        expect(statusMock.mock.calls[0][0]).toEqual(400);
+        expect(sendMock.mock.calls[0][0]).toEqual({
+          detail: `channel doesn't exist: ${req.params.channelId}`,
+        });
+      } catch (e) {
+        throw e;
+      }
+    });
+
+    it("should respond HTTP 400 if requester is not a member of channel", async () => {
+      expect.assertions(2);
+      userQuery.getUsersByChannelId = jest
+        .fn()
+        .mockReturnValue([{ id: uuid() }, { id: uuid() }]);
+      try {
+        await controller.getChannelDetailWithMessages(req, res, next);
+        expect(statusMock.mock.calls[0][0]).toEqual(400);
+        expect(sendMock.mock.calls[0][0]).toEqual({
+          detail: "requester is not a member of channel",
+        });
+      } catch (e) {
+        throw e;
+      }
+    });
+
+    it("should respond HTTP 500 for any other errors", async () => {
+      expect.assertions(2);
+      const msg = "db error...";
+      channelQuery.getChannelByChannelIdWithMessages = jest
+        .fn()
+        .mockImplementation(() => {
+          throw new Error(msg);
+        });
+      try {
+        await controller.getChannelDetailWithMessages(req, res, next);
+        expect(statusMock.mock.calls[0][0]).toEqual(500);
+        expect(sendMock.mock.calls[0][0]).toEqual({
+          error: "INTERNAL SERVER ERROR",
+          detail: msg,
+        });
       } catch (e) {
         throw e;
       }

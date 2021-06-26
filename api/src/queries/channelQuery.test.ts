@@ -4,6 +4,7 @@ import { v4 as uuid } from "uuid";
 import { ChannelQuery, getChannelQuery } from "./channelQuery";
 import User from "../models/User.model";
 import Roster from "../models/Roster.model";
+import Message from "../models/Message.model";
 interface ChannelType {
   id: string;
   name: string;
@@ -17,6 +18,7 @@ let userDb: User[];
 let rosterDb: Roster[];
 let model: any;
 let UserModel: any;
+let MessageModel: typeof Message;
 let query: ChannelQuery;
 
 // helper function to add a channel to db
@@ -100,9 +102,11 @@ describe("channel.query", () => {
         });
       },
     };
+    MessageModel = {} as any;
     query = getChannelQuery({
       ChannelModel: model,
       UserModel,
+      MessageModel,
     });
   });
 
@@ -362,6 +366,54 @@ describe("channel.query", () => {
       try {
         // delete channel
         await query.deleteChannelById(id);
+      } catch (e) {
+        expect(e.message).toEqual(msg);
+      }
+    });
+  });
+
+  describe("getChannelByChannelIdWithMessage", () => {
+    let channelId: string;
+    let channel: any;
+    beforeEach(() => {
+      channelId = uuid();
+      channel = {
+        id: channelId,
+        name: nanoid(),
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        messages: [{ id: uuid() }, { id: uuid() }],
+      };
+      model.findOne = jest.fn().mockReturnValue(channel);
+    });
+
+    it("should return channel with message", async () => {
+      expect.assertions(1);
+      try {
+        const result = await query.getChannelByChannelIdWithMessages(channelId);
+        expect(result).toEqual(channel);
+      } catch (e) {
+        throw e;
+      }
+    });
+
+    it("should validate channelId", async () => {
+      expect.assertions(1);
+      try {
+        await query.getChannelByChannelIdWithMessages(nanoid());
+      } catch (e) {
+        expect(e.message).toEqual("invalid channel ID");
+      }
+    });
+
+    it("should raise an error", async () => {
+      expect.assertions(1);
+      const msg = "db error";
+      model.findOne = jest.fn().mockImplementation(() => {
+        throw new Error(msg);
+      });
+      try {
+        await query.getChannelByChannelIdWithMessages(channelId);
       } catch (e) {
         expect(e.message).toEqual(msg);
       }

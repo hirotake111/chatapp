@@ -15,7 +15,11 @@ export const getQueries = (config: ConfigType): Queries => {
   const { User, Channel, Roster, Message } = config.database.models;
   return {
     userQuery: getUserQuery({ UserModel: User, ChannelModel: Channel }),
-    channelQuery: getChannelQuery({ ChannelModel: Channel, UserModel: User }),
+    channelQuery: getChannelQuery({
+      ChannelModel: Channel,
+      UserModel: User,
+      MessageModel: Message,
+    }),
     rosterQuery: getRosterQuery({ RosterModel: Roster }),
     messageQuery: getMessageQuery({ messageModel: Message }),
   };

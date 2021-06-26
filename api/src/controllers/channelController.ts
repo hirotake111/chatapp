@@ -9,6 +9,7 @@ export interface ChannelController {
   getMyChannels: RequestHandler;
   createNewChannel: RequestHandler;
   getChannelDetail: RequestHandler;
+  getChannelDetailWithMessages: RequestHandler;
   updateChannel: RequestHandler;
   deleteChannel: RequestHandler;
   getChannelMembers: RequestHandler;
@@ -234,6 +235,57 @@ export const getChannelController = ({
         return res
           .status(200)
           .send({ detail: "success", id: channelId, name: channelName });
+      } catch (e) {
+        return res
+          .status(500)
+          .send({ error: "INTERNAL SERVER ERROR", detail: e.message });
+      }
+    },
+
+    getChannelDetailWithMessages: async (
+      req: Request,
+      res: Response,
+      next: NextFunction
+    ) => {
+      const { channelId } = req.params;
+      const { userId: requesterId } = req.session;
+      // validate channelId
+      if (!validate(channelId)) {
+        return res
+          .status(400)
+          .send({ detail: `invalid channel ID: ${channelId}` });
+      }
+      // validate userId
+      if (!validate(requesterId)) {
+        return res
+          .status(400)
+          .send({ detail: `invalid requester ID: ${requesterId}` });
+      }
+      try {
+        // fetch channel details
+        const channel = await channelQuery.getChannelByChannelIdWithMessages(
+          channelId
+        );
+        if (!channel)
+          return res
+            .status(400)
+            .send({ detail: `channel doesn't exist: ${channelId}` });
+        // check if the requester is a member of the channel
+        const members = await userQuery.getUsersByChannelId(channelId);
+        if (!members.map((member) => member.id).includes(requesterId))
+          return res
+            .status(400)
+            .send({ detail: "requester is not a member of channel" });
+        return res.status(200).send({
+          detail: "success",
+          channel: {
+            id: channel.id,
+            name: channel.name,
+            createdAt: channel.createdAt,
+            updatedAt: channel.updatedAt,
+            messages: channel.messages,
+          },
+        });
       } catch (e) {
         return res
           .status(500)

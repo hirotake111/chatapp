@@ -14,6 +14,7 @@ import { env } from "./env";
 import Channel from "./models/Channel.model";
 import User from "./models/User.model";
 import { getChannelQuery } from "./queries/channelQuery";
+import Message from "./models/Message.model";
 
 // fake user db
 interface FakeUserRecord {
@@ -50,7 +51,11 @@ const getChannels = async (userId: string) => {
   //   ChannelModel: Channel,
   //   RosterModel: Roster,
   // });
-  const query = getChannelQuery({ ChannelModel: Channel, UserModel: User });
+  const query = getChannelQuery({
+    ChannelModel: Channel,
+    UserModel: User,
+    MessageModel: Message,
+  });
   try {
     // const user = await User.findOne({
     //   where: { id: userId },
