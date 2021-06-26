@@ -52,6 +52,6 @@ export const getController = (
     // roster controller
     roster: getRosterContoller({ rosterQuery, userQuery }),
     // message controller
-    message: getMessageController({ messageQuery }),
+    message: getMessageController({ messageQuery, userQuery }),
   };
 };

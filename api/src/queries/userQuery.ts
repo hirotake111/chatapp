@@ -106,7 +106,7 @@ export const getUserQuery = ({
           where: { id: channelId },
           include: [User],
         });
-        // if channel doesn't exist throw error
+        // if channel doesn't exist throw an error
         if (!channel) throw new Error(`channel ID ${channelId} doesn't exist`);
         // return members
         return channel.users;

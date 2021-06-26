@@ -3,6 +3,7 @@ import { validate } from "uuid";
 import Message from "../models/Message.model";
 
 export interface MessageQuery {
+  /** create a new message. If the message ID already exists, then return null. */
   createMessage: (
     messageId: string,
     channelId: string,
@@ -10,9 +11,19 @@ export interface MessageQuery {
     content: string
   ) => Promise<Message | null>;
   getMessagesInChannel: (channelId: string) => Promise<Message[]>;
-  getSpecificMessage: (messageId: string) => Promise<Message | null>;
+  /**
+   * returns one message, or null if not exists
+   */
+  getSpecificMessage: (
+    messageId: string,
+    channelId: string
+  ) => Promise<Message | null>;
+  /**
+   * edit an existig message. If not exist, return null
+   */
   editMessage: (
     messageId: string,
+    channelId: string,
     newConntent: string
   ) => Promise<Message | null>;
   deleteMessage: (messageId: string) => Promise<number>;
@@ -69,12 +80,15 @@ export const getMessageQuery = ({
       }
     },
 
-    getSpecificMessage: async (messageId: string): Promise<Message | null> => {
+    getSpecificMessage: async (
+      messageId: string,
+      channelId: string
+    ): Promise<Message | null> => {
       // validate messageId
       if (!validate(messageId)) throw new Error("invalid message ID");
       try {
         const message = await messageModel.findOne({
-          where: { messageId },
+          where: { messageId, channelId },
         });
         return message;
       } catch (e) {
@@ -84,15 +98,20 @@ export const getMessageQuery = ({
 
     editMessage: async (
       messageId: string,
+      channelId: string,
       newContent: string
     ): Promise<Message | null> => {
       // validate messageId
       if (!validate(messageId)) throw new Error("invalid message ID");
+      // validate channelid
+      if (!validate(channelId)) throw new Error("invalid channel ID");
       // validate content
       if (newContent === "") throw new Error("content can't be empty");
       try {
         // if no such message, return null
-        if (!(await messageModel.findOne({ where: { id: messageId } })))
+        if (
+          !(await messageModel.findOne({ where: { id: messageId, channelId } }))
+        )
           return null;
         // update message
         const [_, messages] = await messageModel.update(

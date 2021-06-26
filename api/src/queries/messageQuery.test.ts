@@ -182,10 +182,11 @@ describe("messageQuery", () => {
     beforeEach(() => {
       messageModel.findOne = jest.fn().mockReturnValue(returnValue);
     });
+
     it("should get a message", async () => {
       expect.assertions(1);
       try {
-        const message = await query.getSpecificMessage(messageId);
+        const message = await query.getSpecificMessage(messageId, channelId);
         expect(message).toEqual(returnValue);
       } catch (e) {
         throw e;
@@ -195,7 +196,7 @@ describe("messageQuery", () => {
     it("should validate messageId", async () => {
       expect.assertions(1);
       try {
-        await query.getSpecificMessage(nanoid());
+        await query.getSpecificMessage(nanoid(), channelId);
       } catch (e) {
         expect(e.message).toEqual("invalid message ID");
       }
@@ -208,7 +209,7 @@ describe("messageQuery", () => {
         throw new Error(msg);
       });
       try {
-        await query.getSpecificMessage(messageId);
+        await query.getSpecificMessage(messageId, channelId);
       } catch (e) {
         expect(e.message).toEqual(msg);
       }
@@ -228,7 +229,11 @@ describe("messageQuery", () => {
     it("should edit and return a message", async () => {
       expect.assertions(2);
       try {
-        const message = await query.editMessage(messageId, newContent);
+        const message = await query.editMessage(
+          messageId,
+          channelId,
+          newContent
+        );
         expect(message).toEqual({
           id: messageId,
           channelId,
@@ -246,16 +251,25 @@ describe("messageQuery", () => {
     it("should validate messageId", async () => {
       expect.assertions(1);
       try {
-        await query.editMessage(nanoid(), newContent);
+        await query.editMessage(nanoid(), channelId, newContent);
       } catch (e) {
         expect(e.message).toEqual("invalid message ID");
+      }
+    });
+
+    it("should validate channelId", async () => {
+      expect.assertions(1);
+      try {
+        await query.editMessage(messageId, nanoid(), newContent);
+      } catch (e) {
+        expect(e.message).toEqual("invalid channel ID");
       }
     });
 
     it("should raise an error if new content is empty", async () => {
       expect.assertions(1);
       try {
-        await query.editMessage(messageId, "");
+        await query.editMessage(messageId, channelId, "");
       } catch (e) {
         expect(e.message).toEqual("content can't be empty");
       }
@@ -264,7 +278,11 @@ describe("messageQuery", () => {
       expect.assertions(1);
       messageModel.findOne = jest.fn().mockReturnValue(null);
       try {
-        const message = await query.editMessage(messageId, newContent);
+        const message = await query.editMessage(
+          messageId,
+          channelId,
+          newContent
+        );
         expect(message).toBeNull();
       } catch (e) {
         throw e;
@@ -278,7 +296,7 @@ describe("messageQuery", () => {
         throw new Error(msg);
       });
       try {
-        await query.editMessage(messageId, newContent);
+        await query.editMessage(messageId, channelId, newContent);
       } catch (e) {
         expect(e.message).toEqual(msg);
       }
