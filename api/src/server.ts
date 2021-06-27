@@ -1,18 +1,18 @@
 import { createServer } from "http";
-import express, { NextFunction, Request } from "express";
+import express from "express";
 import sessionMiddleware from "express-session";
 import morgan from "morgan";
 import { Server } from "socket.io";
 
 import { getConfig } from "./config";
 import { getController } from "./controllers/controller";
-import { useRoute } from "./router";
+import { useRoute } from "./routers/router";
 import { getDb } from "./utils/db";
 import { getAggrigator } from "./aggrigators";
 import { getQueries } from "./queries";
 import { env } from "./env";
-import { addWebSocketEventListener } from "./websocketListener";
-import { connectKafkaCluster } from "./kafkaCluster";
+import { addWebSocketEventListener } from "./routers/websocketListener";
+import { connectKafkaCluster } from "./routers/kafkaCluster";
 
 const app = express();
 const http = createServer(app);

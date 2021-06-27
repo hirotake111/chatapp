@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { RootController } from "./controllers/controller";
-import { authenticateUser, setNoCache } from "./middleware";
+import { RootController } from "../controllers/controller";
+import { authenticateUser, setNoCache } from "../middleware";
 
 export const useRoute = (controller: RootController) => {
   const router = Router();

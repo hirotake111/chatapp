@@ -1,4 +1,4 @@
-import { ConfigType } from "./config";
+import { ConfigType } from "../config";
 
 export const connectKafkaCluster = async (config: ConfigType) => {
   // connect Kafka cluster

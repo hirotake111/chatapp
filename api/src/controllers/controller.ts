@@ -1,8 +1,6 @@
 import { Request, RequestHandler, Response } from "express";
-// import { Client, generators as Generators } from "openid-client";
 
 import { ConfigType } from "../config";
-// import { ControllerSignature } from "../type";
 import { getUserController, UserController } from "./userController";
 import { Queries } from "../queries";
 import { ChannelController, getChannelController } from "./channelController";

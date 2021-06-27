@@ -79,7 +79,8 @@ export const getUserController = ({
       };
 
       // if user does not exist, store it in the database
-      if (!(await userQuery.getUserByUsername(user.username))) {
+      const userExists = await userQuery.getUserByUsername(user.username);
+      if (!userExists) {
         // await userService.createUser({ ...user });
         const event: RegisteredEvent = {
           id: uuid(),

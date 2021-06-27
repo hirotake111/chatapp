@@ -1,9 +1,9 @@
 import { RequestHandler, Request, NextFunction } from "express";
 import { Server } from "socket.io";
 
-import { Queries } from "./queries";
+import { Queries } from "../queries";
 
-export const addWebSocketEventListener = (
+export const addWebSocketEventListener = async (
   io: Server,
   queries: Queries,
   session: RequestHandler
@@ -26,12 +26,16 @@ export const addWebSocketEventListener = (
     }
     console.log(`authenticateduser: ${username} (${userId})`);
 
-    // get channel information
-    const channels = await queries.channelQuery.getChannelsByUserId(userId);
-    // join room(s)
-    const ids = channels.map((ch) => ch.id);
-    console.log("Joining channel IDs: ", ids);
-    socket.join(ids);
+    try {
+      // get channel information
+      const channels = await queries.channelQuery.getChannelsByUserId(userId);
+      // join room(s)
+      const ids = channels.map((ch) => ch.id);
+      console.log("Joining channel IDs: ", ids);
+      socket.join(ids);
+    } catch (e) {
+      throw e;
+    }
 
     // handler for disconnection
     socket.on("disconnect", (data) => {

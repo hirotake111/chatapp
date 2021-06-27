@@ -86,10 +86,10 @@ export const getConfig = async (env: Env): Promise<ConfigType> => {
         sequelizeoptions,
         // model configuration
         models: {
-          User,
           Message,
           Roster,
           Channel,
+          User,
         },
         modelPath: [__dirname + "/models/**/*.model.ts"],
       },
