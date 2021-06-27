@@ -114,7 +114,7 @@ export const useRoute = (controller: RootController) => {
   );
   // delete a message in channel
   router.delete(
-    "/api/channel/:channelId/message/:messageid",
+    "/api/channel/:channelId/message/:messageId",
     authenticateUser,
     controller.message.deleteMessage
   );

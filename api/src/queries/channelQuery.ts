@@ -104,7 +104,8 @@ export const getChannelQuery = ({
       channelId: string
     ): Promise<Channel | null> {
       // validate input
-      if (!validate(channelId)) throw new Error("invalid channel ID");
+      if (!validate(channelId))
+        throw new Error(`invalid channel ID: ${channelId}`);
       // retrieve a channel with channel ID
       try {
         return await ChannelModel.findOne({

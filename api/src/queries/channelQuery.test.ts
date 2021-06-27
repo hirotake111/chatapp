@@ -399,10 +399,11 @@ describe("channel.query", () => {
 
     it("should validate channelId", async () => {
       expect.assertions(1);
+      const channelId = nanoid();
       try {
-        await query.getChannelByChannelIdWithMessages(nanoid());
+        await query.getChannelByChannelIdWithMessages(channelId);
       } catch (e) {
-        expect(e.message).toEqual("invalid channel ID");
+        expect(e.message).toEqual(`invalid channel ID: ${channelId}`);
       }
     });
 

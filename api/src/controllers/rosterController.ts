@@ -47,7 +47,9 @@ export const getRosterContoller = ({
       const skipped: string[] = [];
       // validate channelId
       if (!uuidValidate(channelId))
-        return res.status(400).send({ detail: "invalid channel ID" });
+        return res
+          .status(400)
+          .send({ detail: `invalid channel ID: ${channelId}` });
       // validate userIds
       let idsToBeAdded = checkArrayOfUuidv4(userIds);
       if (!idsToBeAdded)
@@ -91,7 +93,9 @@ export const getRosterContoller = ({
       const { userId: requesterId } = req.session;
       // validate channelId
       if (!uuidValidate(channelId))
-        return res.status(400).send({ detail: "invalid channel ID" });
+        return res
+          .status(400)
+          .send({ detail: `invalid channel ID: ${channelId}` });
       // validate userIds
       const ids = checkArrayOfUuidv4(userIds);
       if (!ids) return res.status(400).send({ detail: "invalid user IDs" });

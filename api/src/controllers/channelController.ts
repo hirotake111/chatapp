@@ -145,7 +145,9 @@ export const getChannelController = ({
       const { userId: requesterId } = req.session;
       // validate channelId
       if (!validate(channelId)) {
-        return res.status(400).send({ detail: "invalid channel ID" });
+        return res
+          .status(400)
+          .send({ detail: `invalid channel ID: ${channelId}` });
       }
       // validate userId
       if (!validate(requesterId)) {
@@ -185,7 +187,9 @@ export const getChannelController = ({
       const { userId: requesterId } = req.session;
       // validate channelId
       if (!validate(channelId))
-        return res.status(400).send({ detail: "invalid channel ID" });
+        return res
+          .status(400)
+          .send({ detail: `invalid channel ID: ${channelId}` });
       // validate requesterId
       if (!validate(requesterId))
         return res.status(400).send({ detail: "invalid requester ID" });
@@ -201,6 +205,9 @@ export const getChannelController = ({
         await channelQuery.deleteChannelById(channelId);
         return res.status(204).send({ detail: "success" });
       } catch (e) {
+        if (e.message === `channel ID ${channelId} doesn't exist`) {
+          return res.status(400).send({ detail: e.message });
+        }
         return res
           .status(500)
           .send({ error: "INTERNAL SERVER ERROR", detail: e.message });
@@ -216,7 +223,9 @@ export const getChannelController = ({
         return res.status(400).send({ detail: "invalid requester ID" });
       // validate channelId
       if (!validate(channelId))
-        return res.status(400).send({ detail: "invalid channel ID" });
+        return res
+          .status(400)
+          .send({ detail: `invalid channel ID: ${channelId}` });
       // validate channelName
       if (!(typeof channelName === "string"))
         return res.status(400).send({ detail: "invalid channel name" });

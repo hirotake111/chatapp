@@ -105,7 +105,7 @@ describe("messageController", () => {
         await controller.postMessage(req, res, next);
         expect(mockStatus.mock.calls[0][0]).toEqual(400);
         expect(mockSend.mock.calls[0][0]).toEqual({
-          detail: "invalid channel ID",
+          detail: `invalid channel ID: ${req.params.channelId}`,
         });
       } catch (e) {
         throw e;
@@ -194,7 +194,7 @@ describe("messageController", () => {
         await controller.getMessagesInChannel(req, res, next);
         expect(mockStatus.mock.calls[0][0]).toEqual(400);
         expect(mockSend.mock.calls[0][0]).toEqual({
-          detail: "invalid channel ID",
+          detail: `invalid channel ID: ${req.params.channelId}`,
         });
       } catch (e) {
         throw e;
@@ -289,7 +289,7 @@ describe("messageController", () => {
         await controller.getSpecificMessageInChannel(req, res, next);
         expect(mockStatus.mock.calls[0][0]).toEqual(400);
         expect(mockSend.mock.calls[0][0]).toEqual({
-          detail: "invalid channel ID",
+          detail: `invalid channel ID: ${req.params.channelId}`,
         });
       } catch (e) {
         throw e;
@@ -354,17 +354,17 @@ describe("messageController", () => {
         content: nanoid(),
       };
       req.params.messageId = messageId;
-      messageQuery.editMessage = jest.fn().mockReturnValue(updated);
+      messageQuery.editMessage = jest.fn().mockReturnValue(1);
       messageQuery.getSpecificMessage = jest.fn().mockReturnValue(message);
     });
 
-    it("should respond an updated message", async () => {
+    it("should update a message and respond 1", async () => {
       expect.assertions(2);
       try {
         await controller.editMessage(req, res, next);
         expect(mockSend.mock.calls[0][0]).toEqual({
           detail: "success",
-          message: updated,
+          updated: 1,
         });
         expect(mockStatus.mock.calls[0][0]).toEqual(200);
       } catch (e) {
@@ -393,7 +393,7 @@ describe("messageController", () => {
         await controller.editMessage(req, res, next);
         expect(mockStatus.mock.calls[0][0]).toEqual(400);
         expect(mockSend.mock.calls[0][0]).toEqual({
-          detail: "invalid channel ID",
+          detail: `invalid channel ID: ${req.params.channelId}`,
         });
       } catch (e) {
         throw e;

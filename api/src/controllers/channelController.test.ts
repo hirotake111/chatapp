@@ -218,7 +218,9 @@ describe("channelController", () => {
       try {
         req.params.channelId = nanoid();
         await controller.getChannelDetail(req, res, next);
-        expect(sendMock.mock.calls[0][0].detail).toEqual("invalid channel ID");
+        expect(sendMock.mock.calls[0][0].detail).toEqual(
+          `invalid channel ID: ${req.params.channelId}`
+        );
         expect(statusMock.mock.calls[0][0]).toEqual(400);
       } catch (e) {
         throw e;
@@ -320,7 +322,9 @@ describe("channelController", () => {
       try {
         await controller.deleteChannel(req, res, next);
         expect(statusMock.mock.calls[0][0]).toEqual(400);
-        expect(sendMock.mock.calls[0][0].detail).toEqual("invalid channel ID");
+        expect(sendMock.mock.calls[0][0].detail).toEqual(
+          `invalid channel ID: ${req.params.channelId}`
+        );
       } catch (e) {
         throw e;
       }
@@ -335,6 +339,21 @@ describe("channelController", () => {
         expect(sendMock.mock.calls[0][0].detail).toEqual(
           "invalid requester ID"
         );
+      } catch (e) {
+        throw e;
+      }
+    });
+
+    it("should respond HTTP 400 if channel does not exist", async () => {
+      expect.assertions(2);
+      const msg = `channel ID ${channelId} doesn't exist`;
+      userQuery.getUsersByChannelId = jest.fn().mockImplementation(() => {
+        throw new Error(msg);
+      });
+      try {
+        await controller.deleteChannel(req, res, next);
+        expect(statusMock.mock.calls[0][0]).toEqual(400);
+        expect(sendMock.mock.calls[0][0].detail).toEqual(msg);
       } catch (e) {
         throw e;
       }
@@ -449,7 +468,9 @@ describe("channelController", () => {
       try {
         await controller.updateChannel(req, res, next);
         expect(statusMock.mock.calls[0][0]).toEqual(400);
-        expect(sendMock.mock.calls[0][0].detail).toEqual("invalid channel ID");
+        expect(sendMock.mock.calls[0][0].detail).toEqual(
+          `invalid channel ID: ${req.params.channelId}`
+        );
       } catch (e) {
         throw e;
       }

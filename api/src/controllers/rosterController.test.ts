@@ -73,7 +73,9 @@ describe("rosterController", () => {
       try {
         await rosterController.addChannelMember(req, res, next);
         expect(statusMock.mock.calls[0][0]).toEqual(400);
-        expect(sendMock.mock.calls[0][0].detail).toEqual("invalid channel ID");
+        expect(sendMock.mock.calls[0][0].detail).toEqual(
+          `invalid channel ID: ${req.params.channelId}`
+        );
       } catch (e) {
         throw e;
       }
@@ -232,7 +234,9 @@ describe("rosterController", () => {
       try {
         await rosterController.removeChannelMember(req, res, next);
         expect(statusMock.mock.calls[0][0]).toEqual(400);
-        expect(sendMock.mock.calls[0][0].detail).toEqual("invalid channel ID");
+        expect(sendMock.mock.calls[0][0].detail).toEqual(
+          `invalid channel ID: ${req.params.channelId}`
+        );
       } catch (e) {
         throw e;
       }

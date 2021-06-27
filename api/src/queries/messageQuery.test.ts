@@ -100,10 +100,11 @@ describe("messageQuery", () => {
 
     it("should validate channelId", async () => {
       expect.assertions(1);
+      const channelId = nanoid();
       try {
-        await query.createMessage(messageId, nanoid(), requesterId, content);
+        await query.createMessage(messageId, channelId, requesterId, content);
       } catch (e) {
-        expect(e.message).toEqual("invalid channel ID");
+        expect(e.message).toEqual(`invalid channel ID: ${channelId}`);
       }
     });
 
@@ -151,10 +152,11 @@ describe("messageQuery", () => {
 
     it("should validate channelId", async () => {
       expect.assertions(1);
+      const channelId = nanoid();
       try {
-        await query.getMessagesInChannel(nanoid());
+        await query.getMessagesInChannel(channelId);
       } catch (e) {
-        expect(e.message).toEqual("invalid channel ID");
+        expect(e.message).toEqual(`invalid channel ID: ${channelId}`);
       }
     });
 
@@ -229,16 +231,8 @@ describe("messageQuery", () => {
     it("should edit and return a message", async () => {
       expect.assertions(2);
       try {
-        const message = await query.editMessage(
-          messageId,
-          channelId,
-          newContent
-        );
-        expect(message).toEqual({
-          id: messageId,
-          channelId,
-          content: newContent,
-        });
+        const count = await query.editMessage(messageId, channelId, newContent);
+        expect(count).toEqual(1);
         expect(messageModel.update).toHaveBeenCalledWith(
           { content: newContent },
           { where: { id: messageId } }
@@ -259,10 +253,11 @@ describe("messageQuery", () => {
 
     it("should validate channelId", async () => {
       expect.assertions(1);
+      const channelId = nanoid();
       try {
-        await query.editMessage(messageId, nanoid(), newContent);
+        await query.editMessage(messageId, channelId, newContent);
       } catch (e) {
-        expect(e.message).toEqual("invalid channel ID");
+        expect(e.message).toEqual(`invalid channel ID: ${channelId}`);
       }
     });
 

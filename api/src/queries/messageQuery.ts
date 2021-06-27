@@ -25,7 +25,7 @@ export interface MessageQuery {
     messageId: string,
     channelId: string,
     newConntent: string
-  ) => Promise<Message | null>;
+  ) => Promise<number | null>;
   deleteMessage: (messageId: string) => Promise<number>;
 }
 
@@ -44,7 +44,8 @@ export const getMessageQuery = ({
       // validate messageId
       if (!validate(messageId)) throw new Error("invalid message ID");
       // validate channelId
-      if (!validate(channelId)) throw new Error("invalid channel ID");
+      if (!validate(channelId))
+        throw new Error(`invalid channel ID: ${channelId}`);
       // validate senderId
       if (!validate(senderId)) throw new Error("invalid sender ID");
       // validate content
@@ -72,7 +73,8 @@ export const getMessageQuery = ({
 
     getMessagesInChannel: async (channelId: string): Promise<Message[]> => {
       // validate channelId
-      if (!validate(channelId)) throw new Error("invalid channel ID");
+      if (!validate(channelId))
+        throw new Error(`invalid channel ID: ${channelId}`);
       try {
         return await messageModel.findAll({ where: { channelId } });
       } catch (e) {
@@ -88,7 +90,7 @@ export const getMessageQuery = ({
       if (!validate(messageId)) throw new Error("invalid message ID");
       try {
         const message = await messageModel.findOne({
-          where: { messageId, channelId },
+          where: { id: messageId, channelId },
         });
         return message;
       } catch (e) {
@@ -100,11 +102,12 @@ export const getMessageQuery = ({
       messageId: string,
       channelId: string,
       newContent: string
-    ): Promise<Message | null> => {
+    ): Promise<number | null> => {
       // validate messageId
       if (!validate(messageId)) throw new Error("invalid message ID");
       // validate channelid
-      if (!validate(channelId)) throw new Error("invalid channel ID");
+      if (!validate(channelId))
+        throw new Error(`invalid channel ID: ${channelId}`);
       // validate content
       if (newContent === "") throw new Error("content can't be empty");
       try {
@@ -114,11 +117,11 @@ export const getMessageQuery = ({
         )
           return null;
         // update message
-        const [_, messages] = await messageModel.update(
+        const [count, messages] = await messageModel.update(
           { content: newContent },
           { where: { id: messageId } }
         );
-        return messages[0];
+        return count;
       } catch (e) {
         throw e;
       }

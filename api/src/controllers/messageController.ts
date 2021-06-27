@@ -28,7 +28,9 @@ export const getMessageController = ({
       const { userId: requesterId } = req.session;
       // validate channelId
       if (!validate(channelId))
-        return res.status(400).send({ detail: "invalid channel ID" });
+        return res
+          .status(400)
+          .send({ detail: `invalid channel ID: ${channelId}` });
       // validate requesterId
       if (!validate(requesterId))
         return res.status(400).send({ detail: "invalid requester ID" });
@@ -61,7 +63,9 @@ export const getMessageController = ({
         return res.status(400).send({ detail: "invalid message ID" });
       // validate channelId
       if (!validate(channelId))
-        return res.status(400).send({ detail: "invalid channel ID" });
+        return res
+          .status(400)
+          .send({ detail: `invalid channel ID: ${channelId}` });
       // validate requesterId
       if (!validate(requesterId))
         return res.status(400).send({ detail: "invalid requester ID" });
@@ -79,7 +83,21 @@ export const getMessageController = ({
           messageId,
           channelId
         );
-        return res.status(200).send({ detail: "success", message });
+        if (!message)
+          return res.status(400).send({
+            detail: `couldn't find the message - channel ID: ${channelId}, message ID: ${messageId}`,
+          });
+        return res.status(200).send({
+          detail: "success",
+          message: {
+            id: message.id,
+            channelId: message.channelId,
+            senderId: message.senderId,
+            content: message.content,
+            createdAt: message.createdAt,
+            updatedAt: message.updatedAt,
+          },
+        });
       } catch (e) {
         return res.status(500).send({ detail: e.message });
       }
@@ -94,7 +112,9 @@ export const getMessageController = ({
         return res.status(400).send({ detail: "invalid requester ID" });
       // validate channelId
       if (!validate(channelId))
-        return res.status(400).send({ detail: "invalid channel ID" });
+        return res
+          .status(400)
+          .send({ detail: `invalid channel ID: ${channelId}` });
       // generate messageId
       const messageId = uuid();
       try {
@@ -133,7 +153,9 @@ export const getMessageController = ({
         return res.status(400).send({ detail: "invalid message ID" });
       // validate channelId
       if (!validate(channelId))
-        return res.status(400).send({ detail: "invalid channel ID" });
+        return res
+          .status(400)
+          .send({ detail: `invalid channel ID: ${channelId}` });
       // validate requesterid
       if (!validate(requesterId))
         return res.status(400).send({ detail: "invalid requester ID" });
@@ -150,8 +172,12 @@ export const getMessageController = ({
             .status(400)
             .send({ detail: "you can't edit other user's message" });
         // update the message
-        const updated = messageQuery.editMessage(messageId, channelId, content);
-        return res.status(200).send({ detail: "success", message: updated });
+        const updated = await messageQuery.editMessage(
+          messageId,
+          channelId,
+          content
+        );
+        return res.status(200).send({ detail: "success", updated });
       } catch (e) {
         return res.status(500).send({ detail: e.message });
       }
