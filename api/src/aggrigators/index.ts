@@ -5,7 +5,7 @@ import { getRegisterUser } from "./userAggrigator";
 export const getAggrigator = (config: ConfigType, queries: Queries) => {
   const registerUser = getRegisterUser(queries.userQuery);
 
-  return {
+  const aggrigator = {
     listen: async () => {
       config.kafka.consumer.run({
         eachMessage: async ({ topic, partition, message }) => {
@@ -26,4 +26,6 @@ export const getAggrigator = (config: ConfigType, queries: Queries) => {
       console.log("==== consumers are now listening to each topic ====");
     },
   };
+  aggrigator.listen();
+  return aggrigator;
 };
