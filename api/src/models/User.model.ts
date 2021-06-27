@@ -14,6 +14,7 @@ import {
   HasMany,
 } from "sequelize-typescript";
 import Channel from "./Channel.model";
+import Message from "./Message.model";
 import Roster from "./Roster.model";
 
 @Table
@@ -61,6 +62,9 @@ class User extends Model {
 
   @BelongsToMany(() => Channel, () => Roster)
   channels!: Channel[];
+
+  @HasMany(() => Message)
+  messages!: Message[];
 }
 
 export default User;

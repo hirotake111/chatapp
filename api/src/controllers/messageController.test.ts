@@ -20,8 +20,10 @@ describe("messageController", () => {
   let message: {
     id: string;
     channelId: string;
-    senderId: string;
     content: string;
+    sender: {
+      id: string;
+    };
   };
   let messages: any[];
 
@@ -43,12 +45,14 @@ describe("messageController", () => {
     message = {
       id: uuid(),
       channelId,
-      senderId: requesterId,
       content: nanoid(),
+      sender: {
+        id: requesterId,
+      },
     };
     messages = [
       message,
-      { id: uuid(), channelId, senderId: uuid(), content: nanoid() },
+      { id: uuid(), channelId, content: nanoid(), sender: { id: uuid() } },
     ];
     messageQuery = {
       createMessage: jest.fn().mockReturnValue(message),
@@ -178,11 +182,11 @@ describe("messageController", () => {
       expect.assertions(2);
       try {
         await controller.getMessagesInChannel(req, res, next);
-        expect(mockStatus.mock.calls[0][0]).toEqual(200);
         expect(mockSend.mock.calls[0][0]).toEqual({
           detail: "success",
           messages,
         });
+        expect(mockStatus.mock.calls[0][0]).toEqual(200);
       } catch (e) {
         throw e;
       }
@@ -325,6 +329,21 @@ describe("messageController", () => {
         throw e;
       }
     });
+
+    it("should respond HTTP 400 if message doesn't exist", async () => {
+      expect.assertions(2);
+      messageQuery.getSpecificMessage = jest.fn().mockReturnValue(null);
+      try {
+        await controller.getSpecificMessageInChannel(req, res, next);
+        expect(mockStatus.mock.calls[0][0]).toEqual(400);
+        expect(mockSend.mock.calls[0][0]).toEqual({
+          detail: `couldn't find the message - channel ID: ${channelId}, message ID: ${req.params.messageId}`,
+        });
+      } catch (e) {
+        throw e;
+      }
+    });
+
     it("should respond HTTP 500 for any other errors", async () => {
       expect.assertions(2);
       const msg = "error";
@@ -350,8 +369,8 @@ describe("messageController", () => {
       updated = {
         id: message.id,
         channelId,
-        senderId: requesterId,
         content: nanoid(),
+        sender: { id: requesterId },
       };
       req.params.messageId = messageId;
       messageQuery.editMessage = jest.fn().mockReturnValue(1);
@@ -415,7 +434,7 @@ describe("messageController", () => {
     });
     it("should respond HTTP 400 if requester is NOT A SENDER", async () => {
       expect.assertions(2);
-      message.senderId = uuid();
+      message.sender.id = uuid();
       messageQuery.getSpecificMessage = jest.fn().mockReturnValue(message);
       try {
         await controller.editMessage(req, res, next);
@@ -430,7 +449,7 @@ describe("messageController", () => {
 
     it("should respond HTTP 400 if not exists", async () => {
       expect.assertions(2);
-      message.senderId = uuid();
+      message.sender.id = uuid();
       messageQuery.getSpecificMessage = jest.fn().mockReturnValue(null);
       try {
         await controller.editMessage(req, res, next);
@@ -538,7 +557,7 @@ describe("messageController", () => {
       expect.assertions(2);
       messageQuery.getSpecificMessage = jest
         .fn()
-        .mockReturnValue({ senderId: uuid() });
+        .mockReturnValue({ sender: { id: uuid() } });
       try {
         await controller.deleteMessage(req, res, next);
         expect(mockStatus.mock.calls[0][0]).toEqual(400);

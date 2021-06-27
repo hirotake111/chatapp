@@ -92,7 +92,7 @@ export const useRoute = (controller: RootController) => {
     "/api/channel/:channelId/message",
     authenticateUser,
     // controller.message.getMessagesInChannel
-    controller.channel.getChannelDetailWithMessages
+    controller.message.getMessagesInChannel
   );
   // get one message from channel
   router.get(

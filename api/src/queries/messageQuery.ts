@@ -1,6 +1,7 @@
 import { validate } from "uuid";
 
 import Message from "../models/Message.model";
+import User from "../models/User.model";
 
 export interface MessageQuery {
   /** create a new message. If the message ID already exists, then return null. */
@@ -76,7 +77,10 @@ export const getMessageQuery = ({
       if (!validate(channelId))
         throw new Error(`invalid channel ID: ${channelId}`);
       try {
-        return await messageModel.findAll({ where: { channelId } });
+        return await messageModel.findAll({
+          where: { channelId },
+          include: [User],
+        });
       } catch (e) {
         throw e;
       }
@@ -91,6 +95,7 @@ export const getMessageQuery = ({
       try {
         const message = await messageModel.findOne({
           where: { id: messageId, channelId },
+          include: [User],
         });
         return message;
       } catch (e) {

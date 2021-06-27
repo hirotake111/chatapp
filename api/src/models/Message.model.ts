@@ -59,6 +59,9 @@ class Message extends Model {
 
   @BelongsTo(() => Channel)
   channel!: Channel;
+
+  @BelongsTo(() => User)
+  sender!: User;
 }
 
 export default Message;

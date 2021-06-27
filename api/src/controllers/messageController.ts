@@ -44,7 +44,22 @@ export const getMessageController = ({
             .status(400)
             .send({ detail: "requester is not a member of channel" });
         // get messages
-        const messages = await messageQuery.getMessagesInChannel(channelId);
+        const messages = (
+          await messageQuery.getMessagesInChannel(channelId)
+        ).map((m) => ({
+          id: m.id,
+          channelId,
+          content: m.content,
+          createdAt: m.createdAt,
+          updatedAt: m.updatedAt,
+          sender: {
+            id: m.sender.id,
+            username: m.sender.username,
+            displayName: m.sender.displayName,
+            firstName: m.sender.firstName,
+            lastName: m.sender.lastName,
+          },
+        }));
         return res.status(200).send({ detail: "success", messages });
       } catch (e) {
         return res.status(500).send({ detail: e.message });
@@ -87,15 +102,23 @@ export const getMessageController = ({
           return res.status(400).send({
             detail: `couldn't find the message - channel ID: ${channelId}, message ID: ${messageId}`,
           });
+        // respond a message
+        const { id, content, createdAt, updatedAt, sender } = message;
         return res.status(200).send({
           detail: "success",
           message: {
-            id: message.id,
-            channelId: message.channelId,
-            senderId: message.senderId,
-            content: message.content,
-            createdAt: message.createdAt,
-            updatedAt: message.updatedAt,
+            id,
+            channelId,
+            content,
+            createdAt,
+            updatedAt,
+            sender: {
+              id: sender.id,
+              username: sender.username,
+              displayName: sender.displayName,
+              firstname: sender.firstName,
+              lastName: sender.lastName,
+            },
           },
         });
       } catch (e) {
@@ -167,7 +190,7 @@ export const getMessageController = ({
         );
         if (!message)
           return res.status(400).send({ detail: "message doesn't exist" });
-        if (message!.senderId !== requesterId)
+        if (message!.sender.id !== requesterId)
           return res
             .status(400)
             .send({ detail: "you can't edit other user's message" });
@@ -211,7 +234,7 @@ export const getMessageController = ({
           return res.status(400).send({
             detail: `message doesn't exist: ${channelId} - ${messageId}`,
           });
-        if (message.senderId !== requesterId)
+        if (message.sender.id !== requesterId)
           return res
             .status(400)
             .send({ detail: "you can't edit other user's message" });
