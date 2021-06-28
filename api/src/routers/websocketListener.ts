@@ -26,6 +26,7 @@ export const addWebSocketEventListener = async (
     }
     console.log(`authenticateduser: ${username} (${userId})`);
 
+    /** onInitConnection */
     try {
       // get channel information
       const channels = await queries.channelQuery.getChannelsByUserId(userId);
@@ -44,6 +45,9 @@ export const addWebSocketEventListener = async (
 
     // message handler
     socket.on("chat message", (message: ChatMessage) => {
+      /**
+       * onChatMessage(socket, message)
+       */
       console.log("Received message: ", message);
       // const { username, userId } = socket.request.session;
       console.log("socket.handshake.auth: ", socket.handshake.auth);

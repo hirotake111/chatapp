@@ -37,7 +37,7 @@ export const getConfig = async (env: Env): Promise<ConfigType> => {
           },
         }
       : {
-          // logging: false,
+          logging: false,
         };
 
     const redisUrl = env.REDIS_URL;

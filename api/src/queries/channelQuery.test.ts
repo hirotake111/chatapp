@@ -73,7 +73,7 @@ describe("channel.query", () => {
         options: { where: { id: string } }
       ) => {
         return new Promise<[number, ChannelType[]]>((resolve, reject) => {
-          let channels = db.filter((ch) => ch.id === options.where.id);
+          const channels = db.filter((ch) => ch.id === options.where.id);
           channels[0] = { ...channels[0], ...values };
           resolve([channels.length, channels]);
         });
@@ -399,11 +399,11 @@ describe("channel.query", () => {
 
     it("should validate channelId", async () => {
       expect.assertions(1);
-      const channelId = nanoid();
+      const id = nanoid();
       try {
-        await query.getChannelByChannelIdWithMessages(channelId);
+        await query.getChannelByChannelIdWithMessages(id);
       } catch (e) {
-        expect(e.message).toEqual(`invalid channel ID: ${channelId}`);
+        expect(e.message).toEqual(`invalid channel ID: ${id}`);
       }
     });
 

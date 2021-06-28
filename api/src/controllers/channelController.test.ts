@@ -271,39 +271,39 @@ describe("channelController", () => {
     });
   });
 
-  describe("updateChannel", () => {
-    it("should update channel name", async () => {
-      // expect.assertions(2);
-      try {
-      } catch (e) {
-        throw e;
-      }
-    });
+  // describe("updateChannel", () => {
+  //   it("should update channel name", async () => {
+  //     // expect.assertions(2);
+  //     try {
+  //     } catch (e) {
+  //       throw e;
+  //     }
+  //   });
 
-    it("should create channel if not exist", async () => {
-      // expect.assertions(2);
-      try {
-      } catch (e) {
-        throw e;
-      }
-    });
+  //   it("should create channel if not exist", async () => {
+  //     // expect.assertions(2);
+  //     try {
+  //     } catch (e) {
+  //       throw e;
+  //     }
+  //   });
 
-    it("should validate if requester is not a member of it", async () => {
-      // expect.assertions(2);
-      try {
-      } catch (e) {
-        throw e;
-      }
-    });
+  //   it("should validate if requester is not a member of it", async () => {
+  //     // expect.assertions(2);
+  //     try {
+  //     } catch (e) {
+  //       throw e;
+  //     }
+  //   });
 
-    it("should respond HTTP 500 for any other errors", async () => {
-      // expect.assertions(2);
-      try {
-      } catch (e) {
-        throw e;
-      }
-    });
-  });
+  //   it("should respond HTTP 500 for any other errors", async () => {
+  //     // expect.assertions(2);
+  //     try {
+  //     } catch (e) {
+  //       throw e;
+  //     }
+  //   });
+  // });
 
   describe("deleteChannel", () => {
     it("should delete existing channel", async () => {
@@ -404,13 +404,13 @@ describe("channelController", () => {
     it("should validate channelId", async () => {
       expect.assertions(2);
       // invalid channelId
-      const channelId = nanoid();
-      req.params.channelId = channelId;
+      const id = nanoid();
+      req.params.channelId = id;
       try {
         await controller.getChannelMembers(req, res, next);
         expect(statusMock.mock.calls[0][0]).toEqual(400);
         expect(sendMock.mock.calls[0][0].detail).toEqual(
-          `invalid channel ID: ${channelId}`
+          `invalid channel ID: ${id}`
         );
       } catch (e) {
         throw e;
@@ -557,7 +557,7 @@ describe("channelController", () => {
         expect(statusMock.mock.calls[0][0]).toEqual(200);
         expect(sendMock.mock.calls[0][0]).toEqual({
           detail: "success",
-          channel: channel,
+          channel,
         });
       } catch (e) {
         throw e;

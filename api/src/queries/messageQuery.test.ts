@@ -75,7 +75,7 @@ describe("messageQuery", () => {
       expect.assertions(1);
       messageModel.findOne = jest
         .fn()
-        .mockReturnValue({ id: messageId, channelId: channelId });
+        .mockReturnValue({ id: messageId, channelId });
       try {
         const message = await query.createMessage(
           messageId,
@@ -100,11 +100,11 @@ describe("messageQuery", () => {
 
     it("should validate channelId", async () => {
       expect.assertions(1);
-      const channelId = nanoid();
+      const id = nanoid();
       try {
-        await query.createMessage(messageId, channelId, requesterId, content);
+        await query.createMessage(messageId, id, requesterId, content);
       } catch (e) {
-        expect(e.message).toEqual(`invalid channel ID: ${channelId}`);
+        expect(e.message).toEqual(`invalid channel ID: ${id}`);
       }
     });
 
@@ -152,11 +152,11 @@ describe("messageQuery", () => {
 
     it("should validate channelId", async () => {
       expect.assertions(1);
-      const channelId = nanoid();
+      const id = nanoid();
       try {
-        await query.getMessagesInChannel(channelId);
+        await query.getMessagesInChannel(id);
       } catch (e) {
-        expect(e.message).toEqual(`invalid channel ID: ${channelId}`);
+        expect(e.message).toEqual(`invalid channel ID: ${id}`);
       }
     });
 
@@ -253,11 +253,11 @@ describe("messageQuery", () => {
 
     it("should validate channelId", async () => {
       expect.assertions(1);
-      const channelId = nanoid();
+      const id = nanoid();
       try {
-        await query.editMessage(messageId, channelId, newContent);
+        await query.editMessage(messageId, id, newContent);
       } catch (e) {
-        expect(e.message).toEqual(`invalid channel ID: ${channelId}`);
+        expect(e.message).toEqual(`invalid channel ID: ${id}`);
       }
     });
 

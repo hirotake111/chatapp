@@ -51,7 +51,7 @@ export const getRosterContoller = ({
           .status(400)
           .send({ detail: `invalid channel ID: ${channelId}` });
       // validate userIds
-      let idsToBeAdded = checkArrayOfUuidv4(userIds);
+      const idsToBeAdded = checkArrayOfUuidv4(userIds);
       if (!idsToBeAdded)
         return res.status(400).send({ detail: "invalid user IDs" });
       // validate requesterId

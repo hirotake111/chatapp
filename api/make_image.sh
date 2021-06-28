@@ -1,7 +1,6 @@
-echo -n "prod or dev? (dev): "
-read $VAR
 
-if [ "$VAR" == "prod" ]; then
+if [ "$1" == "prod" ]; then
+    echo "Building production image"
     if [ ! $IMAGE ]; then
         echo "You need to set IMAGE environment variable before kicking this off"
         exit 1
@@ -13,7 +12,8 @@ if [ "$VAR" == "prod" ]; then
     docker buildx build --push --platform linux/arm/v7,linux/amd64  -t $IMAGE .
     exit 0
 
-elif [ "$VAR" == "dev" ] || [ -z $VAR ]; then
+else
+    echo "Building development image"
     echo "================"
     npm run prebuild
     if [ $? -ne 0 ]; then

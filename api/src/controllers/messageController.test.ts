@@ -132,8 +132,8 @@ describe("messageController", () => {
     });
     it("should respond HTTP 400 if channel doesn't exist", async () => {
       expect.assertions(2);
-      userQuery.getUsersByChannelId = (channelId: string) => {
-        throw new Error(`channel ID ${channelId} doesn't exist`);
+      userQuery.getUsersByChannelId = (id: string) => {
+        throw new Error(`channel ID ${id} doesn't exist`);
       };
       try {
         await controller.postMessage(req, res, next);

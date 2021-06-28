@@ -94,8 +94,8 @@ describe("RosterQuery", () => {
       expect.assertions(2);
       try {
         // add a record directly to db
-        let channelId = nanoid();
-        let userId = uuid();
+        const channelId = nanoid();
+        const userId = uuid();
         await RosterModel.create({ channelId, userId });
         // delete it
         await rosterQuery.deleteUserFromChannel(channelId, userId);
@@ -104,8 +104,8 @@ describe("RosterQuery", () => {
       }
       try {
         // add a record directly to db
-        let channelId = uuid();
-        let userId = nanoid();
+        const channelId = uuid();
+        const userId = nanoid();
         await RosterModel.create({ channelId, userId });
         // delete it
         await rosterQuery.deleteUserFromChannel(channelId, userId);

@@ -1,6 +1,10 @@
 import { Router } from "express";
+import { Server } from "socket.io";
+
 import { RootController } from "../controllers/controller";
 import { authenticateUser, setNoCache } from "../middleware";
+import { getWSRouter } from "../utils/wsRouter";
+import { WSController } from "../controllers/wsController";
 
 export const useRoute = (controller: RootController) => {
   const router = Router();
@@ -120,4 +124,11 @@ export const useRoute = (controller: RootController) => {
   );
 
   return router;
+};
+
+export const userWebSocketRoute = (io: Server, controller: WSController) => {
+  const wsRouter = getWSRouter<ChatMessage>(io);
+  wsRouter.onConnect(controller.onConnection);
+  wsRouter.on("chat message", controller.onChatMessage);
+  wsRouter.on("disconnect", controller.onDiscconect);
 };

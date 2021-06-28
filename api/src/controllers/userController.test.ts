@@ -25,20 +25,20 @@ const userInfo = {
 };
 
 // mock ojbects
-const req = { session: { username: "", userId: "", verifier: "xxxx" } } as any;
-const res = {
+let req = { session: { username: "", userId: "", verifier: "xxxx" } } as any;
+let res = {
   status: jest.fn().mockReturnThis(),
   send: jest.fn(),
   redirect: jest.fn(),
 } as any;
-const next = {} as any;
+let next = {} as any;
 const redirectMock = res.redirect as jest.Mock;
-const userQuery = {
+let userQuery = {
   getUserByUsername: jest.fn(),
   createUser: jest.fn(),
 } as any;
-const statusMock = res.status as jest.Mock;
-const sendMock = res.send as jest.Mock;
+let statusMock = res.status as jest.Mock;
+let sendMock = res.send as jest.Mock;
 const generators = {
   codeVerifier: jest.fn().mockReturnValue(verifier),
   codeChallenge: jest.fn().mockReturnValue(codeChallenge),
@@ -96,7 +96,7 @@ describe("userController", () => {
         const uc = getUserController({
           oidcClient,
           generators: generatorsFail,
-          userQuery: userQuery,
+          userQuery,
           config,
         });
         await uc.getLogin(req, res, next);
@@ -118,7 +118,7 @@ describe("userController", () => {
         const uc = getUserController({
           oidcClient,
           generators,
-          userQuery: userQuery,
+          userQuery,
           config,
         });
         await uc.getCallback(req, res, next);
@@ -177,7 +177,7 @@ describe("userController", () => {
         const uc = getUserController({
           oidcClient: mockClient,
           generators,
-          userQuery: userQuery,
+          userQuery,
           config,
         });
         await uc.getCallback(req, res, next);
@@ -204,7 +204,7 @@ describe("userController", () => {
         const uc = getUserController({
           oidcClient: clientFail,
           generators,
-          userQuery: userQuery,
+          userQuery,
           config,
         });
         await uc.getCallback(req, res, next);
@@ -220,13 +220,13 @@ describe("userController", () => {
 
   describe("getusers()", () => {
     let controller: UserController;
-    let userQuery: UserQuery;
-    let req: Request;
-    let res: Response;
-    let next: NextFunction;
+    // let userQuery: UserQuery;
+    // let req: Request;
+    // let res: Response;
+    // let next: NextFunction;
     let userId: string;
-    let statusMock: jest.Mock;
-    let sendMock: jest.Mock;
+    // let statusMock: jest.Mock;
+    // let sendMock: jest.Mock;
 
     beforeEach(() => {
       userId = uuid();
@@ -312,17 +312,17 @@ describe("userController", () => {
 
   describe("getUserInfo", () => {
     let controller: UserController;
-    let userQuery: UserQuery;
-    let req: Request;
-    let res: Response;
-    let next: NextFunction;
+    // let userQuery: UserQuery;
+    // let req: Request;
+    // let res: Response;
+    // let next: NextFunction;
     let userId: string;
     let username: string;
     let firstName: string;
     let lastName: string;
     let displayName: string;
-    let statusMock: jest.Mock;
-    let sendMock: jest.Mock;
+    // let statusMock: jest.Mock;
+    // let sendMock: jest.Mock;
 
     beforeEach(() => {
       userId = uuid();
