@@ -2,7 +2,7 @@ import { createServer } from "http";
 import express, { Request, NextFunction } from "express";
 import sessionMiddleware from "express-session";
 import morgan from "morgan";
-import { Server, Socket } from "socket.io";
+import { Server } from "socket.io";
 
 import { getConfig } from "./config";
 import { getController } from "./controllers/controller";
@@ -11,7 +11,6 @@ import { getDb } from "./utils/db";
 import { getAggrigator } from "./aggrigators";
 import { getQueries } from "./queries";
 import { env } from "./env";
-import { addWebSocketEventListener } from "./routers/websocketListener";
 import { connectKafkaCluster } from "./routers/kafkaCluster";
 import { getWSRouter } from "./utils/wsRouter";
 import { getWSController } from "./controllers/wsController";
@@ -61,7 +60,7 @@ const io = new Server(http, {
     // WebSocket controller
     const wsController = getWSController(queries);
     // use WebSocket router
-    const wsRouter = getWSRouter<ChatMessage>(io);
+    const wsRouter = getWSRouter(io);
     wsRouter.onConnect(wsController.onConnection);
     wsRouter.on("chat message", wsController.onChatMessage);
     wsRouter.on("disconnect", wsController.onDiscconect);

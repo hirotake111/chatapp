@@ -127,8 +127,9 @@ export const useRoute = (controller: RootController) => {
 };
 
 export const userWebSocketRoute = (io: Server, controller: WSController) => {
-  const wsRouter = getWSRouter<ChatMessage>(io);
+  const wsRouter = getWSRouter(io);
   wsRouter.onConnect(controller.onConnection);
   wsRouter.on("chat message", controller.onChatMessage);
   wsRouter.on("disconnect", controller.onDiscconect);
+  wsRouter.on("reconnect", controller.onReconnect);
 };

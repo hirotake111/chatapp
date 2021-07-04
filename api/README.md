@@ -15,7 +15,7 @@
 # Image for development
 ./make_image.sh
 # Image for production (multi platform)
-./make_image.sh # type "prod"
+./make_image.sh prod
 ```
 
 ---

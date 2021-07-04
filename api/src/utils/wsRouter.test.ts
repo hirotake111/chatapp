@@ -1,68 +1,87 @@
 import { Server, Socket } from "socket.io";
 import { nanoid } from "nanoid";
+import { createServer } from "http";
+import Client, { Socket as ClientSocket } from "socket.io-client";
 
-import {
-  Callback,
-  CallbackOnConnection,
-  getWSRouter,
-  WSRouter,
-} from "./wsRouter";
+import { getWSRouter, WSRouter } from "./wsRouter";
 
 describe("WSRouter", () => {
-  let router: WSRouter<string>;
+  let router: WSRouter;
   let io: Server;
+  let serverSocket: Socket;
+  let clientSocket: ClientSocket;
   let eventName: string;
+  let data: string;
+  let port: number;
   let socket: Socket;
-  let callback: Callback;
-  let callbackOnConnection: CallbackOnConnection;
+  let cb: (io: Server, socket: Socket, data: string) => Promise<void>;
+  let onConnectionCB: (io: Server, socket: Socket) => Promise<void>;
   let mockOnMethod: jest.Mock;
   let mockCallbackOnConnection: jest.Mock;
 
-  beforeEach(() => {
+  beforeAll(() => {
+    /**
+     * beforeAll function creates WebSocket Server and Client,
+     * and then connect each other.
+     */
+    const httpServer = createServer();
+    port = 3000;
+    const URL = `http://localhost:${port}`;
     eventName = nanoid();
-    callback = async <T>(s: Socket, d: T) => {
-      console.log(s, d);
-    };
-    callbackOnConnection = async (s: Socket) => {
-      console.log(s);
-    };
-    socket = {} as any;
-    io = {
-      on: jest.fn(),
-    } as any;
-    mockOnMethod = io.on as jest.Mock;
-    mockCallbackOnConnection = callbackOnConnection as jest.Mock;
+    data = nanoid();
+    io = new Server(httpServer);
+    httpServer.listen(port, () => {});
+  });
+
+  afterAll(() => {
+    /**
+     * afterAll function close WebSocket connection between server and client
+     */
+    io.close();
+    clientSocket.close();
+  });
+
+  it("should invoke registered event handdler when the event is emmited", (done) => {
+    expect.assertions(1);
+    clientSocket = Client(`http://localhost:${port}`);
     router = getWSRouter(io);
+    onConnectionCB = async (io: Server, socket: Socket) => {
+      serverSocket = socket;
+    };
+    // onConnection listener on client side
+    clientSocket.on("connect", () => {});
+    cb = async (io, s, m) => {
+      expect(m).toBe(data);
+      done();
+    };
+    // register event
+    router.on(eventName, cb);
+    router.onConnect(onConnectionCB);
+    // emit event
+    clientSocket.emit(eventName, data);
   });
 
-  describe("on method", () => {
-    it("should add callback to events object", () => {
-      expect.assertions(1);
-      // add event and callback
-      router.on(eventName, callback);
-      expect(router.getEvent(eventName)).toEqual(callback);
+  it("should close the connection if an initial callback throw an error", (done) => {
+    expect.assertions(1);
+    clientSocket = Client(`http://localhost:${port}`);
+    router = getWSRouter(io);
+    // onConnection listener on client side
+    onConnectionCB = jest.fn().mockImplementation(() => {
+      throw new Error("some error");
     });
+    clientSocket.on("connect", () => {});
+    clientSocket.on("disconnect", (reason) => {
+      expect(reason).toBe("io server disconnect");
+      done();
+    });
+    // register event
+    router.on(eventName, async (s, m) => {
+      console.log(s, m);
+    });
+    // register on connection event handler
+    router.onConnect(onConnectionCB);
+    clientSocket.emit(eventName, data);
   });
 
-  describe("getEvent method", () => {
-    it("should return null if no event handler is added", () => {
-      expect.assertions(1);
-      expect(router.getEvent(eventName)).toEqual(null);
-    });
-  });
-
-  describe("onConnect method", () => {
-    it("should invoke io.on method", async () => {
-      expect.assertions(1);
-      router.onConnect();
-      expect(mockOnMethod.mock.calls[0][0]).toEqual("connection");
-    });
-
-    it("should register an event handler", async () => {
-      // expect.assertions(1);
-      // register event handler
-      // emit event
-      // check if the handler has benn invoked
-    });
-  });
+  // test for getevetn
 });

@@ -10,8 +10,6 @@
     "start": "nodemon --config nodemon.json src/server.ts",
     "start:debug": "nodemon --config nodemon.json --inspect-brk src/server.ts",
     "make": "bash ./make_image.sh",
-    "buildprod": "./make_prod_image.sh",
-    "make-dev": "docker build -t myapp -f Dockerfile-dev .",
     "test": "docker-compose run --rm app ./node_modules/.bin/jest --watchAll"
   },
   "keywords": [],

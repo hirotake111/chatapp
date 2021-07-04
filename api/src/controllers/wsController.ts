@@ -1,78 +1,136 @@
-import { Socket } from "socket.io";
+import { Server, Socket } from "socket.io";
 
 import { Queries } from "../queries";
 
+/**
+ * return ChatPayload, or null if invalid
+ */
+const validateChatPayload = (data: any): ChatPayload | null => {
+  const {
+    sender: { username, id },
+    timestamp,
+    channelId,
+    messageId,
+    content,
+  } = data;
+  return username &&
+    typeof username === "string" &&
+    id &&
+    typeof id === "string" &&
+    timestamp &&
+    typeof timestamp === "number" &&
+    channelId &&
+    typeof channelId === "string" &&
+    channelId &&
+    typeof messageId === "string" &&
+    content &&
+    typeof content === "string"
+    ? {
+        sender: { username, id },
+        timestamp,
+        channelId,
+        messageId,
+        content,
+      }
+    : null;
+};
+
+const sendExceptionToSender = (
+  socket: Socket,
+  payload: ExceptionPayload
+): void => {
+  // send exception event to sender
+  socket.emit("exception", payload);
+};
+
 export interface WSController {
   /**
-   * connection event handler
+   * connection event handler.
+   * If not authenticated, throw an error
    */
-  onConnection: (socket: Socket) => Promise<void>;
+  onConnection: (io: Server, socket: Socket) => Promise<void>;
   /**
    * disconnect event handler
    */
-  onDiscconect: (socket: Socket, message: ChatMessage) => Promise<void>;
+  onDiscconect: (io: Server, socket: Socket, data: any) => Promise<void>;
+  /**
+   * reconnect event handler
+   */
+  onReconnect: (io: Server, socket: Socket, data: any) => Promise<void>;
   /*
    * chat message event handler
    */
-  onChatMessage: (socket: Socket, message: ChatMessage) => Promise<void>;
+  onChatMessage: (io: Server, socket: Socket, data: any) => Promise<void>;
+  /**
+   * event handler to handle error message from client
+   */
+  onException: (io: Server, socket: Socket, data: any) => Promise<void>;
 }
 
 export const getWSController = (queries: Queries): WSController => {
   return {
-    onConnection: async (socket: Socket) => {
-      console.log("==== WEBSOCKET CONNECTED!!!! ===");
+    onConnection: async (io: Server, socket: Socket) => {
       // validate user
       const { userId, username } = socket.request.session;
-      if (!userId || !username) {
-        console.log("user is not authenticated");
-        socket.disconnect(true);
-        return;
-      }
-      console.log(`authenticateduser: ${username} (${userId})`);
+      if (!userId || !username) throw new Error("user is not authenticated");
+      console.log(`==== WEBSOCKET CONNECTED ${username} (${userId}) ====`);
 
       try {
-        // get channel information
-        const channels = await queries.channelQuery.getChannelsByUserId(userId);
+        // get channel IDs
+        const channelIds = (
+          await queries.channelQuery.getChannelsByUserId(userId)
+        ).map((channel) => channel.id);
         // join room(s)
-        const ids = channels.map((ch) => ch.id);
-        console.log("Joining channel IDs: ", ids);
-        socket.join(ids);
+        console.log("Joining channel IDs: ", channelIds);
+        socket.join(channelIds);
       } catch (e) {
         throw e;
       }
     },
 
-    onDiscconect: async (socket: Socket, message: ChatMessage) => {
-      console.log("client disconnected with data: ", message);
+    onDiscconect: async (io: Server, socket: Socket, data: any) => {
+      console.log("client disconnected with data: ", data);
     },
 
-    onChatMessage: async (socket: Socket, message: ChatMessage) => {
-      console.log("Received message: ", message);
-      console.log("socket.handshake.auth: ", socket.handshake.auth);
+    onReconnect: async (io: Server, socket: Socket, data: any) => {
+      console.log(`user ${socket.handshake} reconnected`);
+    },
+
+    onChatMessage: async (io: Server, socket: Socket, data: any) => {
+      // console.log("Received message: ", data);
+      // console.log("socket.handshake.auth: ", socket.handshake.auth);
+      // validate user
       const { userId, username } = socket.request.session;
-      if (!username || !userId) {
-        socket.emit("chat message", {
+      if (!username || !userId)
+        return sendExceptionToSender(socket, {
+          code: 400,
+          detail: "Not authenticated",
           timestamp: Date.now(),
-          content: "Not Authenticated",
         });
-        return;
-      }
-      // check if authenticated user and sender info in payload is the same
-      if (
-        username !== message.sender.username ||
-        userId !== message.sender.userId
-      ) {
-        socket.emit("chat message", {
-          ...message,
-          error: {
-            code: 400, // bad request
-            reason: "invalid username or user id",
-          },
-        } as ChatMessage);
-      }
+      // validate payload
+      const chat = validateChatPayload(data);
+      if (!chat)
+        return sendExceptionToSender(socket, {
+          code: 400,
+          detail: "ivalid payload",
+          timestamp: Date.now(),
+        });
+      // sender and authenticated user must be the same
+      if (username !== chat.sender.username || userId !== chat.sender.id)
+        return sendExceptionToSender(socket, {
+          code: 400, // bad request
+          detail: "invalid username or user id",
+          timestamp: Date.now(),
+        });
       // send members the message
-      socket.to(message.channelId).emit("chat message", message);
-      // socket.emit("chat message", message);
+      io.to(chat.channelId).emit("chat message", chat);
+      // socket.to(chat.channelId).emit("socket to chat message", chat);
+    },
+
+    onException: async (io: Server, socket: Socket, data: any) => {
+      // close the underlying connection
+      console.log("socket will close and received data: ", data);
+      socket.disconnect(true);
     },
   };
 };

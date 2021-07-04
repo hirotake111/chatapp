@@ -10,19 +10,21 @@ declare module "http" {
   }
 }
 
-declare interface ChatMessage {
+declare interface ChatPayload {
   sender: {
     username: string;
-    userId: string;
+    id: string;
   };
   timestamp: number;
   channelId: string;
   messageId: string;
   content: string;
-  error?: {
-    code: number;
-    reason: string;
-  };
+}
+
+declare interface ExceptionPayload {
+  code: number;
+  detail: string;
+  timestamp: number;
 }
 
 declare interface CreateUserProps {

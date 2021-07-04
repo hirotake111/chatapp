@@ -1,56 +1,72 @@
 import { Server, Socket } from "socket.io";
 
-export type Callback = <T>(socket: Socket, data: T) => Promise<void>;
-export type CallbackOnConnection = (socket: Socket) => Promise<void>;
-
-export interface WSRouter<T> {
+export interface WSRouter {
   /**
    * create io.on event handler, run callback function inside it,
    * then register event hadlers
    */
-  onConnect: (callback?: CallbackOnConnection) => void;
+  onConnect: (callback?: (io: Server, socket: Socket) => Promise<void>) => void;
   /**
    * add an event handler
    */
-  on: (event: string, callback: Callback) => void;
+  on: (
+    event: string,
+    callback: (io: Server, socket: Socket, data: any) => Promise<void>
+  ) => void;
   /**
    * return events object
    */
-  getEvent: (event: string) => Callback | null;
+  getEvent: (
+    event: string
+  ) => ((io: Server, socket: Socket, data: any) => Promise<void>) | null;
 }
 
-export const getWSRouter = <T>(io: Server): WSRouter<T> => {
+export const getWSRouter = (io: Server): WSRouter => {
   // init events object
-  const events: { [event: string]: Callback } = {};
+  const events: {
+    [event: string]: (
+      io: Server,
+      socket: Socket,
+      message: any
+    ) => Promise<void>;
+  } = {};
 
   return {
-    onConnect: (callback?: CallbackOnConnection) => {
+    onConnect: (callback?: (io: Server, socket: Socket) => Promise<void>) => {
       io.on("connection", async (socket) => {
         // run callback function
         if (callback) {
           try {
-            await callback(socket);
+            await callback(io, socket);
           } catch (e) {
-            throw e;
+            // close WebSocket conneciton
+            socket.disconnect(true);
+            io.close();
           }
         }
+        // debugging purpose
+        // socket.onAny((event, data) => console.log("on any: ", event, data));
         // pick up each key from events object
         // create on event handler and invoke callback inside it
-        console.log("about to register");
         Object.keys(events).forEach((key) => {
-          socket.on(key, (data: T) => {
-            events[key](socket, data);
+          socket.on(key, (data: any) => {
+            events[key](io, socket, data);
           });
-          console.log(`==== event "${key}" registered ====`);
         });
       });
     },
 
-    on: (event: string, callback: Callback) => {
+    on: (
+      event: string,
+      callback: (io: Server, socket: Socket, data: any) => Promise<void>
+    ) => {
       // add event handler callback to events object
       events[event] = callback;
     },
 
-    getEvent: (event: string) => (events[event] ? events[event] : null),
+    getEvent: (event: string) => {
+      const callback = events[event] ? events[event] : null;
+      return callback;
+    },
   };
 };

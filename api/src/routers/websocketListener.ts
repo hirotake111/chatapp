@@ -44,7 +44,7 @@ export const addWebSocketEventListener = async (
     });
 
     // message handler
-    socket.on("chat message", (message: ChatMessage) => {
+    socket.on("chat message", (message: ChatPayload) => {
       /**
        * onChatMessage(socket, message)
        */
@@ -62,7 +62,7 @@ export const addWebSocketEventListener = async (
       // check if authenticated user and sender info in payload is the same
       if (
         username !== message.sender.username ||
-        userId !== message.sender.userId
+        userId !== message.sender.id
       ) {
         socket.emit("chat message", {
           ...message,
@@ -70,7 +70,7 @@ export const addWebSocketEventListener = async (
             code: 400, // bad request
             reason: "invalid username or user id",
           },
-        } as ChatMessage);
+        } as ChatPayload);
       }
       // send members the message
       socket.to(message.channelId).emit("chat message", message);
