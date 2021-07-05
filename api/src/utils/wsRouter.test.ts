@@ -13,11 +13,8 @@ describe("WSRouter", () => {
   let eventName: string;
   let data: string;
   let port: number;
-  let socket: Socket;
   let cb: (io: Server, socket: Socket, data: string) => Promise<void>;
-  let onConnectionCB: (io: Server, socket: Socket) => Promise<void>;
-  let mockOnMethod: jest.Mock;
-  let mockCallbackOnConnection: jest.Mock;
+  let onConnectionCb: (io: Server, socket: Socket) => Promise<void>;
 
   beforeAll(() => {
     /**
@@ -27,10 +24,22 @@ describe("WSRouter", () => {
     const httpServer = createServer();
     port = 3000;
     const URL = `http://localhost:${port}`;
-    eventName = nanoid();
-    data = nanoid();
     io = new Server(httpServer);
     httpServer.listen(port, () => {});
+    onConnectionCb = async (io: Server, socket: Socket) => {
+      serverSocket = socket;
+    };
+  });
+
+  beforeEach(() => {
+    data = nanoid();
+    eventName = nanoid();
+    router = getWSRouter(io);
+  });
+
+  afterEach(() => {
+    serverSocket.disconnect();
+    clientSocket.close();
   });
 
   afterAll(() => {
@@ -38,25 +47,32 @@ describe("WSRouter", () => {
      * afterAll function close WebSocket connection between server and client
      */
     io.close();
-    clientSocket.close();
   });
 
   it("should invoke registered event handdler when the event is emmited", (done) => {
     expect.assertions(1);
     clientSocket = Client(`http://localhost:${port}`);
-    router = getWSRouter(io);
-    onConnectionCB = async (io: Server, socket: Socket) => {
-      serverSocket = socket;
-    };
-    // onConnection listener on client side
-    clientSocket.on("connect", () => {});
     cb = async (io, s, m) => {
       expect(m).toBe(data);
       done();
     };
     // register event
     router.on(eventName, cb);
-    router.onConnect(onConnectionCB);
+    router.onConnect(onConnectionCb);
+    // emit event
+    clientSocket.emit(eventName, data);
+  });
+
+  it("should invoke registered event handdler without onConnection callback", (done) => {
+    expect.assertions(1);
+    clientSocket = Client(`http://localhost:${port}`);
+    // register event
+    router.on(eventName, async (io, s, m) => {
+      expect(m).toBe(data);
+      done();
+    });
+    // on connection handler > register all event handlers
+    router.onConnect();
     // emit event
     clientSocket.emit(eventName, data);
   });
@@ -64,22 +80,18 @@ describe("WSRouter", () => {
   it("should close the connection if an initial callback throw an error", (done) => {
     expect.assertions(1);
     clientSocket = Client(`http://localhost:${port}`);
-    router = getWSRouter(io);
-    // onConnection listener on client side
-    onConnectionCB = jest.fn().mockImplementation(() => {
-      throw new Error("some error");
-    });
-    clientSocket.on("connect", () => {});
+    // register on disconnect event handler
     clientSocket.on("disconnect", (reason) => {
       expect(reason).toBe("io server disconnect");
       done();
     });
-    // register event
-    router.on(eventName, async (s, m) => {
-      console.log(s, m);
-    });
     // register on connection event handler
-    router.onConnect(onConnectionCB);
+    router.onConnect(
+      jest.fn().mockImplementation((io, socket) => {
+        serverSocket = socket;
+        throw new Error("some error");
+      })
+    );
     clientSocket.emit(eventName, data);
   });
 

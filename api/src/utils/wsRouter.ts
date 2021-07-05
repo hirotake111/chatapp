@@ -13,12 +13,6 @@ export interface WSRouter {
     event: string,
     callback: (io: Server, socket: Socket, data: any) => Promise<void>
   ) => void;
-  /**
-   * return events object
-   */
-  getEvent: (
-    event: string
-  ) => ((io: Server, socket: Socket, data: any) => Promise<void>) | null;
 }
 
 export const getWSRouter = (io: Server): WSRouter => {
@@ -62,11 +56,6 @@ export const getWSRouter = (io: Server): WSRouter => {
     ) => {
       // add event handler callback to events object
       events[event] = callback;
-    },
-
-    getEvent: (event: string) => {
-      const callback = events[event] ? events[event] : null;
-      return callback;
     },
   };
 };
