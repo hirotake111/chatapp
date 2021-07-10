@@ -97,8 +97,6 @@ export const getWSController = (queries: Queries): WSController => {
     },
 
     onChatMessage: async (io: Server, socket: Socket, data: any) => {
-      // console.log("Received message: ", data);
-      // console.log("socket.handshake.auth: ", socket.handshake.auth);
       // validate user
       const { userId, username } = socket.request.session;
       if (!username || !userId)
@@ -122,6 +120,22 @@ export const getWSController = (queries: Queries): WSController => {
           detail: "invalid username or user id",
           timestamp: Date.now(),
         });
+      try {
+        // store message to database first
+        const message = await queries.messageQuery.createMessage(
+          chat.messageId,
+          chat.channelId,
+          chat.sender.id,
+          chat.content
+        );
+        if (!message) throw new Error("failed to store message to database");
+      } catch (e) {
+        return sendExceptionToSender(socket, {
+          code: 500,
+          detail: e.message,
+          timestamp: Date.now(),
+        });
+      }
       // send members the message
       io.to(chat.channelId).emit("chat message", chat);
       // socket.to(chat.channelId).emit("socket to chat message", chat);
