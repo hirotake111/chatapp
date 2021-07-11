@@ -3,8 +3,6 @@ import { createHash } from "crypto";
 import { v4 as uuid } from "uuid";
 
 import { getUserController, UserController } from "./userController";
-import { UserQuery } from "../queries/userQuery";
-import { Request, Response, NextFunction } from "express";
 
 // constants
 const verifier = nanoid();
@@ -66,9 +64,7 @@ describe("userController", () => {
       expect.assertions(5);
       try {
         const uc = getUserController({
-          oidcClient,
-          generators,
-          userQuery,
+          query: userQuery,
           config,
         });
         await uc.getLogin(req, res, next);
@@ -93,10 +89,9 @@ describe("userController", () => {
           }),
         } as any;
         // invoke function
+        config.oidc.generators = generatorsFail;
         const uc = getUserController({
-          oidcClient,
-          generators: generatorsFail,
-          userQuery,
+          query: userQuery,
           config,
         });
         await uc.getLogin(req, res, next);
@@ -116,9 +111,7 @@ describe("userController", () => {
       try {
         // invoke function
         const uc = getUserController({
-          oidcClient,
-          generators,
-          userQuery,
+          query: userQuery,
           config,
         });
         await uc.getCallback(req, res, next);
@@ -148,9 +141,7 @@ describe("userController", () => {
         } as any;
         // invoke function
         const uc = getUserController({
-          oidcClient,
-          generators,
-          userQuery: userServiceMock,
+          query: userServiceMock,
           config,
         });
         await uc.getCallback(req, res, next);
@@ -175,9 +166,7 @@ describe("userController", () => {
         } as any;
         // invoke function
         const uc = getUserController({
-          oidcClient: mockClient,
-          generators,
-          userQuery,
+          query: userQuery,
           config,
         });
         await uc.getCallback(req, res, next);
@@ -202,9 +191,7 @@ describe("userController", () => {
         } as any;
         // invoke function
         const uc = getUserController({
-          oidcClient: clientFail,
-          generators,
-          userQuery,
+          query: userQuery,
           config,
         });
         await uc.getCallback(req, res, next);
@@ -262,9 +249,7 @@ describe("userController", () => {
         getUsersByChannelId: jest.fn(),
       };
       controller = getUserController({
-        oidcClient,
-        generators,
-        userQuery,
+        query: userQuery,
         config,
       });
     });
@@ -368,9 +353,7 @@ describe("userController", () => {
         getUsersByChannelId: jest.fn(),
       };
       controller = getUserController({
-        oidcClient,
-        generators,
-        userQuery,
+        query: userQuery,
         config,
       });
     });

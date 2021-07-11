@@ -1,11 +1,10 @@
 import { v4 as uuid, validate } from "uuid";
 import { Request, Response, RequestHandler } from "express";
-import { Client, generators as Generators } from "openid-client";
-import { UserQuery } from "../queries/userQuery";
-import { ConfigType } from "../config";
-// import { ControllerSignature } from "../type";
 import { ProducerRecord } from "kafkajs";
 import { createHash } from "crypto";
+
+import { ChatConfigType } from "../config";
+import { UserQuery } from "../queries/userQuery";
 
 export type UserController = {
   getLogin: RequestHandler;
@@ -15,25 +14,21 @@ export type UserController = {
 };
 
 export const getUserController = ({
-  oidcClient,
-  generators,
-  userQuery,
   config,
+  query: userQuery,
 }: {
-  oidcClient: Client;
-  generators: typeof Generators;
-  userQuery: UserQuery;
-  config: ConfigType;
+  query: UserQuery;
+  config: ChatConfigType;
 }): UserController => ({
   getLogin: async (req: Request, res: Response) => {
     try {
       // generate and store code verifier
-      const codeVerifier = generators.codeVerifier();
+      const codeVerifier = config.oidc.generators.codeVerifier();
       req.session.verifier = codeVerifier;
       // generate authorization URI
-      const authzUrl = oidcClient.authorizationUrl({
+      const authzUrl = config.oidc.client.authorizationUrl({
         scope: "openid email profile",
-        code_challenge: generators.codeChallenge(codeVerifier),
+        code_challenge: config.oidc.generators.codeChallenge(codeVerifier),
         code_challenge_method: "S256",
       });
       // return res.send("getLogin()");
@@ -51,8 +46,8 @@ export const getUserController = ({
   getCallback: async (req: Request, res: Response) => {
     try {
       // get token set from OIDC server
-      const params = oidcClient.callbackParams(req);
-      const tokenSet = await oidcClient.callback(
+      const params = config.oidc.client.callbackParams(req);
+      const tokenSet = await config.oidc.client.callback(
         config.oidc.callbackUrl,
         params,
         {
@@ -68,7 +63,7 @@ export const getUserController = ({
         return;
       }
       // get user info
-      const userInfo = await oidcClient.userinfo(accessToken);
+      const userInfo = await config.oidc.client.userinfo(accessToken);
       // If user does not exists on database, create new one
       const user: CreateUserProps = {
         id: userInfo.sub,
@@ -115,7 +110,7 @@ export const getUserController = ({
     } catch (e) {
       res
         .status(500)
-        .send({ error: "INTERNAL SERVER ERROR", detail: e.message });
+        .send({ error: "INTERNAL SERVER ERROR!", detail: e.message });
       return;
     }
   },

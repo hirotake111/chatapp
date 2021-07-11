@@ -4,16 +4,16 @@ import sessionMiddleware from "express-session";
 import morgan from "morgan";
 import { Server } from "socket.io";
 
-import { getConfig } from "./config";
-import { getController } from "./controllers/controller";
-import { useRoute } from "./routers/router";
+import { getConfig } from "./server/config";
+import { getController } from "./chats/controllers/controller";
+import { getRouter } from "./server/router";
 import { getDb } from "./utils/db";
-import { getAggrigator } from "./aggrigators";
-import { getQueries } from "./queries";
-import { env } from "./env";
-import { connectKafkaCluster } from "./routers/kafkaCluster";
-import { getWSRouter } from "./utils/wsRouter";
-import { getWSController } from "./controllers/wsController";
+import { getAggrigator } from "./chats/aggrigators/aggrigators";
+import { getQueries } from "./chats/queries/query";
+import { env } from "./server/env";
+import { connectKafkaCluster } from "./server/kafkaCluster";
+import { getWSController } from "./chats/controllers/wsController";
+import { useWebSocketRoute } from "./chats/router";
 
 const app = express();
 const http = createServer(app);
@@ -34,23 +34,29 @@ const io = new Server(http, {
     app.use(morgan("tiny")); // logger
 
     // connect Kafka cluster
-    connectKafkaCluster(config);
+    connectKafkaCluster(
+      config.chat.kafka.producer,
+      config.chat.kafka.consumer,
+      [config.chat.kafka.topicName]
+    );
 
     // connect to database
-    await getDb(config);
+    await getDb(
+      config.chat.database.databaseUri,
+      config.chat.database.modelPath,
+      config.chat.database.sequelizeoptions
+    );
 
     // get service
-    const queries = getQueries(config);
+    const queries = getQueries(config.chat);
     // get controller
-    const controller = getController(config, queries);
-    // use router
-    app.use(useRoute(controller));
+    const controller = getController(config.chat, queries);
+    // get router
+    const router = getRouter(controller);
+    app.use(router);
 
     // register callbacks for Kafka topic
-    getAggrigator(config, queries);
-
-    // Websocket listener
-    // addWebSocketEventListener(io, queries, session);
+    getAggrigator(config.chat, queries);
 
     // use session for WebSocket
     io.use((socket, next) => {
@@ -60,15 +66,10 @@ const io = new Server(http, {
     // WebSocket controller
     const wsController = getWSController(queries);
     // use WebSocket router
-    const wsRouter = getWSRouter(io);
-    wsRouter.onConnect(wsController.onConnection);
-    wsRouter.on("chat message", wsController.onChatMessage);
-    wsRouter.on("disconnect", wsController.onDiscconect);
+    useWebSocketRoute(io, wsController);
 
     http.listen(config.port, () => {
-      console.log(`http://${config.hostname}:${config.port}/userinfo`);
-      console.log(`http://${config.hostname}:${config.port}/login`);
-      console.log(config.oidc.frontendUrl);
+      console.log(`Linstening on port ${config.port}`);
     });
   } catch (e) {
     throw e;

@@ -1,16 +1,16 @@
 import { Client, ClientMetadata, generators } from "openid-client";
-import { SequelizeOptions } from "sequelize-typescript";
+import { ModelCtor, SequelizeOptions } from "sequelize-typescript";
 import { Consumer, Kafka, Producer } from "kafkajs";
-import { Models } from "./models";
-import User from "./models/User.model";
-import Message from "./models/Message.model";
-import Roster from "./models/Roster.model";
-import Channel from "./models/Channel.model";
-import { getIssuer, getOIDCClient } from "./utils/oidc";
+import User from "../chats/models/User.model";
+import Message from "../chats/models/Message.model";
+import Roster from "../chats/models/Roster.model";
+import Channel from "../chats/models/Channel.model";
+import { getIssuer, getOIDCClient } from "../utils/oidc";
 import session, { SessionOptions } from "express-session";
 import Redis from "ioredis";
 import connectRedis, { RedisStore } from "connect-redis";
 import { Env } from "./env";
+import { ChatConfigType } from "../chats/config";
 
 export const getConfig = async (env: Env): Promise<ConfigType> => {
   try {
@@ -64,42 +64,39 @@ export const getConfig = async (env: Env): Promise<ConfigType> => {
         },
       },
 
-      // OAUTH / OIDC configuration
-      oidc: {
-        client: getOIDCClient(issuer, metadata),
-        generators,
-        callbackUrl: env.CALLBACK_URL,
-        frontendUrl: env.FRONTEND_URL,
-      },
-
-      // Kafka configuration
-      kafka: {
-        groupId: kafkaGroupId,
-        topicName: env.KAFKA_TOPIC_NAME,
-        producer: kafkaInstance.producer({ retry: { retries: 10 } }),
-        consumer: kafkaInstance.consumer({ groupId: kafkaGroupId }),
-      },
-
-      // Database configuration
-      database: {
-        databaseUri: env.DATABASE_URI,
-        sequelizeoptions,
-        // model configuration
-        models: {
-          Message,
-          Roster,
-          Channel,
-          User,
+      chat: {
+        // OAUTH / OIDC configuration
+        oidc: {
+          client: getOIDCClient(issuer, metadata),
+          generators,
+          callbackUrl: env.CALLBACK_URL,
+          frontendUrl: env.FRONTEND_URL,
         },
-        modelPath: [__dirname + "/models/**/*.model.ts"],
-      },
 
-      // Redis configuration
-      redis: {
-        url: redisUrl,
-        publisher: new Redis(redisUrl),
-        subscriber: new Redis(redisUrl),
-        sessionStore,
+        // Kafka configuration
+        kafka: {
+          groupId: kafkaGroupId,
+          topicName: env.KAFKA_TOPIC_NAME,
+          producer: kafkaInstance.producer({ retry: { retries: 10 } }),
+          consumer: kafkaInstance.consumer({ groupId: kafkaGroupId }),
+        },
+
+        // Database configuration
+        database: {
+          databaseUri: env.DATABASE_URI,
+          sequelizeoptions,
+          // model configuration
+          modelPath: [User, Channel, Message, Roster],
+          models: { User, Channel, Message, Roster },
+        },
+
+        // Redis configuration
+        redis: {
+          url: redisUrl,
+          publisher: new Redis(redisUrl),
+          subscriber: new Redis(redisUrl),
+          sessionStore,
+        },
       },
     };
   } catch (e) {
@@ -112,28 +109,30 @@ export type ConfigType = {
   prod: boolean;
   hostname: string;
   sessionOptions: SessionOptions;
-  oidc: {
-    client: Client;
-    generators: typeof generators;
-    frontendUrl: string;
-    callbackUrl: string;
-  };
-  kafka: {
-    groupId: string;
-    topicName: string;
-    producer: Producer;
-    consumer: Consumer;
-  };
-  database: {
-    databaseUri: string;
-    sequelizeoptions: SequelizeOptions;
-    models: Models;
-    modelPath: string[];
-  };
-  redis: {
-    url?: string;
-    sessionStore: RedisStore;
-    publisher: Redis.Redis;
-    subscriber: Redis.Redis;
-  };
+  chat: ChatConfigType;
+  // oidc: {
+  //   client: Client;
+  //   generators: typeof generators;
+  //   frontendUrl: string;
+  //   callbackUrl: string;
+  // };
+  // kafka: {
+  //   groupId: string;
+  //   topicName: string;
+  //   producer: Producer;
+  //   consumer: Consumer;
+  // };
+  // database: {
+  //   databaseUri: string;
+  //   sequelizeoptions: SequelizeOptions;
+  //   // models: Models;
+  //   models: ModelCtor[];
+  // };
+  // redis: {
+  //   url?: string;
+  //   sessionStore: RedisStore;
+  //   publisher: Redis.Redis;
+  //   subscriber: Redis.Redis;
+  // };
+  // };
 };

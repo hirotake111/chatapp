@@ -1,68 +1,67 @@
 import { Router } from "express";
 import { Server } from "socket.io";
 
-import { RootController } from "../controllers/controller";
-import { authenticateUser, setNoCache } from "../middleware";
 import { getWSRouter } from "../utils/wsRouter";
-import { WSController } from "../controllers/wsController";
+import { setNoCache, authenticateUser } from "../utils/middleware";
+import { ChannelController } from "./controllers/channelController";
+import { RosterController } from "./controllers/rosterController";
+import { MessageController } from "./controllers/messageController";
+import { WSController } from "./controllers/wsController";
+import { UserController } from "./controllers/userController";
 
-export const useRoute = (controller: RootController) => {
+export const getChatRouter = ({
+  user,
+  channel,
+  roster,
+  message,
+}: {
+  user: UserController;
+  channel: ChannelController;
+  roster: RosterController;
+  message: MessageController;
+}) => {
   const router = Router();
 
-  router.get("/", controller.getRoot);
-
-  // OIDC endpoints
-  router.get("/login", setNoCache, controller.user.getLogin);
-
-  router.get("/callback", setNoCache, controller.user.getCallback);
-
+  /**
+   * user endpoints
+   */
+  // login endpoints
+  router.get("/login", setNoCache, user.getLogin);
+  // callback endpoints
+  router.get("/callback", setNoCache, user.getCallback);
   // users endpoint
-  router.get(
-    "/api/user",
-    setNoCache,
-    authenticateUser,
-    controller.user.getUsers
-  );
-
-  router.get(
-    "/api/user/me",
-    setNoCache,
-    authenticateUser,
-    controller.user.getUserInfo
-  );
+  router.get("/api/user", setNoCache, authenticateUser, user.getUsers);
+  // userinfo endpoint
+  router.get("/api/user/me", setNoCache, authenticateUser, user.getUserInfo);
 
   /**
    * channel endpoints
    */
-  router.get(
-    "/api/channel",
-    authenticateUser,
-    controller.channel.getMyChannels
-  );
+  router.get("/api/channel", authenticateUser, channel.getMyChannels);
 
   router.post(
     "/api/channel/",
     setNoCache,
     authenticateUser,
-    controller.channel.createNewChannel
+    channel.createNewChannel
   );
 
   router.get(
     "/api/channel/:channelId",
     authenticateUser,
-    controller.channel.getChannelDetail
+    channel.getChannelDetail
   );
 
   router.put(
     "/api/channel/:channelId",
     authenticateUser,
-    controller.channel.updateChannel
+    channel.updateChannel
   );
 
   router.delete(
     "/api/channel/:channelId",
     authenticateUser,
-    controller.channel.deleteChannel
+    channel.deleteChannel
   );
 
   /**
@@ -73,19 +72,19 @@ export const useRoute = (controller: RootController) => {
     "/api/channel/:channelId/member",
     setNoCache,
     authenticateUser,
-    controller.channel.getChannelMembers
+    channel.getChannelMembers
   );
 
   router.post(
     "/api/channel/:channelId/member",
     authenticateUser,
-    controller.roster.addChannelMember
+    roster.addChannelMember
   );
 
   router.delete(
     "/api/channel/:channelId/member",
     authenticateUser,
-    controller.roster.removeChannelMember
+    roster.removeChannelMember
   );
 
   /**
@@ -95,38 +94,38 @@ export const useRoute = (controller: RootController) => {
   router.get(
     "/api/channel/:channelId/message",
     authenticateUser,
-    // controller.message.getMessagesInChannel
-    controller.message.getMessagesInChannel
+    // message.getMessagesInChannel
+    message.getMessagesInChannel
   );
   // get one message from channel
   router.get(
     "/api/channel/:channelId/message/:messageId",
     authenticateUser,
-    controller.message.getSpecificMessageInChannel
+    message.getSpecificMessageInChannel
   );
   // post a message to channel
   router.post(
     "/api/channel/:channelId/message",
     authenticateUser,
-    controller.message.postMessage
+    message.postMessage
   );
   // edit a message in channel
   router.put(
     "/api/channel/:channelId/message/:messageId",
     authenticateUser,
-    controller.message.editMessage
+    message.editMessage
   );
   // delete a message in channel
   router.delete(
     "/api/channel/:channelId/message/:messageId",
     authenticateUser,
-    controller.message.deleteMessage
+    message.deleteMessage
   );
 
   return router;
 };
 
-export const userWebSocketRoute = (io: Server, controller: WSController) => {
+export const useWebSocketRoute = (io: Server, controller: WSController) => {
   const wsRouter = getWSRouter(io);
   wsRouter.onConnect(controller.onConnection);
   wsRouter.on("chat message", controller.onChatMessage);

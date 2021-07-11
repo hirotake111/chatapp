@@ -1,5 +1,5 @@
 import { Client, ClientMetadata, Issuer } from "openid-client";
-import { ConfigType } from "../config";
+import { ConfigType } from "../server/config";
 
 export const getIssuer = async (issuerUrl: string): Promise<Issuer<Client>> => {
   try {

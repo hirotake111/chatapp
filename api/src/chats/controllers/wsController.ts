@@ -1,6 +1,6 @@
 import { Server, Socket } from "socket.io";
 
-import { Queries } from "../queries";
+import { Queries } from "../queries/query";
 
 /**
  * return ChatPayload, or null if invalid
@@ -67,7 +67,10 @@ export interface WSController {
   onException: (io: Server, socket: Socket, data: any) => Promise<void>;
 }
 
-export const getWSController = (queries: Queries): WSController => {
+export const getWSController = ({
+  channelQuery,
+  messageQuery,
+}: Queries): WSController => {
   return {
     onConnection: async (io: Server, socket: Socket) => {
       // validate user
@@ -77,9 +80,9 @@ export const getWSController = (queries: Queries): WSController => {
 
       try {
         // get channel IDs
-        const channelIds = (
-          await queries.channelQuery.getChannelsByUserId(userId)
-        ).map((channel) => channel.id);
+        const channelIds = (await channelQuery.getChannelsByUserId(userId)).map(
+          (channel) => channel.id
+        );
         // join room(s)
         console.log("Joining channel IDs: ", channelIds);
         socket.join(channelIds);
@@ -122,7 +125,7 @@ export const getWSController = (queries: Queries): WSController => {
         });
       try {
         // store message to database first
-        const message = await queries.messageQuery.createMessage(
+        const message = await messageQuery.createMessage(
           chat.messageId,
           chat.channelId,
           chat.sender.id,

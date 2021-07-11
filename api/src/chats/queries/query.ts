@@ -1,4 +1,4 @@
-import { ConfigType } from "../config";
+import { ChatConfigType } from "../config";
 import { ChannelQuery, getChannelQuery } from "./channelQuery";
 import { getMessageQuery, MessageQuery } from "./messageQuery";
 import { getRosterQuery, RosterQuery } from "./rosterQuery";
@@ -11,7 +11,7 @@ export interface Queries {
   messageQuery: MessageQuery;
 }
 
-export const getQueries = (config: ConfigType): Queries => {
+export const getQueries = (config: ChatConfigType): Queries => {
   const { User, Channel, Roster, Message } = config.database.models;
   return {
     userQuery: getUserQuery({ UserModel: User, ChannelModel: Channel }),

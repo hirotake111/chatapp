@@ -1,8 +1,8 @@
 import { Request, RequestHandler, Response } from "express";
 
-import { ConfigType } from "../config";
+import { ChatConfigType } from "../config";
 import { getUserController, UserController } from "./userController";
-import { Queries } from "../queries";
+import { Queries } from "../queries/query";
 import { ChannelController, getChannelController } from "./channelController";
 import { getRosterContoller, RosterController } from "./rosterController";
 import { getMessageController, MessageController } from "./messageController";
@@ -17,7 +17,7 @@ export type RootController = {
 };
 
 export const getController = (
-  config: ConfigType,
+  config: ChatConfigType,
   queries: Queries
 ): RootController => {
   const { channelQuery, rosterQuery, userQuery, messageQuery } = queries;
@@ -40,9 +40,7 @@ export const getController = (
 
     // user controller
     user: getUserController({
-      oidcClient: config.oidc.client,
-      generators: config.oidc.generators,
-      userQuery: queries.userQuery,
+      query: queries.userQuery,
       config,
     }),
     // channel controler

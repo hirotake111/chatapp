@@ -42,9 +42,10 @@ declare interface RegisteredEventData {
   firstName?: string;
   lastName?: string;
 }
+
 declare interface RegisteredEvent {
   id: string;
-  type: EventType;
+  type: string;
   metadata: {
     traceId: string;
     username: string;
@@ -54,4 +55,21 @@ declare interface RegisteredEvent {
     hash: string;
   };
   data: RegisteredEventData;
+}
+
+declare interface ChatEvent {
+  id: string;
+  type: string;
+  data: {
+    message?: ChatPayload;
+    channel?: {
+      channelId: string;
+      channelName: string;
+      requesterId: string;
+    };
+    roster: {
+      channelId: string;
+      userId: string;
+    };
+  };
 }

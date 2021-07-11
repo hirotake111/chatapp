@@ -1,7 +1,7 @@
 import { Request, NextFunction, Response } from "express";
 import { nanoid } from "nanoid";
 import { v4 as uuid } from "uuid";
-import User from "../models/User.model";
+
 import { ChannelQuery } from "../queries/channelQuery";
 import { RosterQuery } from "../queries/rosterQuery";
 import { UserQuery } from "../queries/userQuery";

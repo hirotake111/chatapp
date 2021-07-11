@@ -1,13 +1,13 @@
-import { Sequelize } from "sequelize-typescript";
-import { ConfigType } from "../config";
+import { ModelCtor, Sequelize, SequelizeOptions } from "sequelize-typescript";
 
-export const getDb = async (config: ConfigType): Promise<Sequelize> => {
+export const getDb = async (
+  uri: string,
+  models: ModelCtor[],
+  options: SequelizeOptions
+): Promise<Sequelize> => {
   try {
     // connect to database
-    const sequelize = new Sequelize(config.database.databaseUri, {
-      models: config.database.modelPath,
-      ...config.database.sequelizeoptions,
-    });
+    const sequelize = new Sequelize(uri, { ...options, models });
     // check connectivity
     await sequelize.authenticate();
     // console.log("connected to database.", connectionUri);

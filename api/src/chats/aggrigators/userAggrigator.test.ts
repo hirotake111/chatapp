@@ -1,7 +1,6 @@
 import { KafkaMessage } from "kafkajs";
 import { nanoid } from "nanoid";
-import { UserQuery } from "../queries/userQuery";
-// import { RegisteredEvent } from "../type";
+
 import { getRegisterUser } from "./userAggrigator";
 
 const userService = {
