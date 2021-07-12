@@ -44,7 +44,12 @@ export const getController = (
       config,
     }),
     // channel controler
-    channel: getChannelController({ channelQuery, rosterQuery, userQuery }),
+    channel: getChannelController({
+      config,
+      channelQuery,
+      rosterQuery,
+      userQuery,
+    }),
     // roster controller
     roster: getRosterContoller({ rosterQuery, userQuery }),
     // message controller

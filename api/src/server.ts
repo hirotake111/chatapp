@@ -31,13 +31,13 @@ const io = new Server(http, {
     // use middlewares
     app.use(express.json()); // body parser
     app.use(session); // session
-    app.use(morgan("tiny")); // logger
+    app.use(morgan("common")); // logger
 
     // connect Kafka cluster
     connectKafkaCluster(
       config.chat.kafka.producer,
       config.chat.kafka.consumer,
-      [config.chat.kafka.topicName]
+      [config.chat.kafka.topicName, "chat"]
     );
 
     // connect to database
@@ -64,7 +64,7 @@ const io = new Server(http, {
       session(request, request.res!, next as NextFunction);
     });
     // WebSocket controller
-    const wsController = getWSController(queries);
+    const wsController = getWSController(config.chat, queries);
     // use WebSocket router
     useWebSocketRoute(io, wsController);
 

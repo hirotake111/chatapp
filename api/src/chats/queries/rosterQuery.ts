@@ -1,8 +1,6 @@
 import { validate } from "uuid";
 
-import Channel from "../models/Channel.model";
 import Roster from "../models/Roster.model";
-import User from "../models/User.model";
 
 export interface RosterQuery {
   // adds and returns roster record
@@ -17,6 +15,9 @@ export const getRosterQuery = (params: {
   const { RosterModel } = params;
   return {
     async addUserToChannel(channelId: string, userId: string): Promise<Roster> {
+      // validate input
+      if (!(validate(channelId) && validate(userId)))
+        throw new Error("invalid input");
       try {
         const roster = await RosterModel.create({ channelId, userId });
         return roster;

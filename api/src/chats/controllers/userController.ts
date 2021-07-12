@@ -74,9 +74,7 @@ export const getUserController = ({
       };
 
       // if user does not exist, store it in the database
-      const userExists = await userQuery.getUserByUsername(user.username);
-      if (!userExists) {
-        // await userService.createUser({ ...user });
+      if (!(await userQuery.getUserByUsername(user.username))) {
         const event: RegisteredEvent = {
           id: uuid(),
           type: "UserRegistered",
@@ -94,12 +92,7 @@ export const getUserController = ({
           topic: config.kafka.topicName,
           messages: [{ value: JSON.stringify(event) }],
         };
-        // console.log(
-        //   `sending message - TOPIC: ${record.topic}, TYPE: ${event.type}`
-        // );
         await config.kafka.producer.send(record);
-      } else {
-        // console.log(`user ${user.username} already exists.`);
       }
       // store session
       req.session.username = user.username;

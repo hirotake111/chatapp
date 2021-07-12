@@ -1,5 +1,6 @@
 import { RequestHandler, Request, Response, NextFunction } from "express";
 import { validate, v4 as uuid } from "uuid";
+import { ChatConfigType } from "../config";
 
 import { ChannelQuery } from "../queries/channelQuery";
 import { RosterQuery } from "../queries/rosterQuery";
@@ -16,10 +17,12 @@ export interface ChannelController {
 }
 
 export const getChannelController = ({
+  config,
   channelQuery,
   rosterQuery,
   userQuery,
 }: {
+  config: ChatConfigType;
   channelQuery: ChannelQuery;
   rosterQuery: RosterQuery;
   userQuery: UserQuery;
@@ -29,42 +32,54 @@ export const getChannelController = ({
       // if request doesn't have body, throw an error => HTTP 500
       if (!req.body)
         return res.status(400).send({ detail: "HTTP request has no body" });
-      const { channelName } = req.body;
-      const { userId } = req.session;
+      const { channelName, members } = req.body;
+      const { userId, username } = req.session;
       // validate channel name
       if (!(typeof channelName === "string"))
         return res.status(400).send({ detail: "invalid channel name" });
+      // validate members
+      if (!Array.isArray(members))
+        return res.status(400).send({ detail: "members is not an array" });
+      if (
+        !(
+          members.length > 0 &&
+          typeof members[0] === "string" &&
+          validate(members[0])
+        )
+      )
+        return res.status(400).send({ detail: "invalid members type" });
       // generate channel ID
       const channelId = uuid();
       try {
-        // create a new channel
-        const channel = await channelQuery.createChannel(
-          channelId,
-          channelName
-        );
-
-        if (!channel) {
-          res
-            .status(400)
-            .send({ error: "bad request", detail: "channel already exists" });
-          return;
-        }
-
-        // add requester to channel
-        const roster = await rosterQuery.addUserToChannel(channelId, userId);
-
-        // return the result
-        res.status(200).send({
+        const event: ChatEvent = {
+          id: uuid(),
+          type: "ChannelCreated",
+          metadata: {
+            traceId: uuid(),
+            timestamp: Date.now(),
+          },
+          data: {
+            createChannel: {
+              channelId,
+              channelName,
+              sender: {
+                id: userId,
+                name: username,
+              },
+              members,
+            },
+          },
+        };
+        await config.kafka.producer.send({
+          topic: "chat",
+          messages: [{ value: JSON.stringify(event) }],
+        });
+        return res.status(200).send({
           detail: "channel is successfully created",
           channelId,
           channelName,
-          createdAt: channel.createdAt,
-          member: {
-            userId,
-            joinedAt: roster.joinedAt,
-          },
+          members: [userId, ...members],
         });
-        return;
       } catch (e) {
         res
           .status(500)

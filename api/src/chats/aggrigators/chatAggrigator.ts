@@ -2,7 +2,7 @@ import { KafkaMessage } from "kafkajs";
 import { Queries } from "../queries/query";
 
 export const getChatAggrigator = (queries: Queries) => {
-  const { channelQuery, messageQuery, rosterQuery } = queries;
+  const { channelQuery, messageQuery, rosterQuery, userQuery } = queries;
   return {
     async process(message: KafkaMessage) {
       // if msg.value is empty, raise an error
@@ -27,8 +27,12 @@ export const getChatAggrigator = (queries: Queries) => {
             break;
           case "UserJoined":
             this.addUserToChannel(event);
+            break;
           case "UserRemoved":
             this.removeUserFromChannel(event);
+            break;
+          case "MessageAdded":
+            break;
           default:
             break;
         }
@@ -38,10 +42,10 @@ export const getChatAggrigator = (queries: Queries) => {
     },
 
     async createChat(event: ChatEvent) {
-      if (!event.data.message) {
+      if (!event.data.addMessage) {
         throw new Error(`Invalid event data: ${event.data}`);
       }
-      const { messageId, channelId, sender, content } = event.data.message;
+      const { messageId, channelId, sender, content } = event.data.addMessage;
       try {
         const chat = await messageQuery.createMessage(
           messageId,
@@ -56,21 +60,23 @@ export const getChatAggrigator = (queries: Queries) => {
     },
 
     async deleteChat(event: ChatEvent) {
-      if (!event.data.message) {
+      if (!event.data.deleteMessage) {
         throw new Error(`Invalid event data: ${event.data}`);
       }
       try {
-        await messageQuery.deleteMessage(event.data.message.messageId);
+        await messageQuery.deleteMessage(event.data.deleteMessage.messageId);
       } catch (e) {
         throw e;
       }
     },
 
     async createChannel(event: ChatEvent) {
-      if (!event.data.channel)
+      if (!event.data.createChannel)
         throw new Error(`Invalid event data: ${event.data}`);
-      const { channelId, channelName, requesterId } = event.data.channel;
+      const { channelId, channelName, sender, members } =
+        event.data.createChannel;
       try {
+        // create a new channel
         const channel = await channelQuery.createChannel(
           channelId,
           channelName
@@ -79,12 +85,17 @@ export const getChatAggrigator = (queries: Queries) => {
           throw new Error("Failed to create a new channel to database");
         // add requester to channel
         const roster = await rosterQuery.addUserToChannel(
-          channelId,
-          requesterId
+          channel.id,
+          sender.id
         );
         if (!roster)
           throw new Error(
-            `Failed to add requester ${requesterId} to channel ${channelId}`
+            `Failed to add requester ${sender.id} to channel ${channelId}`
+          );
+        // add other members to the channel
+        if (members.length > 0)
+          await Promise.all(
+            members.map((id) => rosterQuery.addUserToChannel(channel.id, id))
           );
       } catch (e) {
         throw e;
@@ -92,38 +103,42 @@ export const getChatAggrigator = (queries: Queries) => {
     },
 
     async deleteChannel(event: ChatEvent) {
-      if (!event.data.channel)
+      if (!event.data.deleteChannel)
         throw new Error(`Invalid event data: ${event.data}`);
       try {
-        await channelQuery.deleteChannelById(event.data.channel.channelId);
+        await channelQuery.deleteChannelById(
+          event.data.deleteChannel.channelId
+        );
       } catch (e) {
         throw e;
       }
     },
 
     async addUserToChannel(event: ChatEvent) {
-      if (!event.data.roster)
+      if (!event.data.addUserToChannel)
         throw new Error(`Invalid event data: ${event.data}`);
-      const { channelId, userId } = event.data.roster;
+      const { channelId, memberIds } = event.data.addUserToChannel;
       try {
         // add user to channel
-        const roster = await rosterQuery.addUserToChannel(channelId, userId);
-        if (!roster)
-          throw new Error(
-            `Failed to add user ${userId} to channel ${channelId}`
-          );
+        await Promise.all(
+          memberIds.map((id) => rosterQuery.addUserToChannel(channelId, id))
+        );
       } catch (e) {
         throw e;
       }
     },
 
     async removeUserFromChannel(event: ChatEvent) {
-      if (!event.data.roster)
+      if (!event.data.removeUserFromChannel)
         throw new Error(`Invalid event data: ${event.data}`);
-      const { channelId, userId } = event.data.roster;
+      const { channelId, memberIds } = event.data.removeUserFromChannel;
       try {
-        // remove user to channel
-        await rosterQuery.deleteUserFromChannel(channelId, userId);
+        // remove user from channel
+        await Promise.all(
+          memberIds.map((id) =>
+            rosterQuery.deleteUserFromChannel(channelId, id)
+          )
+        );
       } catch (e) {
         throw e;
       }

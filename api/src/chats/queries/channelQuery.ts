@@ -38,6 +38,7 @@ export const getChannelQuery = ({
 }): ChannelQuery => {
   return {
     async createChannel(id: string, name: string): Promise<Channel | null> {
+      if (!validate(id)) throw new Error("invalid input");
       try {
         // check to see if the id already exists
         if (await ChannelModel.findOne({ where: { id } })) {

@@ -1,5 +1,8 @@
+import { config } from "dotenv/types";
+import { ProducerRecord } from "kafkajs";
 import { Server, Socket } from "socket.io";
-
+import { v4 as uuid } from "uuid";
+import { ChatConfigType } from "../config";
 import { Queries } from "../queries/query";
 
 /**
@@ -67,10 +70,10 @@ export interface WSController {
   onException: (io: Server, socket: Socket, data: any) => Promise<void>;
 }
 
-export const getWSController = ({
-  channelQuery,
-  messageQuery,
-}: Queries): WSController => {
+export const getWSController = (
+  config: ChatConfigType,
+  { channelQuery }: Queries
+): WSController => {
   return {
     onConnection: async (io: Server, socket: Socket) => {
       // validate user
@@ -123,22 +126,46 @@ export const getWSController = ({
           detail: "invalid username or user id",
           timestamp: Date.now(),
         });
-      try {
-        // store message to database first
-        const message = await messageQuery.createMessage(
-          chat.messageId,
-          chat.channelId,
-          chat.sender.id,
-          chat.content
-        );
-        if (!message) throw new Error("failed to store message to database");
-      } catch (e) {
-        return sendExceptionToSender(socket, {
-          code: 500,
-          detail: e.message,
+      // send "chat/MessageAdded" event to the message store
+      const event: ChatEvent = {
+        id: uuid(),
+        type: "MessageAdded",
+        metadata: {
+          traceId: uuid(),
           timestamp: Date.now(),
-        });
-      }
+        },
+        data: {
+          addMessage: {
+            channelId: uuid(),
+            messageId: chat.messageId,
+            sender: {
+              id: chat.sender.id,
+              name: chat.sender.username,
+            },
+            content: chat.content,
+          },
+        },
+      };
+      await config.kafka.producer.send({
+        topic: "chat",
+        messages: [{ value: JSON.stringify(event) }],
+      });
+      // try {
+      //   // store message to database first
+      //   const message = await messageQuery.createMessage(
+      //     chat.messageId,
+      //     chat.channelId,
+      //     chat.sender.id,
+      //     chat.content
+      //   );
+      //   if (!message) throw new Error("failed to store message to database");
+      // } catch (e) {
+      //   return sendExceptionToSender(socket, {
+      //     code: 500,
+      //     detail: e.message,
+      //     timestamp: Date.now(),
+      //   });
+      // }
       // send members the message
       io.to(chat.channelId).emit("chat message", chat);
       // socket.to(chat.channelId).emit("socket to chat message", chat);

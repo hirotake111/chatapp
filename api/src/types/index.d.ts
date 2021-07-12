@@ -57,19 +57,88 @@ declare interface RegisteredEvent {
   data: RegisteredEventData;
 }
 
+type ChatEventType =
+  | "ChatCreated"
+  | "ChatDeleted"
+  | "ChannelCreated"
+  | "ChannelDeleted"
+  | "UserJoined"
+  | "UserRemoved"
+  | "MessageAdded";
+
 declare interface ChatEvent {
   id: string;
-  type: string;
+  type: ChatEventType;
+  metadata: {
+    traceId: string;
+    timestamp: number;
+  };
   data: {
-    message?: ChatPayload;
-    channel?: {
+    addMessage?: {
+      channelId: string;
+      messageId: string;
+      sender: {
+        id: string;
+        name: string;
+      };
+      content: string;
+    };
+    updateMessage?: {
+      channelId: string;
+      messageId: string;
+      sender: {
+        id: string;
+        name: string;
+      };
+      content: string;
+    };
+    deleteMessage?: {
+      channelId: string;
+      messageId: string;
+      sender: {
+        id: string;
+        name: string;
+      };
+    };
+    createChannel?: {
       channelId: string;
       channelName: string;
-      requesterId: string;
+      sender: {
+        id: string;
+        name: string;
+      };
+      members: string[];
     };
-    roster: {
+    updateChannel?: {
       channelId: string;
-      userId: string;
+      channelName: string;
+      sender: {
+        id: string;
+        name: string;
+      };
+    };
+    deleteChannel?: {
+      channelId: string;
+      sender: {
+        id: string;
+        name: string;
+      };
+    };
+    addUserToChannel?: {
+      channelId: string;
+      sender: {
+        id: string;
+        name: string;
+      };
+      memberIds: string[];
+    };
+    removeUserFromChannel?: {
+      channelId: string;
+      sender: {
+        id: string;
+        name: string;
+      };
+      memberIds: string[];
     };
   };
 }
