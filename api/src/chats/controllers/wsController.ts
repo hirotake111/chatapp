@@ -1,42 +1,10 @@
-import { config } from "dotenv/types";
-import { ProducerRecord } from "kafkajs";
 import { Server, Socket } from "socket.io";
 import { v4 as uuid } from "uuid";
 import { ChatConfigType } from "../config";
 import { Queries } from "../queries/query";
 
-/**
- * return ChatPayload, or null if invalid
- */
-const validateChatPayload = (data: any): ChatPayload | null => {
-  const {
-    sender: { username, id },
-    timestamp,
-    channelId,
-    messageId,
-    content,
-  } = data;
-  return username &&
-    typeof username === "string" &&
-    id &&
-    typeof id === "string" &&
-    timestamp &&
-    typeof timestamp === "number" &&
-    channelId &&
-    typeof channelId === "string" &&
-    channelId &&
-    typeof messageId === "string" &&
-    content &&
-    typeof content === "string"
-    ? {
-        sender: { username, id },
-        timestamp,
-        channelId,
-        messageId,
-        content,
-      }
-    : null;
-};
+import { getCheckMember } from "./utils";
+import { validateChatPayload } from "../../utils/utils";
 
 const sendExceptionToSender = (
   socket: Socket,
@@ -72,8 +40,9 @@ export interface WSController {
 
 export const getWSController = (
   config: ChatConfigType,
-  { channelQuery }: Queries
+  { channelQuery, userQuery, messageQuery }: Queries
 ): WSController => {
+  const checkMember = getCheckMember(userQuery);
   return {
     onConnection: async (io: Server, socket: Socket) => {
       // validate user
@@ -119,53 +88,52 @@ export const getWSController = (
           detail: "ivalid payload",
           timestamp: Date.now(),
         });
+      const { sender, channelId, messageId, content } = chat;
       // sender and authenticated user must be the same
-      if (username !== chat.sender.username || userId !== chat.sender.id)
+      if (username !== sender.name || userId !== sender.id)
         return sendExceptionToSender(socket, {
           code: 400, // bad request
           detail: "invalid username or user id",
           timestamp: Date.now(),
         });
-      // send "chat/MessageAdded" event to the message store
-      const event: ChatEvent = {
-        id: uuid(),
-        type: "MessageAdded",
-        metadata: {
-          traceId: uuid(),
+      try {
+        // sender must be a member of channel
+        if (!checkMember(channelId, sender.id))
+          return sendExceptionToSender(socket, {
+            code: 400, // bad request
+            detail: "invalid username or user id",
+            timestamp: Date.now(),
+          });
+        // send "MessageAdded" or "MessageUpdated" event to the message store
+        const event: ChatEvent =
+          (await messageQuery.getMessagesInChannel(channelId)).length === 0
+            ? {
+                id: uuid(),
+                type: "MessageAdded",
+                metadata: { traceId: uuid(), timestamp: Date.now() },
+                data: {
+                  addMessage: { channelId: uuid(), messageId, sender, content },
+                },
+              }
+            : {
+                id: uuid(),
+                type: "MessageUpdated",
+                metadata: { traceId: uuid(), timestamp: Date.now() },
+                data: {
+                  updateMessage: { channelId, messageId, sender, content },
+                },
+              };
+        await config.kafka.producer.send({
+          topic: "chat",
+          messages: [{ value: JSON.stringify(event) }],
+        });
+      } catch (e) {
+        return sendExceptionToSender(socket, {
+          code: 500,
+          detail: e.message,
           timestamp: Date.now(),
-        },
-        data: {
-          addMessage: {
-            channelId: uuid(),
-            messageId: chat.messageId,
-            sender: {
-              id: chat.sender.id,
-              name: chat.sender.username,
-            },
-            content: chat.content,
-          },
-        },
-      };
-      await config.kafka.producer.send({
-        topic: "chat",
-        messages: [{ value: JSON.stringify(event) }],
-      });
-      // try {
-      //   // store message to database first
-      //   const message = await messageQuery.createMessage(
-      //     chat.messageId,
-      //     chat.channelId,
-      //     chat.sender.id,
-      //     chat.content
-      //   );
-      //   if (!message) throw new Error("failed to store message to database");
-      // } catch (e) {
-      //   return sendExceptionToSender(socket, {
-      //     code: 500,
-      //     detail: e.message,
-      //     timestamp: Date.now(),
-      //   });
-      // }
+        });
+      }
       // send members the message
       io.to(chat.channelId).emit("chat message", chat);
       // socket.to(chat.channelId).emit("socket to chat message", chat);

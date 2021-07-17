@@ -2,7 +2,7 @@ import { KafkaMessage } from "kafkajs";
 import { Queries } from "../queries/query";
 
 export const getChatAggrigator = (queries: Queries) => {
-  const { channelQuery, messageQuery, rosterQuery, userQuery } = queries;
+  const { channelQuery, messageQuery, rosterQuery } = queries;
   return {
     async process(message: KafkaMessage) {
       // if msg.value is empty, raise an error
@@ -10,14 +10,18 @@ export const getChatAggrigator = (queries: Queries) => {
       // parse message
       const event = JSON.parse(message.value.toString()) as ChatEvent;
 
+      console.log(`TYPE: ${event.type}`);
       try {
         // check event type
         switch (event.type) {
-          case "ChatCreated":
-            this.createChat(event);
+          case "MessageAdded":
+            this.createMessage(event);
             break;
-          case "ChatDeleted":
-            this.deleteChat(event);
+          case "MessageDeleted":
+            this.deleteMessage(event);
+            break;
+          case "MessageUpdated":
+            this.updateMessage(event);
             break;
           case "ChannelCreated":
             this.createChannel(event);
@@ -25,13 +29,14 @@ export const getChatAggrigator = (queries: Queries) => {
           case "ChannelDeleted":
             this.deleteChannel(event);
             break;
-          case "UserJoined":
+          case "ChannelUpdated":
+            this.updateChannel(event);
+            break;
+          case "UsersJoined":
             this.addUserToChannel(event);
             break;
-          case "UserRemoved":
+          case "UsersRemoved":
             this.removeUserFromChannel(event);
-            break;
-          case "MessageAdded":
             break;
           default:
             break;
@@ -41,7 +46,7 @@ export const getChatAggrigator = (queries: Queries) => {
       }
     },
 
-    async createChat(event: ChatEvent) {
+    async createMessage(event: ChatEvent) {
       if (!event.data.addMessage) {
         throw new Error(`Invalid event data: ${event.data}`);
       }
@@ -59,12 +64,22 @@ export const getChatAggrigator = (queries: Queries) => {
       }
     },
 
-    async deleteChat(event: ChatEvent) {
-      if (!event.data.deleteMessage) {
+    async deleteMessage(event: ChatEvent) {
+      if (!event.data.deleteMessage)
         throw new Error(`Invalid event data: ${event.data}`);
-      }
       try {
         await messageQuery.deleteMessage(event.data.deleteMessage.messageId);
+      } catch (e) {
+        throw e;
+      }
+    },
+
+    async updateMessage(event: ChatEvent) {
+      if (!event.data.updateMessage)
+        throw new Error(`Invalid event data: ${event.data}`);
+      const { channelId, messageId, content } = event.data.updateMessage;
+      try {
+        await messageQuery.editMessage(messageId, channelId, content);
       } catch (e) {
         throw e;
       }
@@ -102,6 +117,18 @@ export const getChatAggrigator = (queries: Queries) => {
       }
     },
 
+    async updateChannel(event: ChatEvent) {
+      if (!event.data.updateChannel)
+        throw new Error(`Invalid event data: ${event.data}`);
+      const { channelId, newChannelName } = event.data.updateChannel;
+      try {
+        // upcate the channel
+        await channelQuery.updateChannelbyId(channelId, newChannelName);
+      } catch (e) {
+        throw e;
+      }
+    },
+
     async deleteChannel(event: ChatEvent) {
       if (!event.data.deleteChannel)
         throw new Error(`Invalid event data: ${event.data}`);
@@ -115,9 +142,9 @@ export const getChatAggrigator = (queries: Queries) => {
     },
 
     async addUserToChannel(event: ChatEvent) {
-      if (!event.data.addUserToChannel)
+      if (!event.data.addUsersToChannel)
         throw new Error(`Invalid event data: ${event.data}`);
-      const { channelId, memberIds } = event.data.addUserToChannel;
+      const { channelId, memberIds } = event.data.addUsersToChannel;
       try {
         // add user to channel
         await Promise.all(
@@ -129,9 +156,9 @@ export const getChatAggrigator = (queries: Queries) => {
     },
 
     async removeUserFromChannel(event: ChatEvent) {
-      if (!event.data.removeUserFromChannel)
+      if (!event.data.removeUsersFromChannel)
         throw new Error(`Invalid event data: ${event.data}`);
-      const { channelId, memberIds } = event.data.removeUserFromChannel;
+      const { channelId, memberIds } = event.data.removeUsersFromChannel;
       try {
         // remove user from channel
         await Promise.all(

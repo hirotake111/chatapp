@@ -5,6 +5,7 @@ import { ChatConfigType } from "../config";
 import { ChannelQuery } from "../queries/channelQuery";
 import { RosterQuery } from "../queries/rosterQuery";
 import { UserQuery } from "../queries/userQuery";
+import { getCheckMember } from "./utils";
 
 export interface ChannelController {
   getMyChannels: RequestHandler;
@@ -19,7 +20,6 @@ export interface ChannelController {
 export const getChannelController = ({
   config,
   channelQuery,
-  rosterQuery,
   userQuery,
 }: {
   config: ChatConfigType;
@@ -27,6 +27,7 @@ export const getChannelController = ({
   rosterQuery: RosterQuery;
   userQuery: UserQuery;
 }): ChannelController => {
+  const checkMember = getCheckMember(userQuery);
   return {
     createNewChannel: async (req: Request, res: Response) => {
       // if request doesn't have body, throw an error => HTTP 500
@@ -39,7 +40,9 @@ export const getChannelController = ({
         return res.status(400).send({ detail: "invalid channel name" });
       // validate members
       if (!Array.isArray(members))
-        return res.status(400).send({ detail: "members is not an array" });
+        return res
+          .status(400)
+          .send({ detail: "members parameter is not an array of string" });
       if (
         !(
           members.length > 0 &&
@@ -75,7 +78,7 @@ export const getChannelController = ({
           messages: [{ value: JSON.stringify(event) }],
         });
         return res.status(200).send({
-          detail: "channel is successfully created",
+          detail: "success",
           channelId,
           channelName,
           members: [userId, ...members],
@@ -111,11 +114,7 @@ export const getChannelController = ({
     /**
      * getChannelMembers returns an array of user ID and name
      */
-    getChannelMembers: async (
-      req: Request,
-      res: Response,
-      next: NextFunction
-    ) => {
+    getChannelMembers: async (req: Request, res: Response) => {
       try {
         const { channelId } = req.params;
         const { userId: requesterId } = req.session;
@@ -129,10 +128,13 @@ export const getChannelController = ({
           return res
             .status(400)
             .send({ detail: `invalid requester ID: ${requesterId}` });
-
+        // check if the requester is a member of the channel
+        if (!(await checkMember(channelId, requesterId)))
+          return res
+            .status(400)
+            .send({ detail: "you are not a member of channel" });
         // fetch channel members
         const members = await userQuery.getUsersByChannelId(channelId);
-        // check if the requester is a member of the channel
         // respond
         return res.status(200).send({
           detail: "success",
@@ -151,19 +153,14 @@ export const getChannelController = ({
       }
     },
 
-    getChannelDetail: async (
-      req: Request,
-      res: Response,
-      next: NextFunction
-    ) => {
+    getChannelDetail: async (req: Request, res: Response) => {
       const { channelId } = req.params;
       const { userId: requesterId } = req.session;
       // validate channelId
-      if (!validate(channelId)) {
+      if (!validate(channelId))
         return res
           .status(400)
           .send({ detail: `invalid channel ID: ${channelId}` });
-      }
       // validate userId
       if (!validate(requesterId)) {
         return res
@@ -176,8 +173,7 @@ export const getChannelController = ({
         if (!channel)
           return res.status(400).send({ detail: "channel doesn't exist" });
         // check if the requester is a member of the channel
-        const members = await userQuery.getUsersByChannelId(channelId);
-        if (!members.map((member) => member.id).includes(requesterId))
+        if (!(await checkMember(channelId, requesterId)))
           return res
             .status(400)
             .send({ detail: "requester is not a member of channel" });
@@ -197,7 +193,7 @@ export const getChannelController = ({
       }
     },
 
-    deleteChannel: async (req: Request, res: Response, next: NextFunction) => {
+    deleteChannel: async (req: Request, res: Response) => {
       const { channelId } = req.params;
       const { userId: requesterId } = req.session;
       // validate channelId
@@ -209,15 +205,33 @@ export const getChannelController = ({
       if (!validate(requesterId))
         return res.status(400).send({ detail: "invalid requester ID" });
       try {
-        // fetch channel members
         // check if the requester is a member of channel
-        const members = await userQuery.getUsersByChannelId(channelId);
-        if (!members.map((member) => member.id).includes(requesterId))
+        if (!(await checkMember(channelId, requesterId)))
           return res
             .status(400)
             .send({ detail: "requester is not a member of channel" });
         // delete channel
-        await channelQuery.deleteChannelById(channelId);
+        const event: ChatEvent = {
+          id: uuid(),
+          type: "ChannelDeleted",
+          metadata: {
+            traceId: uuid(),
+            timestamp: Date.now(),
+          },
+          data: {
+            deleteChannel: {
+              channelId,
+              sender: {
+                id: requesterId,
+                name: req.session.username,
+              },
+            },
+          },
+        };
+        await config.kafka.producer.send({
+          topic: "chat",
+          messages: [{ value: JSON.stringify(event) }],
+        });
         return res.status(204).send({ detail: "success" });
       } catch (e) {
         if (e.message === `channel ID ${channelId} doesn't exist`) {
@@ -230,7 +244,7 @@ export const getChannelController = ({
     },
 
     updateChannel: async (req: Request, res: Response, next: NextFunction) => {
-      const { userId: requesterId } = req.session;
+      const { userId: requesterId, username } = req.session;
       const { channelId } = req.params;
       const { channelName } = req.body;
       // validate requesterId
@@ -246,16 +260,33 @@ export const getChannelController = ({
         return res.status(400).send({ detail: "invalid channel name" });
       try {
         // check if the requester is a member of the channel
-        // upcate the channel
-        const channel = await channelQuery.updateChannelbyId(
-          channelId,
-          channelName
-        );
-        // if channel is null, then respond HTTP 400
-        if (!channel)
+        if (!(await checkMember(channelId, requesterId)))
           return res
             .status(400)
-            .send({ detail: "unable to update channel with given parameters" });
+            .send({ detail: "you are not a member of channel" });
+        const event: ChatEvent = {
+          id: uuid(),
+          type: "ChannelUpdated",
+          metadata: {
+            traceId: uuid(),
+            timestamp: Date.now(),
+          },
+          data: {
+            updateChannel: {
+              channelId,
+              newChannelName: channelName,
+              sender: {
+                id: requesterId,
+                name: username,
+              },
+            },
+          },
+        };
+        await config.kafka.producer.send({
+          topic: "chat",
+          messages: [{ value: JSON.stringify(event) }],
+        });
+
         return res
           .status(200)
           .send({ detail: "success", id: channelId, name: channelName });
@@ -266,11 +297,7 @@ export const getChannelController = ({
       }
     },
 
-    getChannelDetailWithMessages: async (
-      req: Request,
-      res: Response,
-      next: NextFunction
-    ) => {
+    getChannelDetailWithMessages: async (req: Request, res: Response) => {
       const { channelId } = req.params;
       const { userId: requesterId } = req.session;
       // validate channelId
@@ -295,8 +322,7 @@ export const getChannelController = ({
             .status(400)
             .send({ detail: `channel doesn't exist: ${channelId}` });
         // check if the requester is a member of the channel
-        const members = await userQuery.getUsersByChannelId(channelId);
-        if (!members.map((member) => member.id).includes(requesterId))
+        if (!(await checkMember(channelId, requesterId)))
           return res
             .status(400)
             .send({ detail: "requester is not a member of channel" });

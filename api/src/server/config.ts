@@ -1,6 +1,6 @@
-import { Client, ClientMetadata, generators } from "openid-client";
-import { ModelCtor, SequelizeOptions } from "sequelize-typescript";
-import { Consumer, Kafka, Producer } from "kafkajs";
+import { ClientMetadata, generators } from "openid-client";
+import { SequelizeOptions } from "sequelize-typescript";
+import { Kafka } from "kafkajs";
 import User from "../chats/models/User.model";
 import Message from "../chats/models/Message.model";
 import Roster from "../chats/models/Roster.model";
@@ -8,7 +8,7 @@ import Channel from "../chats/models/Channel.model";
 import { getIssuer, getOIDCClient } from "../utils/oidc";
 import session, { SessionOptions } from "express-session";
 import Redis from "ioredis";
-import connectRedis, { RedisStore } from "connect-redis";
+import connectRedis from "connect-redis";
 import { Env } from "./env";
 import { ChatConfigType } from "../chats/config";
 
@@ -58,7 +58,7 @@ export const getConfig = async (env: Env): Promise<ConfigType> => {
         resave: false,
         saveUninitialized: false,
         cookie: {
-          maxAge: 1000 * 60 * 30, // 30 minutes
+          maxAge: 1000 * 60 * 120, // 120 minutes
           sameSite: "lax",
           secure: env.PROD,
         },

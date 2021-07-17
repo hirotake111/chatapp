@@ -23,7 +23,7 @@ export interface ChannelQuery {
   updateChannelbyId: (
     channelId: string,
     newChannelName: string
-  ) => Promise<Channel | null>;
+  ) => Promise<number>;
   deleteChannelById: (id: string) => Promise<number>;
 }
 
@@ -76,17 +76,17 @@ export const getChannelQuery = ({
     async updateChannelbyId(
       channelId: string,
       newChannelName: string
-    ): Promise<Channel | null> {
+    ): Promise<number> {
       try {
         // throw an error if channel doesn't exist
         if (!(await ChannelModel.findOne({ where: { id: channelId } })))
           throw new Error(`id ${channelId} does not eixst`);
         // update channel
-        const [_, ch] = await ChannelModel.update(
+        const [count, _] = await ChannelModel.update(
           { name: newChannelName },
           { where: { id: channelId } }
         );
-        return ch[0];
+        return count;
       } catch (e) {
         throw e;
       }

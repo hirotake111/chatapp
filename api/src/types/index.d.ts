@@ -12,7 +12,7 @@ declare module "http" {
 
 declare interface ChatPayload {
   sender: {
-    username: string;
+    name: string;
     id: string;
   };
   timestamp: number;
@@ -58,12 +58,14 @@ declare interface RegisteredEvent {
 }
 
 type ChatEventType =
-  | "ChatCreated"
-  | "ChatDeleted"
+  | "MessageCreated"
+  | "MessageUpdated"
+  | "MessageDeleted"
   | "ChannelCreated"
   | "ChannelDeleted"
-  | "UserJoined"
-  | "UserRemoved"
+  | "ChannelUpdated"
+  | "UsersJoined"
+  | "UsersRemoved"
   | "MessageAdded";
 
 declare interface ChatEvent {
@@ -111,7 +113,7 @@ declare interface ChatEvent {
     };
     updateChannel?: {
       channelId: string;
-      channelName: string;
+      newChannelName: string;
       sender: {
         id: string;
         name: string;
@@ -124,7 +126,7 @@ declare interface ChatEvent {
         name: string;
       };
     };
-    addUserToChannel?: {
+    addUsersToChannel?: {
       channelId: string;
       sender: {
         id: string;
@@ -132,7 +134,7 @@ declare interface ChatEvent {
       };
       memberIds: string[];
     };
-    removeUserFromChannel?: {
+    removeUsersFromChannel?: {
       channelId: string;
       sender: {
         id: string;

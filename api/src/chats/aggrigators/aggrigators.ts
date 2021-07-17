@@ -13,7 +13,7 @@ export const getAggrigator = (config: ChatConfigType, queries: Queries) => {
         eachMessage: async ({ topic, partition, message }) => {
           // console.log("==== GET MESSAGE FROM KAFKA ====");
           // console.log({ partition, message: message.value?.toString() });
-          // console.log(`TOPIC: ${topic}`);
+          console.log(`TOPIC: ${topic}`);
 
           // check topic
           switch (topic.toLowerCase()) {

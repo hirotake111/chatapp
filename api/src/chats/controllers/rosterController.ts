@@ -1,8 +1,10 @@
 import { RequestHandler, Request, Response } from "express";
-import { validate as uuidValidate } from "uuid";
+import { validate, v4 as uuid } from "uuid";
+import { ChatConfigType } from "../config";
 
 import { RosterQuery } from "../queries/rosterQuery";
 import { UserQuery } from "../queries/userQuery";
+import { getCheckMember } from "./utils";
 
 export interface RosterController {
   addChannelMember: RequestHandler;
@@ -13,7 +15,7 @@ const checkArrayOfUuidv4 = (userIds: any): string[] | null => {
   return Array.isArray(userIds) &&
     userIds.reduce((a, c) => typeof c === "string" && a, true) &&
     userIds.reduce(
-      (accumulator, current) => uuidValidate(current) && accumulator,
+      (accumulator, current) => validate(current) && accumulator,
       true
     )
     ? userIds
@@ -21,62 +23,82 @@ const checkArrayOfUuidv4 = (userIds: any): string[] | null => {
 };
 
 export const getRosterContoller = ({
+  config,
   rosterQuery,
   userQuery,
 }: {
+  config: ChatConfigType;
   rosterQuery: RosterQuery;
   userQuery: UserQuery;
 }): RosterController => {
-  const validateRequester = async (
-    channelId: string,
-    requesterId: string
-  ): Promise<boolean> => {
-    // check if the requester is member of the channel
-    const users = (await userQuery.getUsersByChannelId(channelId)).map(
-      (user) => user.id
-    );
-    return users.includes(requesterId);
-  };
+  const checkMember = getCheckMember(userQuery);
 
   return {
     addChannelMember: async (req: Request, res: Response) => {
       const { channelId } = req.params;
       const { userIds } = req.body;
-      const { userId: requesterId } = req.session;
+      const { userId: requesterId, username } = req.session;
       const added: string[] = [];
       const skipped: string[] = [];
       // validate channelId
-      if (!uuidValidate(channelId))
+      if (!validate(channelId))
         return res
           .status(400)
           .send({ detail: `invalid channel ID: ${channelId}` });
       // validate userIds
       const idsToBeAdded = checkArrayOfUuidv4(userIds);
       if (!idsToBeAdded)
-        return res.status(400).send({ detail: "invalid user IDs" });
+        return res
+          .status(400)
+          .send({ detail: `invalid user IDs: ${idsToBeAdded}` });
       // validate requesterId
-      if (!uuidValidate(requesterId))
-        return res.status(400).send({ detail: "invalid requester ID" });
+      if (!validate(requesterId))
+        return res
+          .status(400)
+          .send({ detail: `invalid requester ID: ${requesterId}` });
       try {
+        // check if the requester is member of the channel
+        if (!(await checkMember(channelId, requesterId)))
+          return res
+            .status(400)
+            .send({ detail: "you are not a member of the channel" });
         // get current user IDs
         const currentUserIds = (
           await userQuery.getUsersByChannelId(channelId)
         ).map((user) => user.id);
-        // check if the requester is member of the channel
-        if (!(await validateRequester(channelId, requesterId)))
-          return res
-            .status(400)
-            .send({ detail: "you are not a member of the channel" });
         // add members to the channel
-        await Promise.all(
-          idsToBeAdded.map((userId) => {
-            if (!currentUserIds.includes(userId)) {
-              added.push(userId);
-              return rosterQuery.addUserToChannel(channelId, userId);
-            }
-            skipped.push(userId);
-          })
-        );
+        idsToBeAdded.forEach((id) => {
+          if (currentUserIds.includes(id)) {
+            skipped.push(id);
+          } else {
+            added.push(id);
+          }
+        });
+        if (added.length > 0) {
+          // create UsersJoined event
+          const event: ChatEvent = {
+            id: uuid(),
+            type: "UsersJoined",
+            metadata: {
+              traceId: uuid(),
+              timestamp: Date.now(),
+            },
+            data: {
+              addUsersToChannel: {
+                channelId,
+                sender: {
+                  id: requesterId,
+                  name: username,
+                },
+                memberIds: added,
+              },
+            },
+          };
+          await config.kafka.producer.send({
+            topic: "chat",
+            messages: [{ value: JSON.stringify(event) }],
+          });
+        }
         res.status(200).send({ detail: "success", channelId, added, skipped });
         return;
       } catch (e) {
@@ -90,9 +112,9 @@ export const getRosterContoller = ({
     removeChannelMember: async (req: Request, res: Response) => {
       const { channelId } = req.params;
       const { userIds } = req.body;
-      const { userId: requesterId } = req.session;
+      const { userId: requesterId, username } = req.session;
       // validate channelId
-      if (!uuidValidate(channelId))
+      if (!validate(channelId))
         return res
           .status(400)
           .send({ detail: `invalid channel ID: ${channelId}` });
@@ -100,22 +122,40 @@ export const getRosterContoller = ({
       const ids = checkArrayOfUuidv4(userIds);
       if (!ids) return res.status(400).send({ detail: "invalid user IDs" });
       // validate requesterId
-      if (!uuidValidate(requesterId))
+      if (!validate(requesterId))
         return res.status(400).send({ detail: "invalid requester ID" });
       try {
         // check if the requester is member of the channel
-        if (!(await validateRequester(channelId, requesterId)))
+        if (!(await checkMember(channelId, requesterId)))
           return res
             .status(400)
             .send({ detail: "you are not a member of the channel" });
-        // remove members from the channel
-        await Promise.all(
-          ids.map((userId) =>
-            rosterQuery.deleteUserFromChannel(channelId, userId)
-          )
-        );
-        res.status(204).send({ detail: "success", channelId, userIds });
-        return;
+        if (ids.length > 0) {
+          // create UsersRemoved event
+          const event: ChatEvent = {
+            id: uuid(),
+            type: "UsersRemoved",
+            metadata: {
+              traceId: uuid(),
+              timestamp: Date.now(),
+            },
+            data: {
+              removeUsersFromChannel: {
+                channelId,
+                sender: {
+                  id: requesterId,
+                  name: username,
+                },
+                memberIds: ids,
+              },
+            },
+          };
+          await config.kafka.producer.send({
+            topic: "chat",
+            messages: [{ value: JSON.stringify(event) }],
+          });
+        }
+        return res.status(204).send({ detail: "success", channelId, ids });
       } catch (e) {
         res
           .status(500)
