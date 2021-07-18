@@ -74,6 +74,18 @@ describe("rosterController", () => {
       }
     });
 
+    it("should skip adding users if no new users in the request", async () => {
+      expect.assertions(2);
+      req.body.userIds = [];
+      try {
+        await rosterController.addChannelMember(req, res, next);
+        expect(sendMock.mock.calls[0][0].detail).toEqual("no user added");
+        expect(statusMock.mock.calls[0][0]).toEqual(200);
+      } catch (e) {
+        throw e;
+      }
+    });
+
     it("should validate channel ID", async () => {
       expect.assertions(2);
       req.params.channelId = nanoid();
@@ -234,12 +246,25 @@ describe("rosterController", () => {
     });
 
     it("should remove members from channel", async () => {
-      expect.assertions(2);
+      expect.assertions(1);
       // rosterQuery.deleteUserFromChannel = jest.fn().mockReturnValue(1);
       try {
         await rosterController.removeChannelMember(req, res, next);
-        expect(sendMock.mock.calls[0][0].detail).toEqual("success");
         expect(statusMock.mock.calls[0][0]).toEqual(204);
+      } catch (e) {
+        throw e;
+      }
+    });
+
+    it("should skip deletion", async () => {
+      expect.assertions(2);
+      req.body.userIds = [];
+      try {
+        await rosterController.removeChannelMember(req, res, next);
+        expect(sendMock.mock.calls[0][0].detail).toEqual(
+          "no user removed from the channel"
+        );
+        expect(statusMock.mock.calls[0][0]).toEqual(200);
       } catch (e) {
         throw e;
       }

@@ -128,20 +128,18 @@ describe("userController", () => {
     });
 
     it("should skip to create user and redirect to root page", async () => {
-      expect.assertions(3);
+      expect.assertions(2);
       try {
         // set mocks
-        const userServiceMock = {
-          getUserByUsername: jest.fn().mockReturnValue({ id: nanoid() }),
-          createUser: jest.fn(),
-        } as any;
+        queries.userQuery.getUserByUsername = jest
+          .fn()
+          .mockReturnValue({ id: uuid() });
         // invoke function
         const uc = getUserController(config, queries);
         await uc.getCallback(req, res, next);
         // validation
         expect(redirectMock).toHaveBeenCalledTimes(1);
         expect(redirectMock.mock.calls[0][0]).toEqual("/");
-        expect(userServiceMock.createUser).toHaveBeenCalledTimes(0);
       } catch (e) {
         throw e;
       }

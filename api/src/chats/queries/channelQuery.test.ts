@@ -127,6 +127,15 @@ describe("channel.query", () => {
       }
     });
 
+    it("should validate channel ID", async () => {
+      expect.assertions(1);
+      try {
+        await query.createChannel(nanoid(), nanoid());
+      } catch (e) {
+        expect(e.message).toEqual("invalid input");
+      }
+    });
+
     it("should return null if the same ID already exists", async () => {
       expect.assertions(1);
       // add a channel directly to db
@@ -262,31 +271,29 @@ describe("channel.query", () => {
 
   describe("updateChannelbyId()", () => {
     it("should return an updated channel", async () => {
-      expect.assertions(2);
+      expect.assertions(1);
       // add a channel directly to db
       const { id, updatedAt } = addChannel();
       // update channel
       const newName = uuid();
       try {
-        const updatedChannel = await query.updateChannelbyId(id, newName);
-        if (!updatedChannel) throw new Error("FAIELD UPDATING CHANNEL");
-        expect(updatedChannel.name).toEqual(newName);
-        expect(updatedChannel.id).toEqual(id);
+        const count = await query.updateChannelbyId(id, newName);
+        if (!count) throw new Error("FAIELD UPDATING CHANNEL");
+        expect(count).toEqual(1);
       } catch (e) {
         throw e;
       }
     });
 
     it("should return a channel even if nothing has changed", async () => {
-      expect.assertions(2);
+      expect.assertions(1);
       // add a channel directly to db
       const { id, name, updatedAt } = addChannel();
       // update channel
       try {
-        const updatedChannel = await query.updateChannelbyId(id, name);
-        if (!updatedChannel) throw new Error("FAIELD UPDATING CHANNEL");
-        expect(updatedChannel.name).toEqual(name);
-        expect(updatedChannel.id).toEqual(id);
+        const count = await query.updateChannelbyId(id, name);
+        if (!count) throw new Error("FAIELD UPDATING CHANNEL");
+        expect(count).toEqual(1);
       } catch (e) {
         throw e;
       }

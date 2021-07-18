@@ -69,31 +69,32 @@ export const getRosterContoller = (
             added.push(id);
           }
         });
-        if (added.length > 0) {
-          // create UsersJoined event
-          const event: ChatEvent = {
-            id: uuid(),
-            type: "UsersJoined",
-            metadata: {
-              traceId: uuid(),
-              timestamp: Date.now(),
-            },
-            data: {
-              addUsersToChannel: {
-                channelId,
-                sender: {
-                  id: requesterId,
-                  name: username,
-                },
-                memberIds: added,
+        if (added.length <= 0)
+          return res.status(200).send({ detail: "no user added" });
+        // create UsersJoined event
+        const event: ChatEvent = {
+          id: uuid(),
+          type: "UsersJoined",
+          metadata: {
+            traceId: uuid(),
+            timestamp: Date.now(),
+          },
+          data: {
+            addUsersToChannel: {
+              channelId,
+              sender: {
+                id: requesterId,
+                name: username,
               },
+              memberIds: added,
             },
-          };
-          await config.kafka.producer.send({
-            topic: "chat",
-            messages: [{ value: JSON.stringify(event) }],
-          });
-        }
+          },
+        };
+        await config.kafka.producer.send({
+          topic: "chat",
+          messages: [{ value: JSON.stringify(event) }],
+        });
+
         res.status(200).send({ detail: "success", channelId, added, skipped });
         return;
       } catch (e) {
@@ -125,31 +126,34 @@ export const getRosterContoller = (
           return res
             .status(400)
             .send({ detail: "you are not a member of the channel" });
-        if (ids.length > 0) {
-          // create UsersRemoved event
-          const event: ChatEvent = {
-            id: uuid(),
-            type: "UsersRemoved",
-            metadata: {
-              traceId: uuid(),
-              timestamp: Date.now(),
-            },
-            data: {
-              removeUsersFromChannel: {
-                channelId,
-                sender: {
-                  id: requesterId,
-                  name: username,
-                },
-                memberIds: ids,
+        if (ids.length <= 0)
+          return res
+            .status(200)
+            .send({ detail: "no user removed from the channel" });
+        // create UsersRemoved event
+        const event: ChatEvent = {
+          id: uuid(),
+          type: "UsersRemoved",
+          metadata: {
+            traceId: uuid(),
+            timestamp: Date.now(),
+          },
+          data: {
+            removeUsersFromChannel: {
+              channelId,
+              sender: {
+                id: requesterId,
+                name: username,
               },
+              memberIds: ids,
             },
-          };
-          await config.kafka.producer.send({
-            topic: "chat",
-            messages: [{ value: JSON.stringify(event) }],
-          });
-        }
+          },
+        };
+        await config.kafka.producer.send({
+          topic: "chat",
+          messages: [{ value: JSON.stringify(event) }],
+        });
+
         return res.status(204).send({ detail: "success", channelId, ids });
       } catch (e) {
         res

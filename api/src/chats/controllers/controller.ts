@@ -39,19 +39,11 @@ export const getController = (
     },
 
     // user controller
-    user: getUserController({
-      query: queries.userQuery,
-      config,
-    }),
+    user: getUserController(config, queries),
     // channel controler
-    channel: getChannelController({
-      config,
-      channelQuery,
-      rosterQuery,
-      userQuery,
-    }),
+    channel: getChannelController(config, queries),
     // roster controller
-    roster: getRosterContoller({ config, rosterQuery, userQuery }),
+    roster: getRosterContoller(config, queries),
     // message controller
     message: getMessageController(config, queries),
   };

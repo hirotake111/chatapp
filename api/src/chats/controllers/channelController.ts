@@ -3,6 +3,7 @@ import { validate, v4 as uuid } from "uuid";
 import { ChatConfigType } from "../config";
 
 import { ChannelQuery } from "../queries/channelQuery";
+import { Queries } from "../queries/query";
 import { RosterQuery } from "../queries/rosterQuery";
 import { UserQuery } from "../queries/userQuery";
 import { getCheckMember } from "./utils";
@@ -17,16 +18,11 @@ export interface ChannelController {
   getChannelMembers: RequestHandler;
 }
 
-export const getChannelController = ({
-  config,
-  channelQuery,
-  userQuery,
-}: {
-  config: ChatConfigType;
-  channelQuery: ChannelQuery;
-  rosterQuery: RosterQuery;
-  userQuery: UserQuery;
-}): ChannelController => {
+export const getChannelController = (
+  config: ChatConfigType,
+  queries: Queries
+): ChannelController => {
+  const { userQuery, channelQuery } = queries;
   const checkMember = getCheckMember(userQuery);
   return {
     createNewChannel: async (req: Request, res: Response) => {

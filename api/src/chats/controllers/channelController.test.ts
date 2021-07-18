@@ -75,12 +75,11 @@ describe("channelController", () => {
       deleteUserById: jest.fn(),
       getUsersByChannelId: jest.fn().mockReturnValue(users),
     };
-    controller = getChannelController({
-      config,
+    controller = getChannelController(config, {
       channelQuery,
       rosterQuery,
       userQuery,
-    });
+    } as any);
   });
 
   describe("createNewChannel", () => {

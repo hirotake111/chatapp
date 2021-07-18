@@ -55,6 +55,24 @@ describe("RosterQuery", () => {
       }
     });
 
+    it("should validate channel ID", async () => {
+      expect.assertions(1);
+      try {
+        await rosterQuery.addUserToChannel(nanoid(), uuid());
+      } catch (e) {
+        expect(e.message).toEqual("invalid input");
+      }
+    });
+
+    it("should validate user ID", async () => {
+      expect.assertions(1);
+      try {
+        await rosterQuery.addUserToChannel(uuid(), nanoid());
+      } catch (e) {
+        expect(e.message).toEqual("invalid input");
+      }
+    });
+
     it("shoud raise an error for any other reasons", async () => {
       expect.assertions(1);
       // this should raise an error

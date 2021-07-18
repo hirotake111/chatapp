@@ -16,7 +16,11 @@ describe("getDb()", () => {
   it("should return sequelize object", async () => {
     expect.assertions(2);
     try {
-      const db = await getDb(config);
+      const db = await getDb(
+        config.database.databaseUri,
+        config.database.modelPath,
+        config.database.sequelizeoptions
+      );
       expect(db).toBeTruthy();
       expect(Sequelize).toHaveBeenCalledTimes(1);
     } catch (e) {
@@ -32,7 +36,11 @@ describe("getDb()", () => {
       jest.spyOn(Sequelize.prototype, "authenticate").mockImplementation(() => {
         throw new Error(msg);
       });
-      await getDb(config);
+      await getDb(
+        config.database.databaseUri,
+        config.database.modelPath,
+        config.database.sequelizeoptions
+      );
     } catch (e) {
       expect(e.message).toEqual(msg);
     }
