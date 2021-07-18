@@ -1,8 +1,11 @@
 import { RequestHandler, Request, Response, NextFunction } from "express";
 import { v4 as uuid, validate } from "uuid";
+import { ChatConfigType } from "../config";
 
 import { MessageQuery } from "../queries/messageQuery";
+import { Queries } from "../queries/query";
 import { UserQuery } from "../queries/userQuery";
+import { getCheckMember } from "./utils";
 
 export interface MessageController {
   getMessagesInChannel: RequestHandler;
@@ -12,13 +15,13 @@ export interface MessageController {
   deleteMessage: RequestHandler;
 }
 
-export const getMessageController = ({
-  messageQuery,
-  userQuery,
-}: {
-  messageQuery: MessageQuery;
-  userQuery: UserQuery;
-}): MessageController => {
+export const getMessageController = (
+  config: ChatConfigType,
+  queries: Queries
+): MessageController => {
+  const { userQuery, messageQuery } = queries;
+  const checkMember = getCheckMember(userQuery);
+
   return {
     getMessagesInChannel: async (
       req: Request,
@@ -36,11 +39,7 @@ export const getMessageController = ({
       if (!validate(requesterId))
         return res.status(400).send({ detail: "invalid requester ID" });
       try {
-        // get members of channel
-        const members = (await userQuery.getUsersByChannelId(channelId)).map(
-          (u) => u.id
-        );
-        if (!members.includes(requesterId))
+        if (!(await checkMember(channelId, requesterId)))
           return res
             .status(400)
             .send({ detail: "requester is not a member of channel" });
@@ -130,7 +129,7 @@ export const getMessageController = ({
     postMessage: async (req: Request, res: Response, next: NextFunction) => {
       const { content } = req.body;
       const { channelId } = req.params;
-      const { userId: requesterId } = req.session;
+      const { userId: requesterId, username } = req.session;
       // validate requesterId
       if (!validate(requesterId))
         return res.status(400).send({ detail: "invalid requester ID" });
@@ -142,11 +141,7 @@ export const getMessageController = ({
       // generate messageId
       const messageId = uuid();
       try {
-        // get users
-        const users = (await userQuery.getUsersByChannelId(channelId)).map(
-          (u) => u.id
-        );
-        if (!users.includes(requesterId))
+        if (!(await checkMember(channelId, requesterId)))
           return res
             .status(400)
             .send({ detail: "requester is not a member of channel" });
@@ -154,13 +149,23 @@ export const getMessageController = ({
         if (await messageQuery.getSpecificMessage(messageId, channelId))
           return res.status(400).send({ detail: "message ID already exists" });
         // create message
-        const message = await messageQuery.createMessage(
-          messageId,
-          channelId,
-          requesterId,
-          content
-        );
-        return res.status(201).send({ detail: "success", message });
+        const sender = { id: requesterId, name: username };
+        const event: ChatEvent = {
+          id: uuid(),
+          type: "MessageAdded",
+          metadata: { traceId: uuid(), timestamp: Date.now() },
+          data: {
+            addMessage: { channelId: uuid(), messageId, sender, content },
+          },
+        };
+        await config.kafka.producer.send({
+          topic: "chat",
+          messages: [{ value: JSON.stringify(event) }],
+        });
+        return res.status(201).send({
+          detail: "success",
+          message: { id: messageId, channelId, sender: { id: requesterId } },
+        });
       } catch (e) {
         const statusCode =
           e.message === `channel ID ${channelId} doesn't exist` ? 400 : 500;
@@ -169,7 +174,7 @@ export const getMessageController = ({
     },
 
     editMessage: async (req: Request, res: Response, next: NextFunction) => {
-      const { userId: requesterId } = req.session;
+      const { userId: requesterId, username } = req.session;
       const { messageId, channelId } = req.params;
       const { content } = req.body;
       // validate messageId
@@ -196,12 +201,20 @@ export const getMessageController = ({
             .status(400)
             .send({ detail: "you can't edit other user's message" });
         // update the message
-        const updated = await messageQuery.editMessage(
-          messageId,
-          channelId,
-          content
-        );
-        return res.status(200).send({ detail: "success", updated });
+        const sender = { id: requesterId, name: username };
+        const event: ChatEvent = {
+          id: uuid(),
+          type: "MessageUpdated",
+          metadata: { traceId: uuid(), timestamp: Date.now() },
+          data: {
+            updateMessage: { channelId, messageId, sender, content },
+          },
+        };
+        await config.kafka.producer.send({
+          topic: "chat",
+          messages: [{ value: JSON.stringify(event) }],
+        });
+        return res.status(200).send({ detail: "success" });
       } catch (e) {
         return res.status(500).send({ detail: e.message });
       }
@@ -209,7 +222,7 @@ export const getMessageController = ({
 
     deleteMessage: async (req: Request, res: Response, next: NextFunction) => {
       const { messageId, channelId } = req.params;
-      const { userId: requesterId } = req.session;
+      const { userId: requesterId, username } = req.session;
       // validate messageId
       if (!validate(messageId))
         return res
@@ -239,8 +252,19 @@ export const getMessageController = ({
           return res
             .status(400)
             .send({ detail: "you can't edit other user's message" });
-        const count = await messageQuery.deleteMessage(messageId);
-        return res.status(204).send({ detail: "success", count });
+        // const count = await messageQuery.deleteMessage(messageId);
+        const sender = { id: requesterId, name: username };
+        const event: ChatEvent = {
+          id: uuid(),
+          type: "MessageDeleted",
+          metadata: { traceId: uuid(), timestamp: Date.now() },
+          data: { deleteMessage: { channelId, messageId, sender } },
+        };
+        await config.kafka.producer.send({
+          topic: "chat",
+          messages: [{ value: JSON.stringify(event) }],
+        });
+        return res.status(204).send();
       } catch (e) {
         return res.status(500).send({ detail: e.message });
       }
