@@ -3,6 +3,7 @@ import { createHash } from "crypto";
 import { v4 as uuid } from "uuid";
 
 import { getUserController, UserController } from "./userController";
+import { Queries } from "../queries/query";
 
 // constants
 const verifier = nanoid();
@@ -30,32 +31,35 @@ let res = {
   redirect: jest.fn(),
 } as any;
 let next = {} as any;
+let statusMock = res.status as jest.Mock;
+let sendMock = res.send as jest.Mock;
 const redirectMock = res.redirect as jest.Mock;
 let userQuery = {
   getUserByUsername: jest.fn(),
   createUser: jest.fn(),
 } as any;
-let statusMock = res.status as jest.Mock;
-let sendMock = res.send as jest.Mock;
-const generators = {
-  codeVerifier: jest.fn().mockReturnValue(verifier),
-  codeChallenge: jest.fn().mockReturnValue(codeChallenge),
-} as any;
-const oidcClient = {
-  authorizationUrl: jest.fn().mockReturnValue(authzUrl),
-  callbackParams: jest.fn(),
-  callback: jest.fn().mockReturnValue({ access_token: accessToken }),
-  userinfo: jest.fn().mockReturnValue(userInfo),
-} as any;
+let queries = { userQuery } as any;
 const config = {
-  oidc: { callbackUrl: `https://${nanoid()}.com` },
+  oidc: {
+    generators: {
+      codeVerifier: jest.fn().mockReturnValue(verifier),
+      codeChallenge: jest.fn().mockReturnValue(codeChallenge),
+    },
+    client: {
+      authorizationUrl: jest.fn().mockReturnValue(authzUrl),
+      callbackParams: jest.fn(),
+      callback: jest.fn().mockReturnValue({ access_token: accessToken }),
+      userinfo: jest.fn().mockReturnValue(userInfo),
+    },
+    callbackUrl: `https://${nanoid()}.com`,
+  },
   kafka: {
     topicName: nanoid(),
     producer: { send: jest.fn() },
   },
 } as any;
-const challengeMock = generators.codeChallenge as jest.Mock;
-const authorizationUrlMock = oidcClient.authorizationUrl as jest.Mock;
+const mockCodeChallenge = config.oidc.generators.codeChallenge as jest.Mock;
+const mockAuthorizationUrl = config.oidc.client.authorizationUrl as jest.Mock;
 const producerSendMock = config.kafka.producer.send as jest.Mock;
 
 describe("userController", () => {
@@ -63,16 +67,14 @@ describe("userController", () => {
     it("should redirect user to authorization URL", async () => {
       expect.assertions(5);
       try {
-        const uc = getUserController({
-          query: userQuery,
-          config,
-        });
+        const uc = getUserController(config, queries);
+        // console.log("uc.getLogin", uc.getLogin);
         await uc.getLogin(req, res, next);
         // validation
-        expect(generators.codeVerifier).toHaveBeenCalledTimes(1);
+        expect(config.oidc.generators.codeVerifier).toHaveBeenCalledTimes(1);
         expect(req.session.verifier).toEqual(verifier);
-        expect(challengeMock.mock.calls[0][0]).toEqual(verifier);
-        expect(authorizationUrlMock.mock.calls[0][0]).toEqual(parameters);
+        expect(mockCodeChallenge.mock.calls[0][0]).toEqual(verifier);
+        expect(mockAuthorizationUrl.mock.calls[0][0]).toEqual(parameters);
         expect(redirectMock.mock.calls[0][0]).toEqual(authzUrl);
       } catch (e) {
         throw e;
@@ -90,10 +92,7 @@ describe("userController", () => {
         } as any;
         // invoke function
         config.oidc.generators = generatorsFail;
-        const uc = getUserController({
-          query: userQuery,
-          config,
-        });
+        const uc = getUserController(config, queries);
         await uc.getLogin(req, res, next);
         expect(statusMock.mock.calls[0][0]).toEqual(500);
         expect(sendMock.mock.calls[0][0].error).toEqual(
@@ -110,10 +109,7 @@ describe("userController", () => {
       expect.assertions(5);
       try {
         // invoke function
-        const uc = getUserController({
-          query: userQuery,
-          config,
-        });
+        const uc = getUserController(config, queries);
         await uc.getCallback(req, res, next);
         // validation
         expect(producerSendMock).toHaveBeenCalledTimes(1);
@@ -140,10 +136,7 @@ describe("userController", () => {
           createUser: jest.fn(),
         } as any;
         // invoke function
-        const uc = getUserController({
-          query: userServiceMock,
-          config,
-        });
+        const uc = getUserController(config, queries);
         await uc.getCallback(req, res, next);
         // validation
         expect(redirectMock).toHaveBeenCalledTimes(1);
@@ -158,17 +151,14 @@ describe("userController", () => {
       expect.assertions(2);
       try {
         // set mocks
-        const mockClient = {
+        config.oidc.client = {
           authorizationUrl: jest.fn().mockReturnValue(authzUrl),
           callbackParams: jest.fn(),
           callback: jest.fn().mockReturnValue({ access_token: null }),
           userinfo: jest.fn().mockReturnValue(userInfo),
         } as any;
         // invoke function
-        const uc = getUserController({
-          query: userQuery,
-          config,
-        });
+        const uc = getUserController(config, queries);
         await uc.getCallback(req, res, next);
         // validation
         expect(statusMock.mock.calls[0][0]).toEqual(500);
@@ -184,16 +174,13 @@ describe("userController", () => {
       expect.assertions(2);
       try {
         // set mocks
-        const clientFail = {
+        config.oidc.client = {
           callbackParams: jest.fn().mockImplementation(() => {
             throw new Error();
           }),
         } as any;
         // invoke function
-        const uc = getUserController({
-          query: userQuery,
-          config,
-        });
+        const uc = getUserController(config, { userQuery } as any);
         await uc.getCallback(req, res, next);
         expect(statusMock.mock.calls[0][0]).toEqual(500);
         expect(sendMock.mock.calls[0][0].error).toEqual(
@@ -207,13 +194,8 @@ describe("userController", () => {
 
   describe("getusers()", () => {
     let controller: UserController;
-    // let userQuery: UserQuery;
-    // let req: Request;
-    // let res: Response;
-    // let next: NextFunction;
     let userId: string;
-    // let statusMock: jest.Mock;
-    // let sendMock: jest.Mock;
+    let queries: Queries;
 
     beforeEach(() => {
       userId = uuid();
@@ -225,33 +207,32 @@ describe("userController", () => {
       next = {} as any;
       statusMock = res.status as jest.Mock;
       sendMock = res.send as jest.Mock;
-      userQuery = {
-        getUserById: jest.fn(),
-        getOtherUsers: jest.fn().mockReturnValue([
-          {
-            id: uuid(),
-            username: nanoid(),
-            displayName: nanoid(),
-            firstname: nanoid(),
-            lastName: nanoid(),
-          },
-          {
-            id: uuid(),
-            username: nanoid(),
-            displayName: nanoid(),
-            firstname: nanoid(),
-            lastName: nanoid(),
-          },
-        ]),
-        getUserByUsername: jest.fn(),
-        createUser: jest.fn(),
-        deleteUserById: jest.fn(),
-        getUsersByChannelId: jest.fn(),
-      };
-      controller = getUserController({
-        query: userQuery,
-        config,
-      });
+      queries = {
+        userQuery: {
+          getUserById: jest.fn(),
+          getOtherUsers: jest.fn().mockReturnValue([
+            {
+              id: uuid(),
+              username: nanoid(),
+              displayName: nanoid(),
+              firstname: nanoid(),
+              lastName: nanoid(),
+            },
+            {
+              id: uuid(),
+              username: nanoid(),
+              displayName: nanoid(),
+              firstname: nanoid(),
+              lastName: nanoid(),
+            },
+          ]),
+          getUserByUsername: jest.fn(),
+          createUser: jest.fn(),
+          deleteUserById: jest.fn(),
+          getUsersByChannelId: jest.fn(),
+        },
+      } as any;
+      controller = getUserController(config, queries);
     });
 
     it("should return users", async () => {
@@ -282,7 +263,7 @@ describe("userController", () => {
     it("should respond HTTP 500 for any other errors", async () => {
       expect.assertions(2);
       const msg = "db error";
-      userQuery.getOtherUsers = jest.fn().mockImplementation(() => {
+      queries.userQuery.getOtherUsers = jest.fn().mockImplementation(() => {
         throw new Error(msg);
       });
       try {
@@ -297,17 +278,12 @@ describe("userController", () => {
 
   describe("getUserInfo", () => {
     let controller: UserController;
-    // let userQuery: UserQuery;
-    // let req: Request;
-    // let res: Response;
-    // let next: NextFunction;
     let userId: string;
     let username: string;
     let firstName: string;
     let lastName: string;
     let displayName: string;
-    // let statusMock: jest.Mock;
-    // let sendMock: jest.Mock;
+    let queries: Queries;
 
     beforeEach(() => {
       userId = uuid();
@@ -323,39 +299,38 @@ describe("userController", () => {
       next = {} as any;
       statusMock = res.status as jest.Mock;
       sendMock = res.send as jest.Mock;
-      userQuery = {
-        getUserById: jest.fn().mockReturnValue({
-          userId,
-          username,
-          displayName,
-          firstName,
-          lastName,
-        }),
-        getOtherUsers: jest.fn().mockReturnValue([
-          {
-            id: uuid(),
-            username: nanoid(),
-            displayName: nanoid(),
-            firstname: nanoid(),
-            lastName: nanoid(),
-          },
-          {
-            id: uuid(),
-            username: nanoid(),
-            displayName: nanoid(),
-            firstname: nanoid(),
-            lastName: nanoid(),
-          },
-        ]),
-        getUserByUsername: jest.fn(),
-        createUser: jest.fn(),
-        deleteUserById: jest.fn(),
-        getUsersByChannelId: jest.fn(),
-      };
-      controller = getUserController({
-        query: userQuery,
-        config,
-      });
+      queries = {
+        userQuery: {
+          getUserById: jest.fn().mockReturnValue({
+            userId,
+            username,
+            displayName,
+            firstName,
+            lastName,
+          }),
+          getOtherUsers: jest.fn().mockReturnValue([
+            {
+              id: uuid(),
+              username: nanoid(),
+              displayName: nanoid(),
+              firstname: nanoid(),
+              lastName: nanoid(),
+            },
+            {
+              id: uuid(),
+              username: nanoid(),
+              displayName: nanoid(),
+              firstname: nanoid(),
+              lastName: nanoid(),
+            },
+          ]),
+          getUserByUsername: jest.fn(),
+          createUser: jest.fn(),
+          deleteUserById: jest.fn(),
+          getUsersByChannelId: jest.fn(),
+        },
+      } as any;
+      controller = getUserController(config, queries);
     });
 
     it("should return user information", async () => {
@@ -393,7 +368,7 @@ describe("userController", () => {
     it("should respond HTTP 400 if nothing fetched from db", async () => {
       expect.assertions(2);
       try {
-        userQuery.getUserById = jest.fn().mockReturnValue(null);
+        queries.userQuery.getUserById = jest.fn().mockReturnValue(null);
         await controller.getUserInfo(req, res, next);
         expect(statusMock.mock.calls[0][0]).toEqual(400);
         expect(sendMock.mock.calls[0][0]).toEqual({
@@ -407,7 +382,7 @@ describe("userController", () => {
     it("should respond HTTP 500 for any other erros", async () => {
       expect.assertions(2);
       const msg = "db errrrrror";
-      userQuery.getUserById = jest.fn().mockImplementation(() => {
+      queries.userQuery.getUserById = jest.fn().mockImplementation(() => {
         throw new Error(msg);
       });
       try {
