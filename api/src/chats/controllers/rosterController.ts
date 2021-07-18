@@ -1,6 +1,7 @@
 import { RequestHandler, Request, Response } from "express";
 import { validate, v4 as uuid } from "uuid";
 import { ChatConfigType } from "../config";
+import { Queries } from "../queries/query";
 
 import { RosterQuery } from "../queries/rosterQuery";
 import { UserQuery } from "../queries/userQuery";
@@ -22,15 +23,11 @@ const checkArrayOfUuidv4 = (userIds: any): string[] | null => {
     : null;
 };
 
-export const getRosterContoller = ({
-  config,
-  rosterQuery,
-  userQuery,
-}: {
-  config: ChatConfigType;
-  rosterQuery: RosterQuery;
-  userQuery: UserQuery;
-}): RosterController => {
+export const getRosterContoller = (
+  config: ChatConfigType,
+  queries: Queries
+): RosterController => {
+  const { userQuery, rosterQuery } = queries;
   const checkMember = getCheckMember(userQuery);
 
   return {
@@ -48,9 +45,7 @@ export const getRosterContoller = ({
       // validate userIds
       const idsToBeAdded = checkArrayOfUuidv4(userIds);
       if (!idsToBeAdded)
-        return res
-          .status(400)
-          .send({ detail: `invalid user IDs: ${idsToBeAdded}` });
+        return res.status(400).send({ detail: `invalid user IDs: ${userIds}` });
       // validate requesterId
       if (!validate(requesterId))
         return res

@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { nanoid } from "nanoid";
 import { v4 as uuid } from "uuid";
+import { ChatConfigType } from "../config";
+import { Queries } from "../queries/query";
 
 import { RosterQuery } from "../queries/rosterQuery";
 import { UserQuery } from "../queries/userQuery";
@@ -14,6 +16,7 @@ let statusMock: jest.Mock;
 let sendMock: jest.Mock;
 let rosterQuery: RosterQuery;
 let userQuery: UserQuery;
+let config: ChatConfigType;
 
 describe("rosterController", () => {
   describe("addChannelMember", () => {
@@ -48,7 +51,11 @@ describe("rosterController", () => {
         createUser: jest.fn(),
         deleteUserById: jest.fn(),
       };
-      rosterController = getRosterContoller({ rosterQuery, userQuery });
+      config = { kafka: { producer: { send: jest.fn() } } } as any;
+      rosterController = getRosterContoller(config, {
+        rosterQuery,
+        userQuery,
+      } as Queries);
     });
 
     it("should add members", async () => {
@@ -86,8 +93,10 @@ describe("rosterController", () => {
       req.body.userIds = uuid();
       try {
         await rosterController.addChannelMember(req, res, next);
+        expect(sendMock.mock.calls[0][0].detail).toEqual(
+          `invalid user IDs: ${req.body.userIds}`
+        );
         expect(statusMock.mock.calls[0][0]).toEqual(400);
-        expect(sendMock.mock.calls[0][0].detail).toEqual("invalid user IDs");
       } catch (e) {
         throw e;
       }
@@ -98,8 +107,10 @@ describe("rosterController", () => {
       req.body.userIds = [uuid(), uuid(), uuid(), 100];
       try {
         await rosterController.addChannelMember(req, res, next);
+        expect(sendMock.mock.calls[0][0].detail).toEqual(
+          `invalid user IDs: ${req.body.userIds}`
+        );
         expect(statusMock.mock.calls[0][0]).toEqual(400);
-        expect(sendMock.mock.calls[0][0].detail).toEqual("invalid user IDs");
       } catch (e) {
         throw e;
       }
@@ -110,8 +121,10 @@ describe("rosterController", () => {
       req.body.userIds = [nanoid()];
       try {
         await rosterController.addChannelMember(req, res, next);
+        expect(sendMock.mock.calls[0][0].detail).toEqual(
+          `invalid user IDs: ${req.body.userIds}`
+        );
         expect(statusMock.mock.calls[0][0]).toEqual(400);
-        expect(sendMock.mock.calls[0][0].detail).toEqual("invalid user IDs");
       } catch (e) {
         throw e;
       }
@@ -122,10 +135,10 @@ describe("rosterController", () => {
       req.session.userId = nanoid();
       try {
         await rosterController.addChannelMember(req, res, next);
-        expect(statusMock.mock.calls[0][0]).toEqual(400);
         expect(sendMock.mock.calls[0][0].detail).toEqual(
-          "invalid requester ID"
+          `invalid requester ID: ${req.session.userId}`
         );
+        expect(statusMock.mock.calls[0][0]).toEqual(400);
       } catch (e) {
         throw e;
       }
@@ -168,7 +181,7 @@ describe("rosterController", () => {
     it("should raise an error for any other errors", async () => {
       expect.assertions(2);
       const msg = "database error!";
-      rosterQuery.addUserToChannel = jest.fn().mockImplementation(() => {
+      config.kafka.producer.send = jest.fn().mockImplementation(() => {
         throw new Error(msg);
       });
       try {
@@ -213,16 +226,20 @@ describe("rosterController", () => {
         createUser: jest.fn(),
         deleteUserById: jest.fn(),
       };
-      rosterController = getRosterContoller({ rosterQuery, userQuery });
+      config = { kafka: { producer: { send: jest.fn() } } } as any;
+      rosterController = getRosterContoller(config, {
+        rosterQuery,
+        userQuery,
+      } as Queries);
     });
 
     it("should remove members from channel", async () => {
       expect.assertions(2);
-      rosterQuery.deleteUserFromChannel = jest.fn().mockReturnValue(1);
+      // rosterQuery.deleteUserFromChannel = jest.fn().mockReturnValue(1);
       try {
         await rosterController.removeChannelMember(req, res, next);
-        expect(statusMock.mock.calls[0][0]).toEqual(204);
         expect(sendMock.mock.calls[0][0].detail).toEqual("success");
+        expect(statusMock.mock.calls[0][0]).toEqual(204);
       } catch (e) {
         throw e;
       }
@@ -285,7 +302,7 @@ describe("rosterController", () => {
     it("should raise an error for any other errors", async () => {
       expect.assertions(2);
       const msg = "database error!";
-      rosterQuery.deleteUserFromChannel = jest.fn().mockImplementation(() => {
+      config.kafka.producer.send = jest.fn().mockImplementation(() => {
         throw new Error(msg);
       });
       try {
