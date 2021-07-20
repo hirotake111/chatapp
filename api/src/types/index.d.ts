@@ -66,7 +66,8 @@ type ChatEventType =
   | "ChannelUpdated"
   | "UsersJoined"
   | "UsersRemoved"
-  | "MessageAdded";
+  | "MessageAdded"
+  | "OtherEvent";
 
 declare interface ChatEvent {
   id: string;
@@ -109,7 +110,7 @@ declare interface ChatEvent {
         id: string;
         name: string;
       };
-      members: string[];
+      memberIds: string[];
     };
     updateChannel?: {
       channelId: string;

@@ -27,7 +27,7 @@ export const getRosterContoller = (
   config: ChatConfigType,
   queries: Queries
 ): RosterController => {
-  const { userQuery, rosterQuery } = queries;
+  const { userQuery } = queries;
   const checkMember = getCheckMember(userQuery);
 
   return {

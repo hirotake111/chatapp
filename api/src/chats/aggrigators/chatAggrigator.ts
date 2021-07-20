@@ -10,33 +10,33 @@ export const getChatAggrigator = (queries: Queries) => {
       // parse message
       const event = JSON.parse(message.value.toString()) as ChatEvent;
 
-      console.log(`TYPE: ${event.type}`);
+      // console.log(`TYPE: ${event.type}`);
       try {
         // check event type
         switch (event.type) {
           case "MessageAdded":
-            this.createMessage(event);
+            await this.createMessage(event);
             break;
           case "MessageDeleted":
-            this.deleteMessage(event);
+            await this.deleteMessage(event);
             break;
           case "MessageUpdated":
-            this.updateMessage(event);
+            await this.updateMessage(event);
             break;
           case "ChannelCreated":
-            this.createChannel(event);
+            await this.createChannel(event);
             break;
           case "ChannelDeleted":
-            this.deleteChannel(event);
+            await this.deleteChannel(event);
             break;
           case "ChannelUpdated":
-            this.updateChannel(event);
+            await this.updateChannel(event);
             break;
           case "UsersJoined":
-            this.addUserToChannel(event);
+            await this.addUserToChannel(event);
             break;
           case "UsersRemoved":
-            this.removeUserFromChannel(event);
+            await this.removeUserFromChannel(event);
             break;
           default:
             break;
@@ -88,7 +88,7 @@ export const getChatAggrigator = (queries: Queries) => {
     async createChannel(event: ChatEvent) {
       if (!event.data.createChannel)
         throw new Error(`Invalid event data: ${event.data}`);
-      const { channelId, channelName, sender, members } =
+      const { channelId, channelName, sender, memberIds } =
         event.data.createChannel;
       try {
         // create a new channel
@@ -96,8 +96,7 @@ export const getChatAggrigator = (queries: Queries) => {
           channelId,
           channelName
         );
-        if (!channel)
-          throw new Error("Failed to create a new channel to database");
+        if (!channel) throw new Error("Failed to store a channel to database");
         // add requester to channel
         const roster = await rosterQuery.addUserToChannel(
           channel.id,
@@ -108,9 +107,9 @@ export const getChatAggrigator = (queries: Queries) => {
             `Failed to add requester ${sender.id} to channel ${channelId}`
           );
         // add other members to the channel
-        if (members.length > 0)
+        if (memberIds.length > 0)
           await Promise.all(
-            members.map((id) => rosterQuery.addUserToChannel(channel.id, id))
+            memberIds.map((id) => rosterQuery.addUserToChannel(channel.id, id))
           );
       } catch (e) {
         throw e;

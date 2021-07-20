@@ -32,7 +32,7 @@ describe("channelController", () => {
     users = [{ id: requesterId }, { id: uuid() }];
     req = {
       params: { channelId },
-      body: { channelId, channelName, members: [uuid()] },
+      body: { channelId, channelName, memberIds: [uuid()] },
       session: { userId: requesterId },
     } as any;
     res = {
@@ -126,7 +126,7 @@ describe("channelController", () => {
     it("should validate members property", async () => {
       expect.assertions(3);
       try {
-        req.body.members = undefined;
+        req.body.memberIds = undefined;
         await controller.createNewChannel(req, res, next);
         expect(sendMock.mock.calls[0][0].detail).toEqual(
           "members parameter is not an array of string"
@@ -140,6 +140,19 @@ describe("channelController", () => {
         await controller.createNewChannel(req, res, next);
         expect(sendMock.mock.calls[0][0].detail).toEqual(
           "members parameter is not an array of string"
+        );
+      } catch (e) {
+        throw e;
+      }
+    });
+
+    it("should validate member IDs", async () => {
+      expect.assertions(1);
+      try {
+        req.body.memberIds = [];
+        await controller.createNewChannel(req, res, next);
+        expect(sendMock.mock.calls[0][0].detail).toEqual(
+          "invalid type of member IDs"
         );
       } catch (e) {
         throw e;

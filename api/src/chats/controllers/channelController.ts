@@ -2,10 +2,7 @@ import { RequestHandler, Request, Response, NextFunction } from "express";
 import { validate, v4 as uuid } from "uuid";
 import { ChatConfigType } from "../config";
 
-import { ChannelQuery } from "../queries/channelQuery";
 import { Queries } from "../queries/query";
-import { RosterQuery } from "../queries/rosterQuery";
-import { UserQuery } from "../queries/userQuery";
 import { getCheckMember } from "./utils";
 
 export interface ChannelController {
@@ -29,24 +26,24 @@ export const getChannelController = (
       // if request doesn't have body, throw an error => HTTP 500
       if (!req.body)
         return res.status(400).send({ detail: "HTTP request has no body" });
-      const { channelName, members } = req.body;
+      const { channelName, memberIds } = req.body;
       const { userId, username } = req.session;
       // validate channel name
       if (!(typeof channelName === "string"))
         return res.status(400).send({ detail: "invalid channel name" });
       // validate members
-      if (!Array.isArray(members))
+      if (!Array.isArray(memberIds))
         return res
           .status(400)
           .send({ detail: "members parameter is not an array of string" });
       if (
         !(
-          members.length > 0 &&
-          typeof members[0] === "string" &&
-          validate(members[0])
+          memberIds.length > 0 &&
+          typeof memberIds[0] === "string" &&
+          validate(memberIds[0])
         )
       )
-        return res.status(400).send({ detail: "invalid members type" });
+        return res.status(400).send({ detail: "invalid type of member IDs" });
       // generate channel ID
       const channelId = uuid();
       try {
@@ -65,7 +62,7 @@ export const getChannelController = (
                 id: userId,
                 name: username,
               },
-              members,
+              memberIds,
             },
           },
         };
@@ -77,7 +74,7 @@ export const getChannelController = (
           detail: "success",
           channelId,
           channelName,
-          members: [userId, ...members],
+          members: [userId, ...memberIds],
         });
       } catch (e) {
         res
