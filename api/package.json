@@ -10,7 +10,7 @@
     "start": "nodemon --config nodemon.json src/server.ts",
     "start:debug": "nodemon --config nodemon.json --inspect-brk src/server.ts",
     "make": "bash ./make_image.sh",
-    "test": "docker-compose run --rm app ./node_modules/.bin/jest --watchAll"
+    "test": "docker-compose run --rm app ./node_modules/.bin/jest --watchAll --detectOpenHandles"
   },
   "keywords": [],
   "author": "",

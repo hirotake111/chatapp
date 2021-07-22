@@ -1,6 +1,6 @@
 import { Server, Socket } from "socket.io";
 import { nanoid } from "nanoid";
-import { createServer } from "http";
+import { createServer, Server as HTTPServer } from "http";
 import Client, { Socket as ClientSocket } from "socket.io-client";
 
 import { getWSRouter, WSRouter } from "./wsRouter";
@@ -8,6 +8,7 @@ import { getWSRouter, WSRouter } from "./wsRouter";
 describe("WSRouter", () => {
   let router: WSRouter;
   let io: Server;
+  let httpServer: HTTPServer;
   let serverSocket: Socket;
   let clientSocket: ClientSocket;
   let eventName: string;
@@ -21,8 +22,7 @@ describe("WSRouter", () => {
      * beforeAll function creates WebSocket Server and Client,
      * and then connect each other.
      */
-    const httpServer = createServer();
-    const URL = `http://localhost:${port}`;
+    httpServer = createServer();
     io = new Server(httpServer);
     httpServer.listen(port, () => {});
     onConnectionCb = async (io: Server, socket: Socket) => {
@@ -40,6 +40,7 @@ describe("WSRouter", () => {
     /**
      * afterAll function close WebSocket connection between server and client
      */
+    httpServer.close();
     io.close();
   });
 
@@ -75,21 +76,25 @@ describe("WSRouter", () => {
 
   it("should close the connection if an initial callback throw an error", (done) => {
     expect.assertions(1);
-    clientSocket = Client(`http://localhost:${port}`);
+    let server: Socket;
+    const port = 3333;
+    const http = createServer();
+    const io = new Server(http);
+    http.listen(port);
+    const router = getWSRouter(io);
+    const client = Client(`http://localhost:${port}`);
+    // register on connection event handler
+    router.onConnect(async (io, socket) => {
+      server = socket;
+      return new Promise((_, reject) => reject("some err"));
+    });
     // register on disconnect event handler
-    clientSocket.on("disconnect", (reason) => {
+    client.on("disconnect", (reason) => {
       expect(reason).toBe("io server disconnect");
-      clientSocket.close();
+      client.close();
       done();
     });
-    // register on connection event handler
-    router.onConnect(
-      jest.fn().mockImplementation((io, socket) => {
-        serverSocket = socket;
-        throw new Error("some error");
-      })
-    );
-    clientSocket.emit(eventName, data);
+    client.emit("my test", data);
   });
 
   // test for getevetn
