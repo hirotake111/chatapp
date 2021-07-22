@@ -6,7 +6,7 @@ import { Queries } from "../queries/query";
 import { getCheckMember } from "./utils";
 import { validateChatPayload } from "../../utils/utils";
 
-const sendExceptionToSender = (
+export const sendExceptionToSender = (
   socket: Socket,
   payload: ExceptionPayload
 ): void => {
@@ -48,7 +48,7 @@ export const getWSController = (
       // validate user
       const { userId, username } = socket.request.session;
       if (!userId || !username) throw new Error("user is not authenticated");
-      console.log(`==== WEBSOCKET CONNECTED ${username} (${userId}) ====`);
+      // console.log(`==== WEBSOCKET CONNECTED ${username} (${userId}) ====`);
 
       try {
         // get channel IDs
@@ -56,7 +56,7 @@ export const getWSController = (
           (channel) => channel.id
         );
         // join room(s)
-        console.log("Joining channel IDs: ", channelIds);
+        // console.log("Joining channel IDs: ", channelIds);
         socket.join(channelIds);
       } catch (e) {
         throw e;
@@ -98,7 +98,7 @@ export const getWSController = (
         });
       try {
         // sender must be a member of channel
-        if (!checkMember(channelId, sender.id))
+        if (!(await checkMember(channelId, sender.id)))
           return sendExceptionToSender(socket, {
             code: 400, // bad request
             detail: "invalid username or user id",
@@ -141,7 +141,7 @@ export const getWSController = (
 
     onException: async (io: Server, socket: Socket, data: any) => {
       // close the underlying connection
-      console.log("socket will close and received data: ", data);
+      // console.log("socket will close and received data: ", data);
       socket.disconnect(true);
     },
   };

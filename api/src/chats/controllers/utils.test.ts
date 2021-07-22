@@ -17,6 +17,7 @@ describe("checkMember", () => {
     };
     checkMember = getCheckMember(query);
   });
+
   it("should return true if requester is a member of channel", async () => {
     expect.assertions(1);
     expect(await checkMember("channel", "user")).toEqual(true);

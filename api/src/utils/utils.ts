@@ -12,8 +12,8 @@ export const validateChatPayload = (data: any): ChatPayload | null => {
   // sender.id field;
   if (!(sender.id && typeof sender.id === "string" && validate(sender.id)))
     return null;
-  // sender.username field
-  if (!(sender.username && typeof sender.username === "string")) return null;
+  // sender.name field
+  if (!(sender.name && typeof sender.name === "string")) return null;
   // timestamp field
   if (!(timestamp && typeof timestamp === "number")) return null;
   // channelId field
@@ -26,10 +26,10 @@ export const validateChatPayload = (data: any): ChatPayload | null => {
   if (!(content && typeof content === "string")) return null;
 
   return {
-    sender,
     timestamp,
     channelId,
     messageId,
     content,
+    sender: { id: sender.id, name: sender.name },
   };
 };

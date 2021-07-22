@@ -12,9 +12,9 @@ describe("WSRouter", () => {
   let clientSocket: ClientSocket;
   let eventName: string;
   let data: string;
-  let port: number;
   let cb: (io: Server, socket: Socket, data: string) => Promise<void>;
   let onConnectionCb: (io: Server, socket: Socket) => Promise<void>;
+  const port = 3000;
 
   beforeAll(() => {
     /**
@@ -22,7 +22,6 @@ describe("WSRouter", () => {
      * and then connect each other.
      */
     const httpServer = createServer();
-    port = 3000;
     const URL = `http://localhost:${port}`;
     io = new Server(httpServer);
     httpServer.listen(port, () => {});
@@ -37,11 +36,6 @@ describe("WSRouter", () => {
     router = getWSRouter(io);
   });
 
-  afterEach(() => {
-    serverSocket.disconnect();
-    clientSocket.close();
-  });
-
   afterAll(() => {
     /**
      * afterAll function close WebSocket connection between server and client
@@ -54,6 +48,7 @@ describe("WSRouter", () => {
     clientSocket = Client(`http://localhost:${port}`);
     cb = async (io, s, m) => {
       expect(m).toBe(data);
+      clientSocket.close();
       done();
     };
     // register event
@@ -69,6 +64,7 @@ describe("WSRouter", () => {
     // register event
     router.on(eventName, async (io, s, m) => {
       expect(m).toBe(data);
+      clientSocket.close();
       done();
     });
     // on connection handler > register all event handlers
@@ -83,6 +79,7 @@ describe("WSRouter", () => {
     // register on disconnect event handler
     clientSocket.on("disconnect", (reason) => {
       expect(reason).toBe("io server disconnect");
+      clientSocket.close();
       done();
     });
     // register on connection event handler
