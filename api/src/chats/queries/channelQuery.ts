@@ -55,7 +55,10 @@ export const getChannelQuery = ({
       if (!validate(channelId)) throw new Error("invalid input");
       // retrieve a channel with channel ID
       try {
-        return await ChannelModel.findOne({ where: { id: channelId } });
+        return await ChannelModel.findOne({
+          where: { id: channelId },
+          include: [User],
+        });
       } catch (e) {
         throw e;
       }

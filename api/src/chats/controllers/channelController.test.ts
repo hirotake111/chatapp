@@ -53,7 +53,11 @@ describe("channelController", () => {
         .mockReturnValue({ id: uuid(), createdAt: Date.now() }),
       getChannelById: jest
         .fn()
-        .mockReturnValue({ id: channelId, name: channelName }),
+        .mockReturnValue({
+          id: channelId,
+          name: channelName,
+          users: [{ id: uuid() }],
+        }),
       getChannelByChannelIdWithMessages: jest.fn(),
       getChannelsByUserId: jest
         .fn()

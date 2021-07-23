@@ -1,6 +1,7 @@
 import { RequestHandler, Request, Response, NextFunction } from "express";
 import { validate, v4 as uuid } from "uuid";
 import { ChatConfigType } from "../config";
+import Channel from "../models/Channel.model";
 
 import { Queries } from "../queries/query";
 import { getCheckMember } from "./utils";
@@ -91,11 +92,25 @@ export const getChannelController = (
         return res.status(400).send({ detail: "invalid requester ID" });
       try {
         // get channels by requester ID
-        const channels = await channelQuery.getChannelsByUserId(requesterId);
+        const channels = (await Promise.all(
+          (
+            await channelQuery.getChannelsByUserId(requesterId)
+          ).map((ch) => channelQuery.getChannelById(ch.id))
+        )) as Channel[];
         // return it
         return res.status(200).send({
           detail: "success",
-          channels: channels.map(({ id, name }) => ({ id, name })),
+          channels: channels.map((ch) => ({
+            id: ch.id,
+            name: ch.name,
+            createdAt: ch.createdAt,
+            updatedAt: ch.updatedAt,
+            users: ch.users.map(({ id, username, displayName }) => ({
+              id,
+              username,
+              displayName,
+            })),
+          })),
         });
       } catch (e) {
         return res
@@ -177,6 +192,10 @@ export const getChannelController = (
             name: channel.name,
             cratedAt: channel.createdAt,
             updatedAt: channel.updatedAt,
+            users: channel.users.map(({ id, displayName }) => ({
+              id,
+              displayName,
+            })),
           },
         });
       } catch (e) {
