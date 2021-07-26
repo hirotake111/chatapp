@@ -50,8 +50,8 @@ export const getMessageController = (
           id: m.id,
           channelId,
           content: m.content,
-          createdAt: m.createdAt,
-          updatedAt: m.updatedAt,
+          createdAt: m.createdAt.getTime(),
+          updatedAt: m.updatedAt.getTime(),
           sender: {
             id: m.sender.id,
             username: m.sender.username,
@@ -60,7 +60,11 @@ export const getMessageController = (
             lastName: m.sender.lastName,
           },
         }));
-        return res.status(200).send({ detail: "success", messages });
+        return res.status(200).send({
+          detail: "success",
+          channelId: channelId,
+          messages,
+        });
       } catch (e) {
         return res.status(500).send({ detail: e.message });
       }
@@ -155,7 +159,7 @@ export const getMessageController = (
           type: "MessageAdded",
           metadata: { traceId: uuid(), timestamp: Date.now() },
           data: {
-            addMessage: { channelId: uuid(), messageId, sender, content },
+            addMessage: { channelId, messageId, sender, content },
           },
         };
         await config.kafka.producer.send({
@@ -164,7 +168,12 @@ export const getMessageController = (
         });
         return res.status(201).send({
           detail: "success",
-          message: { id: messageId, channelId, sender: { id: requesterId } },
+          message: {
+            id: messageId,
+            channelId,
+            content,
+            sender: { id: requesterId },
+          },
         });
       } catch (e) {
         const statusCode =
