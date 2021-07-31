@@ -2,12 +2,7 @@
 
 ### TODO
 
-- api to list other users
-- add query components for Channel and Roster and Message
-- crud api for channels
-- crud api for messages
 - parse HTML data to prevent XSS
-- Database for messages
 
 ### Build docker image
 

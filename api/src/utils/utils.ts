@@ -1,35 +1,28 @@
 import { validate } from "uuid";
 
 /**
- * returns ChatPaylaod, or null if input is invalid
- * @param data {any}
- * @returns {ChatPayload}
+ * returns true if it's valid
  */
-export const validateChatPayload = (data: any): ChatPayload | null => {
-  const { sender, timestamp, channelId, messageId, content } = data;
+export const validateMessage = (data: Message): boolean => {
+  const { id, sender, channelId, content, createdAt, updatedAt } = data;
   // sender field
-  if (!sender) return null;
-  // sender.id field;
+  if (!sender) return false;
+  // sender.id field
   if (!(sender.id && typeof sender.id === "string" && validate(sender.id)))
-    return null;
+    return false;
   // sender.name field
-  if (!(sender.name && typeof sender.name === "string")) return null;
-  // timestamp field
-  if (!(timestamp && typeof timestamp === "number")) return null;
+  if (!(sender.name && typeof sender.name === "string")) return false;
+  // createdAt field
+  if (!(createdAt && typeof createdAt === "number")) return false;
+  // updatedAt field
+  if (!(updatedAt && typeof updatedAt === "number")) return false;
   // channelId field
   if (!(channelId && typeof channelId === "string" && validate(channelId)))
-    return null;
+    return false;
   // messageId field
-  if (!(messageId && typeof messageId === "string" && validate(messageId)))
-    return null;
+  if (!(id && typeof id === "string" && validate(id))) return false;
   // content field
-  if (!(content && typeof content === "string")) return null;
+  if (!(content && typeof content === "string")) return false;
 
-  return {
-    timestamp,
-    channelId,
-    messageId,
-    content,
-    sender: { id: sender.id, name: sender.name },
-  };
+  return true;
 };

@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { nanoid } from "nanoid";
 import { v4 as uuid } from "uuid";
+import { ChannelQuery } from "../queries/channelQuery";
 
 import { MessageQuery } from "../queries/messageQuery";
 import { Queries } from "../queries/query";
@@ -16,6 +17,7 @@ describe("messageController", () => {
   let mockSend: jest.Mock;
   let messageQuery: MessageQuery;
   let userQuery: UserQuery;
+  let channelQuery: ChannelQuery;
   let controller: MessageController;
   let requesterId: string;
   let channelId: string;
@@ -26,6 +28,8 @@ describe("messageController", () => {
     sender: {
       id: string;
     };
+    createdAt: { getTime: () => number };
+    updatedAt: { getTime: () => number };
   };
   let messages: any[];
   let config: any;
@@ -52,10 +56,19 @@ describe("messageController", () => {
       sender: {
         id: requesterId,
       },
+      createdAt: { getTime: () => 123 },
+      updatedAt: { getTime: () => 213 },
     };
     messages = [
       message,
-      { id: uuid(), channelId, content: nanoid(), sender: { id: uuid() } },
+      {
+        id: uuid(),
+        channelId,
+        content: nanoid(),
+        sender: { id: uuid() },
+        createdAt: { getTime: () => 123 },
+        updatedAt: { getTime: () => 213 },
+      },
     ];
     messageQuery = {
       createMessage: jest.fn().mockReturnValue(message),
@@ -74,12 +87,23 @@ describe("messageController", () => {
       createUser: jest.fn(),
       deleteUserById: jest.fn(),
     };
+    channelQuery = {
+      getChannelById: jest
+        .fn()
+        .mockReturnValue({ id: channelId, name: nanoid() }),
+      getChannelByChannelIdWithMessages: jest.fn(),
+      getChannelsByUserId: jest.fn(),
+      createChannel: jest.fn(),
+      deleteChannelById: jest.fn(),
+      updateChannelbyId: jest.fn(),
+    };
     config = {
       kafka: { producer: { send: jest.fn() } },
     };
     controller = getMessageController(config, {
       messageQuery,
       userQuery,
+      channelQuery,
     } as Queries);
   });
 
@@ -188,10 +212,7 @@ describe("messageController", () => {
       expect.assertions(2);
       try {
         await controller.getMessagesInChannel(req, res, next);
-        expect(mockSend.mock.calls[0][0]).toEqual({
-          detail: "success",
-          messages,
-        });
+        expect(mockSend.mock.calls[0][0].detail).toEqual("success");
         expect(mockStatus.mock.calls[0][0]).toEqual(200);
       } catch (e) {
         throw e;
@@ -268,10 +289,7 @@ describe("messageController", () => {
       expect.assertions(2);
       try {
         await controller.getSpecificMessageInChannel(req, res, next);
-        expect(mockSend.mock.calls[0][0]).toEqual({
-          detail: "success",
-          message,
-        });
+        expect(mockSend.mock.calls[0][0].detail).toEqual("success");
         expect(mockStatus.mock.calls[0][0]).toEqual(200);
       } catch (e) {
         throw e;

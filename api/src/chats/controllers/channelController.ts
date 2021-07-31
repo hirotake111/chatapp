@@ -34,9 +34,9 @@ export const getChannelController = (
         return res.status(400).send({ detail: "invalid channel name" });
       // validate members
       if (!Array.isArray(memberIds))
-        return res
-          .status(400)
-          .send({ detail: "members parameter is not an array of string" });
+        return res.status(400).send({
+          detail: "members parameter is not an array of string",
+        });
       if (
         !(
           memberIds.length > 0 &&
@@ -48,23 +48,20 @@ export const getChannelController = (
       // generate channel ID
       const channelId = uuid();
       try {
-        const event: ChatEvent = {
-          id: uuid(),
+        const event: ChannelCreatedEvent = {
           type: "ChannelCreated",
           metadata: {
             traceId: uuid(),
             timestamp: Date.now(),
           },
-          data: {
-            createChannel: {
-              channelId,
-              channelName,
-              sender: {
-                id: userId,
-                name: username,
-              },
-              memberIds,
+          payload: {
+            channelId,
+            channelName,
+            sender: {
+              id: userId,
+              name: username,
             },
+            memberIds,
           },
         };
         await config.kafka.producer.send({
@@ -103,8 +100,8 @@ export const getChannelController = (
           channels: channels.map((ch) => ({
             id: ch.id,
             name: ch.name,
-            createdAt: ch.createdAt,
-            updatedAt: ch.updatedAt,
+            createdAt: ch.createdAt.getTime(),
+            updatedAt: ch.updatedAt.getTime(),
             users: ch.users.map(({ id, username, displayName }) => ({
               id,
               username,
@@ -190,8 +187,8 @@ export const getChannelController = (
           channel: {
             id: channel.id,
             name: channel.name,
-            cratedAt: channel.createdAt,
-            updatedAt: channel.updatedAt,
+            cratedAt: channel.createdAt.getTime(),
+            updatedAt: channel.updatedAt.getTime(),
             users: channel.users.map(({ id, displayName }) => ({
               id,
               displayName,
@@ -223,20 +220,17 @@ export const getChannelController = (
             .status(400)
             .send({ detail: "requester is not a member of channel" });
         // delete channel
-        const event: ChatEvent = {
-          id: uuid(),
+        const event: ChannelDeletedEvent = {
           type: "ChannelDeleted",
           metadata: {
             traceId: uuid(),
             timestamp: Date.now(),
           },
-          data: {
-            deleteChannel: {
-              channelId,
-              sender: {
-                id: requesterId,
-                name: req.session.username,
-              },
+          payload: {
+            channelId,
+            sender: {
+              id: requesterId,
+              name: req.session.username,
             },
           },
         };
@@ -276,21 +270,18 @@ export const getChannelController = (
           return res
             .status(400)
             .send({ detail: "you are not a member of channel" });
-        const event: ChatEvent = {
-          id: uuid(),
+        const event: ChannelUpdatedEvent = {
           type: "ChannelUpdated",
           metadata: {
             traceId: uuid(),
             timestamp: Date.now(),
           },
-          data: {
-            updateChannel: {
-              channelId,
-              newChannelName: channelName,
-              sender: {
-                id: requesterId,
-                name: username,
-              },
+          payload: {
+            channelId,
+            newChannelName: channelName,
+            sender: {
+              id: requesterId,
+              name: username,
             },
           },
         };

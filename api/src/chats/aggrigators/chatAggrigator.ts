@@ -1,20 +1,32 @@
 import { KafkaMessage } from "kafkajs";
 import { Queries } from "../queries/query";
 
-export const getChatAggrigator = (queries: Queries) => {
+export interface ChatAggrigator {
+  process: (message: KafkaMessage) => Promise<void>;
+  createMessage: (event: MessageCreatedEvent) => Promise<void>;
+  deleteMessage: (event: MessageDeletedEvent) => Promise<void>;
+  updateMessage: (evnet: MessageUpdatedEvent) => Promise<void>;
+  createChannel: (event: ChannelCreatedEvent) => Promise<void>;
+  updateChannel: (event: ChannelUpdatedEvent) => Promise<void>;
+  deleteChannel: (event: ChannelDeletedEvent) => Promise<void>;
+  addUserToChannel: (event: UsersJoinedEvent) => Promise<void>;
+  removeUserFromChannel: (event: UsersRemovedEvent) => Promise<void>;
+}
+
+export const getChatAggrigator = (queries: Queries): ChatAggrigator => {
   const { channelQuery, messageQuery, rosterQuery } = queries;
   return {
     async process(message: KafkaMessage) {
       // if msg.value is empty, raise an error
       if (!message.value) throw new Error("message.value is empty");
       // parse message
-      const event = JSON.parse(message.value.toString()) as ChatEvent;
+      const event = JSON.parse(message.value.toString()) as EventTypes;
 
       // console.log(`TYPE: ${event.type}`);
       try {
         // check event type
         switch (event.type) {
-          case "MessageAdded":
+          case "MessageCreated":
             await this.createMessage(event);
             break;
           case "MessageDeleted":
@@ -46,11 +58,8 @@ export const getChatAggrigator = (queries: Queries) => {
       }
     },
 
-    async createMessage(event: ChatEvent) {
-      if (!event.data.addMessage) {
-        throw new Error(`Invalid event data: ${event.data}`);
-      }
-      const { messageId, channelId, sender, content } = event.data.addMessage;
+    async createMessage(event: MessageCreatedEvent) {
+      const { messageId, channelId, sender, content } = event.payload;
       try {
         const chat = await messageQuery.createMessage(
           messageId,
@@ -64,20 +73,16 @@ export const getChatAggrigator = (queries: Queries) => {
       }
     },
 
-    async deleteMessage(event: ChatEvent) {
-      if (!event.data.deleteMessage)
-        throw new Error(`Invalid event data: ${event.data}`);
+    async deleteMessage(event: MessageDeletedEvent) {
       try {
-        await messageQuery.deleteMessage(event.data.deleteMessage.messageId);
+        await messageQuery.deleteMessage(event.payload.messageId);
       } catch (e) {
         throw e;
       }
     },
 
-    async updateMessage(event: ChatEvent) {
-      if (!event.data.updateMessage)
-        throw new Error(`Invalid event data: ${event.data}`);
-      const { channelId, messageId, content } = event.data.updateMessage;
+    async updateMessage(event: MessageUpdatedEvent) {
+      const { channelId, messageId, content } = event.payload;
       try {
         await messageQuery.editMessage(messageId, channelId, content);
       } catch (e) {
@@ -85,11 +90,8 @@ export const getChatAggrigator = (queries: Queries) => {
       }
     },
 
-    async createChannel(event: ChatEvent) {
-      if (!event.data.createChannel)
-        throw new Error(`Invalid event data: ${event.data}`);
-      const { channelId, channelName, sender, memberIds } =
-        event.data.createChannel;
+    async createChannel(event: ChannelCreatedEvent) {
+      const { channelId, channelName, sender, memberIds } = event.payload;
       try {
         // create a new channel
         const channel = await channelQuery.createChannel(
@@ -116,10 +118,8 @@ export const getChatAggrigator = (queries: Queries) => {
       }
     },
 
-    async updateChannel(event: ChatEvent) {
-      if (!event.data.updateChannel)
-        throw new Error(`Invalid event data: ${event.data}`);
-      const { channelId, newChannelName } = event.data.updateChannel;
+    async updateChannel(event: ChannelUpdatedEvent) {
+      const { channelId, newChannelName } = event.payload;
       try {
         // upcate the channel
         await channelQuery.updateChannelbyId(channelId, newChannelName);
@@ -128,22 +128,16 @@ export const getChatAggrigator = (queries: Queries) => {
       }
     },
 
-    async deleteChannel(event: ChatEvent) {
-      if (!event.data.deleteChannel)
-        throw new Error(`Invalid event data: ${event.data}`);
+    async deleteChannel(event: ChannelDeletedEvent) {
       try {
-        await channelQuery.deleteChannelById(
-          event.data.deleteChannel.channelId
-        );
+        await channelQuery.deleteChannelById(event.payload.channelId);
       } catch (e) {
         throw e;
       }
     },
 
-    async addUserToChannel(event: ChatEvent) {
-      if (!event.data.addUsersToChannel)
-        throw new Error(`Invalid event data: ${event.data}`);
-      const { channelId, memberIds } = event.data.addUsersToChannel;
+    async addUserToChannel(event: UsersJoinedEvent) {
+      const { channelId, memberIds } = event.payload;
       try {
         // add user to channel
         await Promise.all(
@@ -154,10 +148,8 @@ export const getChatAggrigator = (queries: Queries) => {
       }
     },
 
-    async removeUserFromChannel(event: ChatEvent) {
-      if (!event.data.removeUsersFromChannel)
-        throw new Error(`Invalid event data: ${event.data}`);
-      const { channelId, memberIds } = event.data.removeUsersFromChannel;
+    async removeUserFromChannel(event: UsersRemovedEvent) {
+      const { channelId, memberIds } = event.payload;
       try {
         // remove user from channel
         await Promise.all(

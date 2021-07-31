@@ -72,22 +72,19 @@ export const getRosterContoller = (
         if (added.length <= 0)
           return res.status(200).send({ detail: "no user added" });
         // create UsersJoined event
-        const event: ChatEvent = {
-          id: uuid(),
+        const event: UsersJoinedEvent = {
           type: "UsersJoined",
           metadata: {
             traceId: uuid(),
             timestamp: Date.now(),
           },
-          data: {
-            addUsersToChannel: {
-              channelId,
-              sender: {
-                id: requesterId,
-                name: username,
-              },
-              memberIds: added,
+          payload: {
+            channelId,
+            sender: {
+              id: requesterId,
+              name: username,
             },
+            memberIds: added,
           },
         };
         await config.kafka.producer.send({
@@ -131,22 +128,19 @@ export const getRosterContoller = (
             .status(200)
             .send({ detail: "no user removed from the channel" });
         // create UsersRemoved event
-        const event: ChatEvent = {
-          id: uuid(),
+        const event: UsersRemovedEvent = {
           type: "UsersRemoved",
           metadata: {
             traceId: uuid(),
             timestamp: Date.now(),
           },
-          data: {
-            removeUsersFromChannel: {
-              channelId,
-              sender: {
-                id: requesterId,
-                name: username,
-              },
-              memberIds: ids,
+          payload: {
+            channelId,
+            sender: {
+              id: requesterId,
+              name: username,
             },
+            memberIds: ids,
           },
         };
         await config.kafka.producer.send({

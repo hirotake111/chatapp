@@ -1,7 +1,6 @@
-import { createServer } from "http";
 import { nanoid } from "nanoid";
+import { any } from "sequelize/types/lib/operators";
 import { Server, Socket } from "socket.io";
-import Client, { Socket as ClientSocket } from "socket.io-client";
 import { v4 as uuid } from "uuid";
 
 import { ChatConfigType } from "../config";
@@ -25,7 +24,7 @@ describe("wsController", () => {
   let mockJoin: jest.Mock;
   let mockEmit: jest.Mock;
   let mockDisconnect: jest.Mock;
-  let data: ChatPayload;
+  let data: Message;
 
   beforeEach(() => {
     userId = uuid();
@@ -33,9 +32,10 @@ describe("wsController", () => {
     channels = [{ id: uuid() }, { id: uuid() }, { id: uuid() }];
     users = [{ id: userId }, { id: uuid() }, { id: uuid() }];
     data = {
+      id: uuid(),
       channelId: uuid(),
-      timestamp: Date.now(),
-      messageId: uuid(),
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
       sender: { id: userId, name: username },
       content: uuid(),
     };
@@ -59,14 +59,29 @@ describe("wsController", () => {
     queries = {
       channelQuery: {
         getChannelsByUserId: jest.fn().mockReturnValue(channels),
+        getChannelByChannelIdWithMessages: jest.fn(),
+        getChannelById: jest.fn(),
+        createChannel: jest.fn(),
+        deleteChannelById: jest.fn(),
+        updateChannelbyId: jest.fn(),
       },
       userQuery: {
         getUsersByChannelId: jest.fn().mockReturnValue(users),
+        getOtherUsers: jest.fn(),
+        getUserById: jest.fn(),
+        getUserByUsername: jest.fn(),
+        deleteUserById: jest.fn(),
+        createUser: jest.fn(),
       },
       messageQuery: {
         getMessagesInChannel: jest.fn().mockReturnValue([]),
+        getSpecificMessage: jest.fn(),
+        deleteMessage: jest.fn(),
+        createMessage: jest.fn(),
+        editMessage: jest.fn(),
       },
-    } as any;
+      rosterQuery: {} as any,
+    } as Queries;
     mockJoin = socket.join as jest.Mock;
     mockEmit = socket.emit as jest.Mock;
     mockDisconnect = socket.disconnect as jest.Mock;
@@ -180,7 +195,7 @@ describe("wsController", () => {
 
     it("should send exception payload with code 500", async () => {
       expect.assertions(2);
-      queries.messageQuery.getMessagesInChannel = jest
+      queries.messageQuery.getSpecificMessage = jest
         .fn()
         .mockImplementation(
           async () => new Promise((_, reject) => reject("err"))

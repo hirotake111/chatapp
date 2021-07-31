@@ -3,12 +3,12 @@ import { v4 as uuid } from "uuid";
 import { nanoid } from "nanoid";
 
 import { Queries } from "../queries/query";
-import { getChatAggrigator } from "./chatAggrigator";
+import { ChatAggrigator, getChatAggrigator } from "./chatAggrigator";
 
 describe("chatAggrigator", () => {
   let queries: Queries;
   let message: KafkaMessage;
-  let value: ChatEvent;
+  let value: EventTypes;
   let mockCreateMessage: jest.Mock;
   let mockDeleteMessage: jest.Mock;
   let mockUpdateMessage: jest.Mock;
@@ -17,7 +17,7 @@ describe("chatAggrigator", () => {
   let mockUpdateChannel: jest.Mock;
   let mockAddUserToChannel: jest.Mock;
   let mockDeleteUserFromChannel: jest.Mock;
-  let aggrigator: any;
+  let aggrigator: ChatAggrigator;
   let messageId: string;
   let channelId: string;
   let sender: { id: string; name: string };
@@ -60,6 +60,17 @@ describe("chatAggrigator", () => {
     aggrigator = getChatAggrigator(queries);
   });
 
+  describe("process", () => {
+    it("should throw a nerror if message.value is empty", async () => {
+      expect.assertions(1);
+      try {
+        await aggrigator.process({} as any);
+      } catch (e) {
+        expect(e.message).toEqual("message.value is empty");
+      }
+    });
+  });
+
   describe("createMessage", () => {
     beforeEach(() => {
       messageId = uuid();
@@ -67,10 +78,9 @@ describe("chatAggrigator", () => {
       sender = { id: uuid(), name: nanoid() };
       content = nanoid();
       value = {
-        id: uuid(),
-        type: "MessageAdded",
+        type: "MessageCreated",
         metadata: { traceId: uuid(), timestamp: Date.now() },
-        data: { addMessage: { messageId, channelId, sender, content } },
+        payload: { messageId, channelId, sender, content },
       };
       message = { value: Buffer.from(JSON.stringify(value)) } as any;
     });
@@ -87,17 +97,6 @@ describe("chatAggrigator", () => {
         ]);
       } catch (e) {
         throw e;
-      }
-    });
-
-    it("should throw an error if input value is invalid", async () => {
-      expect.assertions(1);
-      value.data.addMessage = undefined;
-      message = { value: Buffer.from(JSON.stringify(value)) } as any;
-      try {
-        await aggrigator.process(message);
-      } catch (e) {
-        expect(e.message).toEqual(`Invalid event data: ${value.data}`);
       }
     });
 
@@ -131,10 +130,9 @@ describe("chatAggrigator", () => {
       channelId = uuid();
       sender = { id: uuid(), name: nanoid() };
       value = {
-        id: uuid(),
         type: "MessageDeleted",
         metadata: { traceId: uuid(), timestamp: Date.now() },
-        data: { deleteMessage: { messageId, channelId, sender } },
+        payload: { messageId, channelId, sender },
       };
       message = { value: Buffer.from(JSON.stringify(value)) } as any;
     });
@@ -146,17 +144,6 @@ describe("chatAggrigator", () => {
         expect(mockDeleteMessage.mock.calls[0][0]).toEqual(messageId);
       } catch (e) {
         throw e;
-      }
-    });
-
-    it("should throw an error if input value is invalid", async () => {
-      expect.assertions(1);
-      value.data.deleteMessage = undefined;
-      message = { value: Buffer.from(JSON.stringify(value)) } as any;
-      try {
-        await aggrigator.process(message);
-      } catch (e) {
-        expect(e.message).toEqual(`Invalid event data: ${value.data}`);
       }
     });
 
@@ -181,10 +168,9 @@ describe("chatAggrigator", () => {
       sender = { id: uuid(), name: nanoid() };
       content = nanoid();
       value = {
-        id: uuid(),
         type: "MessageUpdated",
         metadata: { traceId: uuid(), timestamp: Date.now() },
-        data: { updateMessage: { messageId, channelId, sender, content } },
+        payload: { messageId, channelId, sender, content },
       };
       message = { value: Buffer.from(JSON.stringify(value)) } as any;
     });
@@ -200,17 +186,6 @@ describe("chatAggrigator", () => {
         ]);
       } catch (e) {
         throw e;
-      }
-    });
-
-    it("should throw an error if input value is invalid", async () => {
-      expect.assertions(1);
-      value.data.updateMessage = undefined;
-      message = { value: Buffer.from(JSON.stringify(value)) } as any;
-      try {
-        await aggrigator.process(message);
-      } catch (e) {
-        expect(e.message).toEqual(`Invalid event data: ${value.data}`);
       }
     });
 
@@ -235,10 +210,9 @@ describe("chatAggrigator", () => {
       sender = { id: uuid(), name: nanoid() };
       memberIds = [uuid()];
       value = {
-        id: uuid(),
         type: "ChannelCreated",
         metadata: { traceId: uuid(), timestamp: Date.now() },
-        data: { createChannel: { channelId, channelName, sender, memberIds } },
+        payload: { channelId, channelName, sender, memberIds },
       };
       message = { value: Buffer.from(JSON.stringify(value)) } as any;
     });
@@ -260,12 +234,9 @@ describe("chatAggrigator", () => {
     it("should not call command if no memberIds", async () => {
       expect.assertions(1);
       value = {
-        id: uuid(),
         type: "ChannelCreated",
         metadata: { traceId: uuid(), timestamp: Date.now() },
-        data: {
-          createChannel: { channelId, channelName, sender, memberIds: [] },
-        },
+        payload: { channelId, channelName, sender, memberIds: [] },
       };
       message = { value: Buffer.from(JSON.stringify(value)) } as any;
       try {
@@ -273,17 +244,6 @@ describe("chatAggrigator", () => {
         expect(mockAddUserToChannel).toHaveBeenCalledTimes(1);
       } catch (e) {
         throw e;
-      }
-    });
-
-    it("should throw an error if input value is invalid", async () => {
-      expect.assertions(1);
-      value.data.createChannel = undefined;
-      message = { value: Buffer.from(JSON.stringify(value)) } as any;
-      try {
-        await aggrigator.process(message);
-      } catch (e) {
-        expect(e.message).toEqual(`Invalid event data: ${value.data}`);
       }
     });
 
@@ -329,12 +289,9 @@ describe("chatAggrigator", () => {
       channelName = nanoid();
       sender = { id: uuid(), name: nanoid() };
       value = {
-        id: uuid(),
         type: "ChannelUpdated",
         metadata: { traceId: uuid(), timestamp: Date.now() },
-        data: {
-          updateChannel: { channelId, newChannelName: channelName, sender },
-        },
+        payload: { channelId, newChannelName: channelName, sender },
       };
       message = { value: Buffer.from(JSON.stringify(value)) } as any;
     });
@@ -349,17 +306,6 @@ describe("chatAggrigator", () => {
         ]);
       } catch (e) {
         throw e;
-      }
-    });
-
-    it("should throw an error if input value is invalid", async () => {
-      expect.assertions(1);
-      value.data.updateChannel = undefined;
-      message = { value: Buffer.from(JSON.stringify(value)) } as any;
-      try {
-        await aggrigator.process(message);
-      } catch (e) {
-        expect(e.message).toEqual(`Invalid event data: ${value.data}`);
       }
     });
 
@@ -384,10 +330,9 @@ describe("chatAggrigator", () => {
       channelId = uuid();
       sender = { id: uuid(), name: nanoid() };
       value = {
-        id: uuid(),
         type: "ChannelDeleted",
         metadata: { traceId: uuid(), timestamp: Date.now() },
-        data: { deleteChannel: { channelId, sender } },
+        payload: { channelId, sender },
       };
       message = { value: Buffer.from(JSON.stringify(value)) } as any;
     });
@@ -399,17 +344,6 @@ describe("chatAggrigator", () => {
         expect(mockDeleteChannel.mock.calls[0][0]).toEqual(channelId);
       } catch (e) {
         throw e;
-      }
-    });
-
-    it("should throw an error if input value is invalid", async () => {
-      expect.assertions(1);
-      value.data.deleteChannel = undefined;
-      message = { value: Buffer.from(JSON.stringify(value)) } as any;
-      try {
-        await aggrigator.process(message);
-      } catch (e) {
-        expect(e.message).toEqual(`Invalid event data: ${value.data}`);
       }
     });
 
@@ -435,10 +369,9 @@ describe("chatAggrigator", () => {
       sender = { id: uuid(), name: nanoid() };
       memberIds = [uuid(), uuid(), uuid()];
       value = {
-        id: uuid(),
         type: "UsersJoined",
         metadata: { traceId: uuid(), timestamp: Date.now() },
-        data: { addUsersToChannel: { channelId, sender, memberIds } },
+        payload: { channelId, sender, memberIds },
       };
       message = { value: Buffer.from(JSON.stringify(value)) } as any;
     });
@@ -450,17 +383,6 @@ describe("chatAggrigator", () => {
         expect(mockAddUserToChannel).toHaveBeenCalledTimes(3);
       } catch (e) {
         throw e;
-      }
-    });
-
-    it("should throw an error if input value is invalid", async () => {
-      expect.assertions(1);
-      value.data.addUsersToChannel = undefined;
-      message = { value: Buffer.from(JSON.stringify(value)) } as any;
-      try {
-        await aggrigator.process(message);
-      } catch (e) {
-        expect(e.message).toEqual(`Invalid event data: ${value.data}`);
       }
     });
 
@@ -486,10 +408,9 @@ describe("chatAggrigator", () => {
       sender = { id: uuid(), name: nanoid() };
       memberIds = [uuid(), uuid(), uuid()];
       value = {
-        id: uuid(),
         type: "UsersRemoved",
         metadata: { traceId: uuid(), timestamp: Date.now() },
-        data: { removeUsersFromChannel: { channelId, sender, memberIds } },
+        payload: { channelId, sender, memberIds },
       };
       message = { value: Buffer.from(JSON.stringify(value)) } as any;
     });
@@ -501,17 +422,6 @@ describe("chatAggrigator", () => {
         expect(mockDeleteUserFromChannel).toHaveBeenCalledTimes(3);
       } catch (e) {
         throw e;
-      }
-    });
-
-    it("should throw an error if input value is invalid", async () => {
-      expect.assertions(1);
-      value.data.removeUsersFromChannel = undefined;
-      message = { value: Buffer.from(JSON.stringify(value)) } as any;
-      try {
-        await aggrigator.process(message);
-      } catch (e) {
-        expect(e.message).toEqual(`Invalid event data: ${value.data}`);
       }
     });
 
@@ -532,22 +442,12 @@ describe("chatAggrigator", () => {
   });
 
   describe("default event", () => {
-    it("should throw a error if mesage.value is empty", async () => {
-      expect.assertions(1);
-      try {
-        await aggrigator.process({});
-      } catch (e) {
-        expect(e.message).toEqual("message.value is empty");
-      }
-    });
-
     it("should do nothing", async () => {
       value = {
-        id: uuid(),
-        type: "OtherEvent",
+        type: "xxxx",
         metadata: { traceId: uuid(), timestamp: Date.now() },
-        data: {},
-      };
+        payload: {},
+      } as any;
       message = { value: Buffer.from(JSON.stringify(value)) } as any;
       try {
         await aggrigator.process(message);

@@ -1,10 +1,9 @@
 import { RequestHandler, Request, Response, NextFunction } from "express";
+import { UpdatedAt } from "sequelize-typescript";
 import { v4 as uuid, validate } from "uuid";
 import { ChatConfigType } from "../config";
 
-import { MessageQuery } from "../queries/messageQuery";
 import { Queries } from "../queries/query";
-import { UserQuery } from "../queries/userQuery";
 import { getCheckMember } from "./utils";
 
 export interface MessageController {
@@ -19,7 +18,7 @@ export const getMessageController = (
   config: ChatConfigType,
   queries: Queries
 ): MessageController => {
-  const { userQuery, messageQuery } = queries;
+  const { userQuery, messageQuery, channelQuery } = queries;
   const checkMember = getCheckMember(userQuery);
 
   return {
@@ -43,6 +42,12 @@ export const getMessageController = (
           return res
             .status(400)
             .send({ detail: "requester is not a member of channel" });
+        // get channel info
+        const channel = await channelQuery.getChannelById(channelId);
+        if (!channel)
+          return res
+            .status(400)
+            .send({ detail: `channel ID: ${channelId} not found` });
         // get messages
         const messages = (
           await messageQuery.getMessagesInChannel(channelId)
@@ -60,9 +65,13 @@ export const getMessageController = (
             lastName: m.sender.lastName,
           },
         }));
+
         return res.status(200).send({
           detail: "success",
-          channelId: channelId,
+          channel: {
+            id: channel.id,
+            name: channel.name,
+          },
           messages,
         });
       } catch (e) {
@@ -114,8 +123,8 @@ export const getMessageController = (
             id,
             channelId,
             content,
-            createdAt,
-            updatedAt,
+            createdAt: createdAt.getTime(),
+            updatedAt: updatedAt.getTime(),
             sender: {
               id: sender.id,
               username: sender.username,
@@ -154,13 +163,10 @@ export const getMessageController = (
           return res.status(400).send({ detail: "message ID already exists" });
         // create message
         const sender = { id: requesterId, name: username };
-        const event: ChatEvent = {
-          id: uuid(),
-          type: "MessageAdded",
+        const event: MessageCreatedEvent = {
+          type: "MessageCreated",
           metadata: { traceId: uuid(), timestamp: Date.now() },
-          data: {
-            addMessage: { channelId, messageId, sender, content },
-          },
+          payload: { channelId, messageId, sender, content },
         };
         await config.kafka.producer.send({
           topic: "chat",
@@ -211,13 +217,10 @@ export const getMessageController = (
             .send({ detail: "you can't edit other user's message" });
         // update the message
         const sender = { id: requesterId, name: username };
-        const event: ChatEvent = {
-          id: uuid(),
+        const event: MessageUpdatedEvent = {
           type: "MessageUpdated",
           metadata: { traceId: uuid(), timestamp: Date.now() },
-          data: {
-            updateMessage: { channelId, messageId, sender, content },
-          },
+          payload: { channelId, messageId, sender, content },
         };
         await config.kafka.producer.send({
           topic: "chat",
@@ -263,11 +266,10 @@ export const getMessageController = (
             .send({ detail: "you can't edit other user's message" });
         // const count = await messageQuery.deleteMessage(messageId);
         const sender = { id: requesterId, name: username };
-        const event: ChatEvent = {
-          id: uuid(),
+        const event: MessageDeletedEvent = {
           type: "MessageDeleted",
           metadata: { traceId: uuid(), timestamp: Date.now() },
-          data: { deleteMessage: { channelId, messageId, sender } },
+          payload: { channelId, messageId, sender },
         };
         await config.kafka.producer.send({
           topic: "chat",

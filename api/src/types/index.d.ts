@@ -21,6 +21,24 @@ declare interface ChatPayload {
   content: string;
 }
 
+/**
+ * Common interface for sendig/receiving message between server and client
+ */
+declare interface Message {
+  id: string;
+  channelId: string;
+  content: string;
+  createdAt: number;
+  updatedAt: number;
+  sender: {
+    id: string;
+    name: string;
+    displayName?: string;
+    firstName?: string;
+    lastName?: string;
+  };
+}
+
 declare interface ExceptionPayload {
   code: number;
   detail: string;
@@ -57,91 +75,106 @@ declare interface RegisteredEvent {
   data: RegisteredEventData;
 }
 
-type ChatEventType =
-  | "MessageCreated"
-  | "MessageUpdated"
-  | "MessageDeleted"
-  | "ChannelCreated"
-  | "ChannelDeleted"
-  | "ChannelUpdated"
-  | "UsersJoined"
-  | "UsersRemoved"
-  | "MessageAdded"
-  | "OtherEvent";
+interface EventMetaData {
+  traceId: string;
+  timestamp: number;
+}
 
-declare interface ChatEvent {
+interface Sender {
   id: string;
-  type: ChatEventType;
-  metadata: {
-    traceId: string;
-    timestamp: number;
-  };
-  data: {
-    addMessage?: {
-      channelId: string;
-      messageId: string;
-      sender: {
-        id: string;
-        name: string;
-      };
-      content: string;
-    };
-    updateMessage?: {
-      channelId: string;
-      messageId: string;
-      sender: {
-        id: string;
-        name: string;
-      };
-      content: string;
-    };
-    deleteMessage?: {
-      channelId: string;
-      messageId: string;
-      sender: {
-        id: string;
-        name: string;
-      };
-    };
-    createChannel?: {
-      channelId: string;
-      channelName: string;
-      sender: {
-        id: string;
-        name: string;
-      };
-      memberIds: string[];
-    };
-    updateChannel?: {
-      channelId: string;
-      newChannelName: string;
-      sender: {
-        id: string;
-        name: string;
-      };
-    };
-    deleteChannel?: {
-      channelId: string;
-      sender: {
-        id: string;
-        name: string;
-      };
-    };
-    addUsersToChannel?: {
-      channelId: string;
-      sender: {
-        id: string;
-        name: string;
-      };
-      memberIds: string[];
-    };
-    removeUsersFromChannel?: {
-      channelId: string;
-      sender: {
-        id: string;
-        name: string;
-      };
-      memberIds: string[];
-    };
+  name: string;
+}
+
+declare interface UsersJoinedEvent {
+  type: "UsersJoined";
+  metadata: EventMetaData;
+  payload: {
+    channelId: string;
+    sender: Sender;
+    memberIds: string[];
   };
 }
+
+declare interface UsersRemovedEvent {
+  type: "UsersRemoved";
+  metadata: EventMetaData;
+  payload: {
+    channelId: string;
+    sender: Sender;
+    memberIds: string[];
+  };
+}
+
+declare interface MessageCreatedEvent {
+  type: "MessageCreated";
+  metadata: EventMetaData;
+  payload: {
+    channelId: string;
+    messageId: string;
+    sender: Sender;
+    content: string;
+  };
+}
+
+declare interface MessageUpdatedEvent {
+  type: "MessageUpdated";
+  metadata: EventMetaData;
+  payload: {
+    channelId: string;
+    messageId: string;
+    sender: Sender;
+    content: string;
+  };
+}
+
+declare interface MessageDeletedEvent {
+  type: "MessageDeleted";
+  metadata: EventMetaData;
+  payload: {
+    channelId: string;
+    messageId: string;
+    sender: Sender;
+  };
+}
+
+declare interface ChannelCreatedEvent {
+  type: "ChannelCreated";
+  metadata: EventMetaData;
+  payload: {
+    channelId: string;
+    channelName: string;
+    sender: Sender;
+    memberIds: string[];
+  };
+}
+
+declare interface ChannelUpdatedEvent {
+  type: "ChannelUpdated";
+  metadata: EventMetaData;
+  payload: {
+    channelId: string;
+    newChannelName: string;
+    sender: Sender;
+  };
+}
+
+declare interface ChannelDeletedEvent {
+  type: "ChannelDeleted";
+  metadata: EventMetaData;
+  payload: {
+    channelId: string;
+    sender: Sender;
+  };
+}
+declare type UsersEvents = UsersJoinedEvent | UsersRemovedEvent;
+declare type MessageEvents =
+  | MessageCreatedEvent
+  | MessageUpdatedEvent
+  | MessageDeletedEvent;
+
+declare type ChannelEvents =
+  | ChannelCreatedEvent
+  | ChannelUpdatedEvent
+  | ChannelDeletedEvent;
+
+declare type EventTypes = UsersEvents | MessageEvents | ChannelEvents;

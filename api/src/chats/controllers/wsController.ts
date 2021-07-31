@@ -4,7 +4,7 @@ import { ChatConfigType } from "../config";
 import { Queries } from "../queries/query";
 
 import { getCheckMember } from "./utils";
-import { validateChatPayload } from "../../utils/utils";
+import { validateMessage } from "../../utils/utils";
 
 export const sendExceptionToSender = (
   socket: Socket,
@@ -71,7 +71,7 @@ export const getWSController = (
       console.log(`user ${socket.handshake} reconnected`);
     },
 
-    onChatMessage: async (io: Server, socket: Socket, data: any) => {
+    onChatMessage: async (io: Server, socket: Socket, data: Message) => {
       // validate user
       const { userId, username } = socket.request.session;
       if (!username || !userId)
@@ -81,14 +81,13 @@ export const getWSController = (
           timestamp: Date.now(),
         });
       // validate payload
-      const chat = validateChatPayload(data);
-      if (!chat)
+      if (!validateMessage(data))
         return sendExceptionToSender(socket, {
           code: 400,
           detail: "ivalid payload",
           timestamp: Date.now(),
         });
-      const { sender, channelId, messageId, content } = chat;
+      const { sender, channelId, id, content } = data;
       // sender and authenticated user must be the same
       if (username !== sender.name || userId !== sender.id)
         return sendExceptionToSender(socket, {
@@ -104,25 +103,25 @@ export const getWSController = (
             detail: "invalid username or user id",
             timestamp: Date.now(),
           });
-        // send "MessageAdded" or "MessageUpdated" event to the message store
-        const event: ChatEvent =
-          (await messageQuery.getMessagesInChannel(channelId)).length === 0
-            ? {
-                id: uuid(),
-                type: "MessageAdded",
-                metadata: { traceId: uuid(), timestamp: Date.now() },
-                data: {
-                  addMessage: { channelId: uuid(), messageId, sender, content },
-                },
-              }
-            : {
-                id: uuid(),
-                type: "MessageUpdated",
-                metadata: { traceId: uuid(), timestamp: Date.now() },
-                data: {
-                  updateMessage: { channelId, messageId, sender, content },
-                },
-              };
+        // if database has the message in it, then send update event
+        // else, send create event
+        const result = await messageQuery.getSpecificMessage(id, channelId);
+        const event: MessageEvents = result
+          ? {
+              type: "MessageUpdated",
+              metadata: { traceId: uuid(), timestamp: Date.now() },
+              payload: {
+                channelId: uuid(),
+                messageId: id,
+                sender,
+                content,
+              },
+            }
+          : {
+              type: "MessageCreated",
+              metadata: { traceId: uuid(), timestamp: Date.now() },
+              payload: { channelId, messageId: id, sender, content },
+            };
         await config.kafka.producer.send({
           topic: "chat",
           messages: [{ value: JSON.stringify(event) }],
@@ -135,7 +134,7 @@ export const getWSController = (
         });
       }
       // send members the message
-      io.to(chat.channelId).emit("chat message", chat);
+      io.to(channelId).emit("chat message", data);
       // socket.to(chat.channelId).emit("socket to chat message", chat);
     },
 

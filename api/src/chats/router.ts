@@ -49,6 +49,7 @@ export const getChatRouter = ({
   router.get(
     "/api/channel/:channelId",
     authenticateUser,
+    setNoCache,
     channel.getChannelDetail
   );
 
@@ -94,19 +95,21 @@ export const getChatRouter = ({
   router.get(
     "/api/channel/:channelId/message",
     authenticateUser,
-    // message.getMessagesInChannel
+    setNoCache,
     message.getMessagesInChannel
   );
   // get one message from channel
   router.get(
     "/api/channel/:channelId/message/:messageId",
     authenticateUser,
+    setNoCache,
     message.getSpecificMessageInChannel
   );
   // post a message to channel
   router.post(
     "/api/channel/:channelId/message",
     authenticateUser,
+    setNoCache,
     message.postMessage
   );
   // edit a message in channel

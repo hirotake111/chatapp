@@ -1,50 +1,53 @@
 import { nanoid } from "nanoid";
 import { v4 as uuid } from "uuid";
 
-import { validateChatPayload } from "./utils";
+import { validateMessage } from "./utils";
 
 describe("validateChatPaylaod", () => {
-  const getData = (): ChatPayload => ({
+  const getData = (): Message => ({
+    id: uuid(),
     channelId: uuid(),
-    messageId: uuid(),
     sender: { id: uuid(), name: nanoid() },
-    timestamp: Date.now(),
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
     content: nanoid(),
   });
 
   it("should return ChatPayload", () => {
     expect.assertions(1);
     const data = getData();
-    expect(validateChatPayload(data)).toEqual(data);
+    expect(validateMessage(data)).toEqual(true);
   });
 
   it("should validate input", () => {
-    expect.assertions(7);
+    expect.assertions(8);
     // sender
     let data = getData();
     data.sender = undefined as any;
-    expect(validateChatPayload(data)).toEqual(null);
+    expect(validateMessage(data)).toEqual(false);
     // sender.id
     data = getData();
     data.sender.id = "xxx";
-    expect(validateChatPayload(data)).toEqual(null);
+    expect(validateMessage(data)).toEqual(false);
     // sender.name
     data = getData();
     data.sender.name = 123 as any;
-    expect(validateChatPayload(data)).toEqual(null);
-    // timestamp
-    expect(validateChatPayload({ ...getData(), timestamp: "xxx" })).toEqual(
-      null
+    expect(validateMessage(data)).toEqual(false);
+    // createdAt
+    expect(validateMessage({ ...getData(), createdAt: "xxx" } as any)).toEqual(
+      false
+    );
+    // updatedAt
+    expect(validateMessage({ ...getData(), updatedAt: "xxx" } as any)).toEqual(
+      false
     );
     // channelId
-    expect(validateChatPayload({ ...getData(), channelId: "xxx" })).toEqual(
-      null
-    );
+    expect(validateMessage({ ...getData(), channelId: "xxx" })).toEqual(false);
     // messageId
-    expect(validateChatPayload({ ...getData(), messageId: "xxx" })).toEqual(
-      null
-    );
+    expect(validateMessage({ ...getData(), id: "xxx" })).toEqual(false);
     // content
-    expect(validateChatPayload({ ...getData(), content: 123 })).toEqual(null);
+    expect(validateMessage({ ...getData(), content: 123 } as any)).toEqual(
+      false
+    );
   });
 });
