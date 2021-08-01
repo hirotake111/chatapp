@@ -37,12 +37,17 @@ export const getChatRouter = ({
   /**
    * channel endpoints
    */
-  router.get("/api/channel", authenticateUser, channel.getMyChannels);
+  router.get(
+    "/api/channel",
+    setNoCache,
+    authenticateUser,
+    channel.getMyChannels
+  );
 
   router.post(
     "/api/channel/",
-    setNoCache,
     authenticateUser,
+    setNoCache,
     channel.createNewChannel
   );
 

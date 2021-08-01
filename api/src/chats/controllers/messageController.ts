@@ -71,6 +71,10 @@ export const getMessageController = (
           channel: {
             id: channel.id,
             name: channel.name,
+            createdAt: channel.createdAt.getTime(),
+            updatedAt: channel.updatedAt.getTime(),
+            users: channel.users,
+            messages,
           },
           messages,
         });
