@@ -4,7 +4,6 @@ import { ProducerRecord } from "kafkajs";
 import { createHash } from "crypto";
 
 import { ChatConfigType } from "../config";
-import { UserQuery } from "../queries/userQuery";
 import { Queries } from "../queries/query";
 
 export type UserController = {
@@ -104,14 +103,22 @@ export const getUserController = (
       }
     },
 
+    /**
+     * responds other users info, based on search query (if request has it)
+     */
     getUsers: async (req: Request, res: Response) => {
       const { userId: requesterId } = req.session;
+      const { q } = req.query;
+      // validate query string
+      if (typeof q !== "string" || q.length < 1)
+        return res.status(400).send({ detail: "invalid query string" });
+      console.log(q);
       // validate requester ID
       if (!validate(requesterId))
         return res.status(400).send({ detail: "invalid requester ID" });
       try {
         // get a list of other users
-        const users = await userQuery.getOtherUsers(requesterId);
+        const users = await userQuery.getOtherUsers(requesterId, q);
         res.status(200).send({
           detail: "success",
           users: users.map((user) => ({

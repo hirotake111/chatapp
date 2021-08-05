@@ -29,7 +29,7 @@ export const getChatRouter = ({
   router.get("/login", setNoCache, user.getLogin);
   // callback endpoints
   router.get("/callback", setNoCache, user.getCallback);
-  // users endpoint
+  // user endpoint
   router.get("/api/user", setNoCache, authenticateUser, user.getUsers);
   // userinfo endpoint
   router.get("/api/user/me", setNoCache, authenticateUser, user.getUserInfo);
