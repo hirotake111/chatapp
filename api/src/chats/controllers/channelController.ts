@@ -187,7 +187,7 @@ export const getChannelController = (
           channel: {
             id: channel.id,
             name: channel.name,
-            cratedAt: channel.createdAt.getTime(),
+            createdAt: channel.createdAt.getTime(),
             updatedAt: channel.updatedAt.getTime(),
             users: channel.users.map(({ id, displayName }) => ({
               id,

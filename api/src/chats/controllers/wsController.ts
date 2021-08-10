@@ -1,5 +1,5 @@
 import { Server, Socket } from "socket.io";
-import { v4 as uuid } from "uuid";
+import { v4 as uuid, validate } from "uuid";
 import { ChatConfigType } from "../config";
 import { Queries } from "../queries/query";
 
@@ -36,6 +36,10 @@ export interface WSController {
    * event handler to handle error message from client
    */
   onException: (io: Server, socket: Socket, data: any) => Promise<void>;
+  /**
+   * make user join new room
+   */
+  onJoinNewRoom: (io: Server, socket: Socket, data: any) => Promise<void>;
 }
 
 export const getWSController = (
@@ -45,6 +49,7 @@ export const getWSController = (
   const checkMember = getCheckMember(userQuery);
   return {
     onConnection: async (io: Server, socket: Socket) => {
+      console.log("onConnect()");
       // validate user
       const { userId, username } = socket.request.session;
       if (!userId || !username) throw new Error("user is not authenticated");
@@ -55,9 +60,9 @@ export const getWSController = (
         const channelIds = (await channelQuery.getChannelsByUserId(userId)).map(
           (channel) => channel.id
         );
-        // join room(s)
-        // console.log("Joining channel IDs: ", channelIds);
+        // join room(s) and notify user
         socket.join(channelIds);
+        socket.emit("joined channels", { channelIds });
       } catch (e) {
         throw e;
       }
@@ -72,6 +77,7 @@ export const getWSController = (
     },
 
     onChatMessage: async (io: Server, socket: Socket, data: Message) => {
+      console.log(`Received message from ${socket.id} - ${new Date()} `);
       // validate user
       const { userId, username } = socket.request.session;
       if (!username || !userId)
@@ -87,8 +93,8 @@ export const getWSController = (
           detail: "ivalid payload",
           timestamp: Date.now(),
         });
-      const { sender, channelId, id, content } = data;
       // sender and authenticated user must be the same
+      const { sender, channelId, id, content } = data;
       if (username !== sender.name || userId !== sender.id)
         return sendExceptionToSender(socket, {
           code: 400, // bad request
@@ -103,6 +109,12 @@ export const getWSController = (
             detail: "invalid username or user id",
             timestamp: Date.now(),
           });
+        // validation is complete. send a message to sender
+        socket.emit("message received", {
+          code: 200,
+          detail: "success",
+          timestamp: Date.now(),
+        });
         // if database has the message in it, then send update event
         // else, send create event
         const result = await messageQuery.getSpecificMessage(id, channelId);
@@ -135,6 +147,7 @@ export const getWSController = (
       }
       // send members the message
       io.to(channelId).emit("chat message", data);
+      // console.log("member:", io.sockets.adapter.rooms.get(channelId));
       // socket.to(chat.channelId).emit("socket to chat message", chat);
     },
 
@@ -142,6 +155,52 @@ export const getWSController = (
       // close the underlying connection
       // console.log("socket will close and received data: ", data);
       socket.disconnect(true);
+    },
+
+    onJoinNewRoom: async (io: Server, socket: Socket, data: any) => {
+      // console.log("onJoinNewRoom() invoked, data: ", data);
+      // validate user
+      const { userId, username } = socket.request.session;
+      if (!username || !userId)
+        return sendExceptionToSender(socket, {
+          code: 400,
+          detail: "Not authenticated",
+          timestamp: Date.now(),
+        });
+
+      // validate payload
+      if (!data)
+        return sendExceptionToSender(socket, {
+          code: 400,
+          detail: "ivalid payload",
+          timestamp: Date.now(),
+        });
+      const channelId = data.channelId;
+      if (!(channelId && typeof channelId === "string" && validate(channelId)))
+        return sendExceptionToSender(socket, {
+          code: 400,
+          detail: "ivalid payload",
+          timestamp: Date.now(),
+        });
+
+      try {
+        // sender must be a member of channel
+        if (!(await checkMember(channelId, userId)))
+          return sendExceptionToSender(socket, {
+            code: 400, // bad request
+            detail: `sender is not a member of channel ${channelId}`,
+            timestamp: Date.now(),
+          });
+        // let user join the room
+        socket.join(channelId);
+        socket.emit("joined room", { channelId });
+      } catch (e) {
+        return sendExceptionToSender(socket, {
+          code: 500,
+          detail: e.message,
+          timestamp: Date.now(),
+        });
+      }
     },
   };
 };

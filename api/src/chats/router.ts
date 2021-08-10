@@ -139,4 +139,5 @@ export const useWebSocketRoute = (io: Server, controller: WSController) => {
   wsRouter.on("chat message", controller.onChatMessage);
   wsRouter.on("disconnect", controller.onDiscconect);
   wsRouter.on("reconnect", controller.onReconnect);
+  wsRouter.on("join new room", controller.onJoinNewRoom);
 };
