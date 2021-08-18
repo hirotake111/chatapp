@@ -1,8 +1,14 @@
 # Chat App
 
+Chat App built on top of Ract/WebSocket/Docker(Kubernetes)
+
 ### TODO
 
-- parse HTML data to prevent XSS
+- add member button
+- notify user when he/she gets added to a new chanel
+- test code
+- delete channel button
+- delete message button
 
 ### Build docker image
 
@@ -25,7 +31,7 @@ cd api
 npm test
 ```
 
-### Dtabase Design
+## Dtabase Design
 
 ### Users table
 

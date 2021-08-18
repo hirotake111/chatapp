@@ -5,7 +5,7 @@ docker rm kafka1 kafka2 zookeeper1 zookeeper2
 docker-compose up -d
 
 echo "waiting for all containers to be ready..."
-sleep 3m
+sleep 5m
 
 echo "restarting app container"
 docker restart app
