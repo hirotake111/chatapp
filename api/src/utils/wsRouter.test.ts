@@ -15,7 +15,7 @@ describe("WSRouter", () => {
   let data: string;
   let cb: (io: Server, socket: Socket, data: string) => Promise<void>;
   let onConnectionCb: (io: Server, socket: Socket) => Promise<void>;
-  const port = 3000;
+  let port = 3000;
 
   beforeAll(() => {
     /**
@@ -24,8 +24,8 @@ describe("WSRouter", () => {
      */
     httpServer = createServer();
     io = new Server(httpServer);
-    httpServer.listen(port, () => {});
-    onConnectionCb = async (io: Server, socket: Socket) => {
+    httpServer.listen(port);
+    onConnectionCb = async (_: Server, socket: Socket) => {
       serverSocket = socket;
     };
   });
@@ -47,7 +47,8 @@ describe("WSRouter", () => {
   it("should invoke registered event handdler when the event is emmited", (done) => {
     expect.assertions(1);
     clientSocket = Client(`http://localhost:${port}`);
-    cb = async (io, s, m) => {
+    cb = async (_, socket: Socket, m) => {
+      socket.emit("ev");
       expect(m).toBe(data);
       clientSocket.close();
       done();
@@ -63,7 +64,8 @@ describe("WSRouter", () => {
     expect.assertions(1);
     clientSocket = Client(`http://localhost:${port}`);
     // register event
-    router.on(eventName, async (io, s, m) => {
+    router.on(eventName, async (_, socket: Socket, m) => {
+      socket.emit("ev");
       expect(m).toBe(data);
       clientSocket.close();
       done();
@@ -77,14 +79,15 @@ describe("WSRouter", () => {
   it("should close the connection if an initial callback throw an error", (done) => {
     expect.assertions(1);
     let server: Socket;
-    const port = 3333;
+    port = 3333;
     const http = createServer();
-    const io = new Server(http);
+    const ioServer = new Server(http);
     http.listen(port);
-    const router = getWSRouter(io);
+    const wsRouter = getWSRouter(ioServer);
     const client = Client(`http://localhost:${port}`);
     // register on connection event handler
-    router.onConnect(async (io, socket) => {
+    wsRouter.onConnect(async (ioServer2: Server, socket) => {
+      ioServer2.emit("ev");
       server = socket;
       return new Promise((_, reject) => reject("some err"));
     });

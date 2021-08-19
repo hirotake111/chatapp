@@ -34,11 +34,11 @@ let next = {} as any;
 let statusMock = res.status as jest.Mock;
 let sendMock = res.send as jest.Mock;
 const redirectMock = res.redirect as jest.Mock;
-let userQuery = {
+const userQuery = {
   getUserByUsername: jest.fn(),
   createUser: jest.fn(),
 } as any;
-let queries = { userQuery } as any;
+// const queries = { userQuery } as any;
 const config = {
   oidc: {
     generators: {
@@ -64,6 +64,7 @@ const producerSendMock = config.kafka.producer.send as jest.Mock;
 
 describe("userController", () => {
   describe("getLogin()", () => {
+    const queries = { userQuery } as any;
     it("should redirect user to authorization URL", async () => {
       expect.assertions(5);
       try {
@@ -105,6 +106,7 @@ describe("userController", () => {
   });
 
   describe("getCallback()", () => {
+    const queries = { userQuery } as any;
     it("should create createUser event and redirect to root page", async () => {
       expect.assertions(5);
       try {
