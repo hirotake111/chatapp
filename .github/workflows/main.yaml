@@ -32,7 +32,7 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_IMAGE_TAG_NAME }}:latest
           context: ./api
-          file: ./api/Dockerfle
+          # file: ./api/Dockerfle
 
       - name: Image digest
         if: ${{ success() }}
