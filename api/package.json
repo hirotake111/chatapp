@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "chat app",
   "repository": "to be filled",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "build": "tsc --build tsconfig.json",
     "prebuild": "tslint -c tslint.json -p tsconfig.json --fix",
