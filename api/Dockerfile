@@ -34,4 +34,4 @@ USER user
 # Expose port
 EXPOSE 3000
 # Set the start-up command
-CMD [ "node", "dist/index.js" ]
+CMD [ "node", "dist/server.js" ]
