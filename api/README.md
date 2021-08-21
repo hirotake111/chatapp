@@ -2,20 +2,16 @@
 
 ### TODO
 
-- api to list other users
-- add query components for Channel and Roster and Message
-- crud api for channels
-- crud api for messages
-- parse HTML data to prevent XSS
-- Database for messages
+- xxxx
 
-### Build docker image
+### Build a docker image
 
 ```bash
 # Image for development
-./make_image.sh
+./make_dev_image.sh
+
 # Image for production (multi platform)
-./make_image.sh prod
+docker build -t "<image name>" .
 ```
 
 ---
@@ -25,12 +21,31 @@
 Go to each folder and run tests
 
 ```bash
-# let's say if you want to test api service...
-cd api
 npm test
 ```
 
-### Dtabase Design
+### Environment Variables
+
+These environment variables are required for the image to run
+
+- SECRETKEY
+- OAUTH_CLIENTID
+- OAUTH_CLIENTSECRET
+- HOSTNAME
+- PORT
+- ISSUER
+- FRONTEND_URL
+- CALLBACK_URL
+- DATABASE_URI
+- NODE_ENV
+- REDIS_URL
+- KAFKA_CLIENT_ID
+- KAFKA_BROKERS (kafka1:9092,kafka2:9092)
+- KAFKA_GROUP_ID
+- KAFKA_TOPIC_NAME
+- REACT_APP_WS_URL
+
+## Database Design
 
 ### Users table
 
