@@ -112,6 +112,7 @@ services:
 
   fe: # frontend
     image: video_chat_frontend-dev
+    # image: temp_prod_frontend
     container_name: fe
     volumes:
       - type: bind
