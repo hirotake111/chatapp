@@ -2,7 +2,7 @@ name: Publish Docker image
 on:
   push:
     branches:
-      - main
+      - frontend
 jobs:
   buildx:
     name: build and publish
@@ -38,7 +38,6 @@ jobs:
             --push \
             --platform linux/arm/v7,linux/amd64 \
             -t ${{ secrets.DOCKER_FRONTEND_IMAGE_TAG_NAME }}:latest .
-        # --build-arg REACT_APP_WS_URL=${REACT_APP_WS_URL} \
 
         # id: docker_build
         # uses: docker/build-push-action@v2
