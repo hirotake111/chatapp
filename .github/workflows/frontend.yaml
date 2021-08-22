@@ -33,7 +33,7 @@ jobs:
       - name: Build and push
         if: success()
         run: |
-          cd ./api && \
+          cd ./client && \
           docker buildx build \
             --push \
             --platform linux/arm/v7,linux/amd64 \
