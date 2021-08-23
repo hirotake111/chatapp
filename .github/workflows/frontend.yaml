@@ -33,10 +33,6 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: list files under client directory
-        run: |
-          cd ./client && ls -al
-
       - name: Build and push
         if: success()
         run: |
