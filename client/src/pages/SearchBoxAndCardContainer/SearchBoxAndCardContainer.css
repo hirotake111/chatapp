@@ -1,0 +1,30 @@
+.channel-modal-searchbox-and-card-container {
+  display: block;
+}
+
+.channel-modal-searchbox-container {
+  display: flex;
+  margin-top: 2rem;
+  margin-right: 2rem;
+  justify-content: left;
+  align-items: center;
+  height: 32px;
+}
+
+.channel-modal-searchbox {
+  height: 100%;
+  width: 50%;
+  border-radius: 3px;
+  background-color: #f3f2f1;
+  border: 0 solid transparent;
+}
+
+.channel-modal-searchbox:focus {
+  outline: none;
+}
+
+.channel-modal-form-span {
+  margin-right: 10px;
+  font-size: 1.4rem;
+  min-width: 100px;
+}

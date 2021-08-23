@@ -1,0 +1,9 @@
+.chat-form-icon {
+  color: #616161;
+  transition: 300ms;
+}
+
+.chat-form-icon:hover {
+  color: #252525;
+  transition: 300ms;
+}

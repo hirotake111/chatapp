@@ -1,0 +1,28 @@
+.channel-list-item-container {
+  padding: 10px;
+  margin: 10px;
+  border-bottom: 1px solid rgb(221, 219, 219);
+  transition: 300ms;
+}
+
+.channel-list-title {
+  margin-bottom: 7px;
+  font-size: 1.6rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.channel-member-summary {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.channel-list-bold {
+  font-weight: 900;
+}
+
+.channel-list-selected {
+  background-color: #e1dfdd;
+}

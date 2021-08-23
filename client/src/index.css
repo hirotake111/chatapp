@@ -1,0 +1,47 @@
+html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-size: 10px;
+  font-family: "Roboto", sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  color: #242424;
+  overflow: hidden;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+p {
+  margin: 0;
+  padding: 0;
+}
+
+ul {
+  padding: 0px;
+  margin: 0;
+}
+
+li {
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+}
+
+.App {
+  display: flex;
+  flex-direction: column;
+}
+
+html,
+doby,
+#root,
+.App {
+  height: 100vh;
+}

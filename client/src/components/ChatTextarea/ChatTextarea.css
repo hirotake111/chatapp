@@ -1,0 +1,13 @@
+.chat-textarea {
+  margin: 1.2rem 0 1rem 0;
+  padding: 0.6rem 1.2rem;
+  border: 1px solid #e3e3e3;
+  height: 5rem;
+  background-color: #fff;
+  border-radius: 5px;
+  resize: none;
+}
+
+.chat-textarea:focus {
+  outline: none;
+}
