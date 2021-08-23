@@ -25,6 +25,8 @@ export const getUserController = (
         // generate and store code verifier
         const codeVerifier = generators.codeVerifier();
         req.session.verifier = codeVerifier;
+        console.log("verifier:", codeVerifier);
+        console.log("req.session:", req.session);
         const authzUrl = client.authorizationUrl({
           scope: "openid email profile",
           code_challenge: generators.codeChallenge(codeVerifier),
@@ -48,6 +50,7 @@ export const getUserController = (
         // get token set from OIDC server
         const params = client.callbackParams(req);
         console.log("params:", params);
+        console.log("req.session:", req.session);
         const cbChecks = { code_verifier: req.session.verifier };
         console.log("vefirier:", cbChecks);
         const tokenSet = await client.callback(callbackUrl, params, cbChecks);
