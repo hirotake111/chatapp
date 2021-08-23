@@ -1,0 +1,51 @@
+.right-column {
+  display: flex;
+  background-color: rgb(243, 242, 241);
+  flex-direction: column;
+  justify-content: space-between;
+  width: calc(100% - 20rem);
+}
+
+.channel-title-container {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  margin: 1.5rem;
+  padding: 1.2rem;
+  border-bottom: 1px solid rgb(221, 219, 219);
+}
+
+.channel-title {
+  display: flex;
+  height: 65px;
+  width: 100%;
+  font-size: 1.8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  align-items: flex-end;
+}
+
+.add-member-button-container {
+  display: flex;
+  width: 150px;
+  justify-content: center;
+}
+
+.chat-form-container {
+  display: flex;
+  padding: 0 7.4rem;
+  /* margin-bottom: 70px; */
+  flex-direction: column;
+  min-height: 112px;
+  max-height: 112px;
+  justify-content: stretch;
+  bottom: 0;
+}
+
+.chat-form-button-container {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: right;
+  align-items: stretch;
+}

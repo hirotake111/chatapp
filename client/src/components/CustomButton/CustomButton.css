@@ -1,0 +1,18 @@
+.new-channel-button {
+  padding: 5px;
+  height: 30px;
+  border-color: #7c83fd;
+  background-color: #7c83fd;
+  color: #fff;
+  text-align: center;
+  word-wrap: unset;
+  border-radius: 5px;
+  border-width: 0px;
+  transition: 300ms;
+}
+.new-channel-button:hover {
+  background-color: #fff;
+  color: #7c83fd;
+  border: 1px solid #7c83fd;
+  transition: 300ms;
+}

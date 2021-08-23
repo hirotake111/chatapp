@@ -2,7 +2,7 @@ name: Publish Docker image
 on:
   push:
     branches:
-      - main
+      - dev
 jobs:
   buildx:
     name: build and publish
@@ -46,7 +46,6 @@ jobs:
         #   tags: ${{ secrets.DOCKER_IMAGE_TAG_NAME }}:latest
         #   context: ./api
         #   file: ./api/Dockerfle
-
 
       - name: Image digest
         if: ${{ success() }}

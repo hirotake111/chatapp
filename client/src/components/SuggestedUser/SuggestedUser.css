@@ -1,0 +1,21 @@
+.suggested-user {
+  /* margin: 10px 0 10px 0; */
+  margin-bottom: 5px;
+  border-radius: 5px;
+  padding: 5px 10px 5px 10px;
+  font-size: 1.4rem;
+  background-color: #f3f2f1;
+  white-space: nowrap;
+  transition: 500ms;
+}
+
+.suggested-user:hover {
+  background-color: #d8d7d6;
+  transition: 500ms;
+}
+
+.remove-candidate {
+  margin-left: 10px;
+  cursor: pointer;
+  font-size: 1.4rem;
+}

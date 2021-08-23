@@ -1,0 +1,130 @@
+.channel-modal-background {
+  display: flex; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  align-items: center;
+  justify-content: center;
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  background-color: rgb(0, 0, 0); /* Fallback color */
+  background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+  transition: 300ms;
+  animation: fadein 0.5s;
+}
+
+.channel-modal-content {
+  display: flex;
+  flex-direction: column;
+  padding: 30px;
+  background-color: #fefefe;
+  border: 1px solid #888;
+  border-radius: 10px;
+  height: 60%;
+  width: 50%;
+}
+
+@keyframes fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal-top-title {
+  font-size: 1.8rem;
+  margin-bottom: 5px;
+}
+
+.modal-form-field-title {
+  font-size: 1.4rem;
+}
+
+.channel-modal-form {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.modal-form-input {
+  display: flex;
+  flex-direction: column;
+}
+
+.channel-modal-name-container {
+  display: flex;
+  /* margin: 20px 20px 20px 0; */
+  margin-top: 2rem;
+  margin-right: 2rem;
+  height: 32px;
+  align-items: center;
+  flex-direction: row;
+}
+
+.channel-modal-form-span {
+  margin-right: 10px;
+  font-size: 1.4rem;
+  min-width: 100px;
+}
+
+.channel-modal-name-container > input {
+  height: 100%;
+  width: 50%;
+  border: 0;
+  border-bottom: 1px solid black;
+  font-size: 1.4rem;
+}
+.channel-modal-name-container > input:focus {
+  outline: none;
+}
+
+.member-candidate-list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin: 2rem;
+  height: 140px;
+  overflow: auto;
+}
+
+.channel-button-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+}
+.channel-button {
+  height: 30px;
+  border-color: #5f5f68;
+  background-color: #7c83fd;
+  color: #fff;
+  text-align: center;
+  border-radius: 5px;
+  border-width: 0px;
+  transition: 300ms;
+}
+.channel-button:hover {
+  background-color: #fff;
+  color: #7c83fd;
+  border: 1px solid #7c83fd;
+  transition: 300ms;
+}
+
+.channel-button:disabled {
+  background-color: #5f5f68;
+}
+.channel-button:disabled:hover {
+  background-color: #5f5f68;
+  color: #fff;
+  border-width: 0px;
+}
+
+.status-message {
+  margin-top: 10px;
+  height: 18px;
+  font-size: 1.4rem;
+}
