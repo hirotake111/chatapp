@@ -47,10 +47,13 @@ export const getUserController = (
       try {
         // get token set from OIDC server
         const params = client.callbackParams(req);
+        console.log("params:", params);
         const cbChecks = { code_verifier: req.session.verifier };
+        console.log("vefirier:", cbChecks);
         const tokenSet = await client.callback(callbackUrl, params, cbChecks);
         // if no access token is obtained response HTTP 500
         const accessToken = tokenSet.access_token;
+        console.log("access token:", accessToken);
         if (!accessToken) {
           res
             .status(500)
@@ -59,6 +62,7 @@ export const getUserController = (
         }
         // get user info
         const userInfo = await config.oidc.client.userinfo(accessToken);
+        console.log("userInfo:", userInfo);
         // If user does not exists on database, create new one
         const user: CreateUserProps = {
           id: userInfo.sub,
