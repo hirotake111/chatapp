@@ -76,6 +76,10 @@ export const getUserController = (
         };
 
         // if user does not exist, store it in the database
+        console.log(
+          "user eixsts in the database:",
+          !!(await userQuery.getUserByUsername(user.username))
+        );
         if (!(await userQuery.getUserByUsername(user.username))) {
           const event: RegisteredEvent = {
             id: uuid(),
@@ -90,11 +94,15 @@ export const getUserController = (
               ...user,
             },
           };
+          console.log("event:", event);
           const record: ProducerRecord = {
             topic: config.kafka.topicName,
             messages: [{ value: JSON.stringify(event) }],
           };
+          console.log("record:", record);
+          console.log("before sending event");
           await config.kafka.producer.send(record);
+          console.log("after sending event");
         }
         // store session
         req.session.username = user.username;
