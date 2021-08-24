@@ -53,11 +53,12 @@ jobs:
           echo IMAGE NAME: ${{ secrets.DOCKER_IMAGE_TAG_NAME }}:latest
           echo DIGEST: ${{ steps.docker_build.outputs.digest }}
 
-      # - name: Deploy to cluster
-      #   if: ${{ success() }}
-      #   uses: steebchen/kubectl@master
-      #   env:
-      #     KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
-      #     KUBECTL_VERSION: "1.15"
-      #   with:
-      #     args: 'set image --record deployment/test-nginx nginx=${{ secrets.DOCKER_IMAGE_TAG_NAME }}:${{ github.run_number }}'
+      - name: Deploy to cluster
+        if: ${{ secrets.KUBE_CONFIG_DATA && success() }}
+        uses: steebchen/kubectl@master
+        # env:
+        #   KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
+        #   KUBECTL_VERSION: "1.15"
+        with:
+          config: ${{ secrets.KUBE_CONFIG_DATA }}
+          args: "set image --record deployment/${{ secrets.DEPLOYMENT_NAME }} app=${{ secrets.DOCKER_IMAGE_TAG_NAME }}"
