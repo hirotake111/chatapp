@@ -54,7 +54,7 @@ jobs:
           echo DIGEST: ${{ steps.docker_build.outputs.digest }}
 
       - name: Deploy to cluster
-        if: ${{ secrets.KUBE_CONFIG_DATA && success() }}
+        if: ${{ success() }}
         uses: steebchen/kubectl@master
         # env:
         #   KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
