@@ -60,8 +60,7 @@ export const getConfig = async (env: Env): Promise<ConfigType> => {
         cookie: {
           maxAge: 1000 * 60 * 120, // 120 minutes
           sameSite: "lax",
-          // secure: env.PROD,
-          secure: false,
+          secure: env.PROD,
         },
       },
 
