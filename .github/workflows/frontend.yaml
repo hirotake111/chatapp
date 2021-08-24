@@ -40,20 +40,20 @@ jobs:
           docker buildx build \
             --push \
             --platform linux/arm/v7,linux/amd64 \
-            -t ${{ secrets.DOCKER_FRONTEND_IMAGE_TAG_NAME }}:latest .
+            -t ${{ secrets.DOCKER_IMAGE_TAG_NAME_FRONTEND }}:latest .
 
         # id: docker_build
         # uses: docker/build-push-action@v2
         # with:
         #   push: true
-        #   tags: ${{ secrets.DOCKER_FRONTEND_IMAGE_TAG_NAME }}:latest
+        #   tags: ${{ secrets.DOCKER_IMAGE_TAG_NAME_FRONTEND }}:latest
         #   context: ./api
         #   file: ./api/Dockerfle
 
       - name: Image digest
         if: ${{ success() }}
         run: |
-          echo IMAGE NAME: ${{ secrets.DOCKER_FRONTEND_IMAGE_TAG_NAME }}:latest
+          echo IMAGE NAME: ${{ secrets.DOCKER_IMAGE_TAG_NAME_FRONTEND }}:latest
           echo DIGEST: ${{ steps.docker_build.outputs.digest }}
 
       # - name: Deploy to cluster
@@ -63,4 +63,4 @@ jobs:
       #     KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
       #     KUBECTL_VERSION: "1.15"
       #   with:
-      #     args: 'set image --record deployment/test-nginx nginx=${{ secrets.DOCKER_FRONTEND_IMAGE_TAG_NAME }}:${{ github.run_number }}'
+      #     args: 'set image --record deployment/test-nginx nginx=${{ secrets.DOCKER_IMAGE_TAG_NAME_FRONTEND }}:${{ github.run_number }}'

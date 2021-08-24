@@ -15,10 +15,14 @@ The following secrets are necessary to trigger GitHub actions
 - DOCKER_USERNAME (credentials to fetch docker image from repository)
 - DOCKER_PASSWORD
 - KUBE_CONFIG_DATA (YAML based data to deploy imaget to Kubernetes cluster)
-- DOCKER_IMAGE_TAG_NAME (used to create image for API service)
-- DOCKER_FRONTEND_IMAGE_TAG_NAME (used to crate image for frontend service)
-- DEPLOYMENT_NAME (used to deploy API service to Kubernetes cluster)
+- DOCKER_IMAGE_TAG_NAME_API (used to create image for API service)
+- DOCKER_IMAGE_TAG_NAME_FRONTEND (used to crate image for frontend service)
+- DEPLOYMENT_NAME_API (used to deploy API service to Kubernetes cluster)
 - DEPLOYMENT_NAME_FRONTEND (used to deploy frontend service)
+- DEPLOYMENT_NAME_API
+- DEPLOYMENT_NAME_FRONTEND
+- KUBE_CONTAINER_NAME_API
+- KUBE_CONTAINER_NAME_FRONTEND
 
 ---
 
