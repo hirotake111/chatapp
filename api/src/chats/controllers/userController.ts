@@ -25,8 +25,6 @@ export const getUserController = (
         // generate and store code verifier
         const codeVerifier = generators.codeVerifier();
         req.session.verifier = codeVerifier;
-        console.log("verifier:", codeVerifier);
-        console.log("req.session:", req.session);
         const authzUrl = client.authorizationUrl({
           scope: "openid email profile",
           code_challenge: generators.codeChallenge(codeVerifier),
@@ -49,14 +47,10 @@ export const getUserController = (
       try {
         // get token set from OIDC server
         const params = client.callbackParams(req);
-        console.log("params:", params);
-        console.log("req.session:", req.session);
         const cbChecks = { code_verifier: req.session.verifier };
-        console.log("vefirier:", cbChecks);
         const tokenSet = await client.callback(callbackUrl, params, cbChecks);
         // if no access token is obtained response HTTP 500
         const accessToken = tokenSet.access_token;
-        console.log("access token:", accessToken);
         if (!accessToken) {
           res
             .status(500)
@@ -65,7 +59,6 @@ export const getUserController = (
         }
         // get user info
         const userInfo = await config.oidc.client.userinfo(accessToken);
-        console.log("userInfo:", userInfo);
         // If user does not exists on database, create new one
         const user: CreateUserProps = {
           id: userInfo.sub,
@@ -76,10 +69,6 @@ export const getUserController = (
         };
 
         // if user does not exist, store it in the database
-        console.log(
-          "user eixsts in the database:",
-          !!(await userQuery.getUserByUsername(user.username))
-        );
         if (!(await userQuery.getUserByUsername(user.username))) {
           const event: RegisteredEvent = {
             id: uuid(),
@@ -94,15 +83,11 @@ export const getUserController = (
               ...user,
             },
           };
-          console.log("event:", event);
           const record: ProducerRecord = {
             topic: config.kafka.topicName,
             messages: [{ value: JSON.stringify(event) }],
           };
-          console.log("record:", record);
-          console.log("before sending event");
           await config.kafka.producer.send(record);
-          console.log("after sending event");
         }
         // store session
         req.session.username = user.username;
@@ -127,7 +112,6 @@ export const getUserController = (
       // validate query string
       if (typeof q !== "string" || q.length < 1)
         return res.status(400).send({ detail: "invalid query string" });
-      console.log(q);
       // validate requester ID
       if (!validate(requesterId))
         return res.status(400).send({ detail: "invalid requester ID" });
