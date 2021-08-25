@@ -18,10 +18,10 @@ The following secrets are necessary to trigger GitHub actions
 - DOCKER_IMAGE_TAG_NAME_API (used to create image for API service)
 - DOCKER_IMAGE_TAG_NAME_FRONTEND (used to crate image for frontend service)
 - DEPLOYMENT_NAME_API (used to deploy API service to Kubernetes cluster)
-- DEPLOYMENT_NAME_FRONTEND (used to deploy frontend service)
-- DEPLOYMENT_NAME_API
 - DEPLOYMENT_NAME_FRONTEND
-- KUBE_CONTAINER_NAME_API
+- DEPLOYMENT_NAME_API (deployment/name_of_deployment)
+- DEPLOYMENT_NAME_FRONTEND
+- KUBE_CONTAINER_NAME_API (container name)
 - KUBE_CONTAINER_NAME_FRONTEND
 
 ---
