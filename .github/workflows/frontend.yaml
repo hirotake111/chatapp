@@ -11,21 +11,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-          submodules: true
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
-        with:
-          buildx-version: latest
-          qemu-version: latest
 
-      - name: Available platforms
-        run: echo "Available platforms - ${{ steps.buildx.outputs.platforms }}"
+      # - name: Available platforms
+      #   run: echo "Available platforms - ${{ steps.buildx.outputs.platforms }}"
 
       - name: Login to DockerHub
         uses: docker/login-action@v1
@@ -35,32 +29,31 @@ jobs:
 
       - name: Build and push
         if: success()
+        env:
+          IMAGE: ${{ secrets.DOCKER_IMAGE_TAG_NAME_FRONTEND }}
+          PLATFORM: linux/arm/v7,linux/amd64
         run: |
           cd ./client && \
-          docker buildx build \
-            --push \
-            --platform linux/arm/v7,linux/amd64 \
-            -t ${{ secrets.DOCKER_IMAGE_TAG_NAME_FRONTEND }}:latest .
+          docker buildx build --push --platform $PLATFORM -t $IMAGE:latest .
 
-        # id: docker_build
-        # uses: docker/build-push-action@v2
-        # with:
-        #   push: true
-        #   tags: ${{ secrets.DOCKER_IMAGE_TAG_NAME_FRONTEND }}:latest
-        #   context: ./api
-        #   file: ./api/Dockerfle
-
-      - name: Image digest
+      - name: Deploy to cluster
         if: ${{ success() }}
-        run: |
-          echo IMAGE NAME: ${{ secrets.DOCKER_IMAGE_TAG_NAME_FRONTEND }}:latest
-          echo DIGEST: ${{ steps.docker_build.outputs.digest }}
+        uses: steebchen/kubectl@v2.0.0
+        env:
+          DEPLOYMENT: ${{ secrets.DEPLOYMENT_NAME_FRONTEND }}
+          CONTAINER: ${{ secrets.KUBE_CONTAINER_NAME_FRONTEND }}
+          IMAGE: ${{ secrets.DOCKER_IMAGE_TAG_NAME_FRONTEND }}
+        with:
+          config: ${{ secrets.KUBE_CONFIG_DATA }}
+          version: v1.22.1
+          command: set image $DEPLOYMENT $CONTAINER=$IMAGE
 
-      # - name: Deploy to cluster
-      #   if: ${{ success() }}
-      #   uses: steebchen/kubectl@master
-      #   env:
-      #     KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
-      #     KUBECTL_VERSION: "1.15"
-      #   with:
-      #     args: 'set image --record deployment/test-nginx nginx=${{ secrets.DOCKER_IMAGE_TAG_NAME_FRONTEND }}:${{ github.run_number }}'
+      - name: Verify deployment
+        if: ${{ success() }}
+        uses: steebchen/kubectl@v2.0.0
+        env:
+          DEPLOYMENT: ${{ secrets.DEPLOYMENT_NAME_FRONTEND }}
+        with:
+          config: ${{ secrets.KUBE_CONFIG_DATA }}
+          version: v1.22.1
+          command: rollout status $DEPLOYMENT
