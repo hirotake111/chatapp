@@ -1,6 +1,6 @@
 # Chat App
 
-Chat App built on top of Ract/WebSocket/Docker(Kubernetes)
+Chat App built on top of React/WebSocket/Docker(Kubernetes)
 
 ### TODO
 
@@ -10,14 +10,19 @@ Chat App built on top of Ract/WebSocket/Docker(Kubernetes)
 - delete channel button
 - delete message button
 
-### Build docker image
+The following secrets are necessary to trigger GitHub actions
 
-```bash
-# Image for development
-./make_image.sh
-# Image for production (multi platform)
-./make_image.sh # type "prod"
-```
+- DOCKER_USERNAME (credentials to fetch docker image from repository)
+- DOCKER_PASSWORD
+- KUBE_CONFIG_DATA (YAML based data to deploy imaget to Kubernetes cluster)
+- DOCKER_IMAGE_TAG_NAME_API (used to create image for API service)
+- DOCKER_IMAGE_TAG_NAME_FRONTEND (used to crate image for frontend service)
+- DEPLOYMENT_NAME_API (used to deploy API service to Kubernetes cluster)
+- DEPLOYMENT_NAME_FRONTEND (used to deploy frontend service)
+- DEPLOYMENT_NAME_API
+- DEPLOYMENT_NAME_FRONTEND
+- KUBE_CONTAINER_NAME_API
+- KUBE_CONTAINER_NAME_FRONTEND
 
 ---
 
@@ -30,55 +35,3 @@ Go to each folder and run tests
 cd api
 npm test
 ```
-
-## Dtabase Design
-
-### Users table
-
-| key         | type              | Description     |
-| ----------- | ----------------- | --------------- |
-| id          | string(UUIDv4) PK | conversation ID |
-| username    | string unique     | username        |
-| displayName | string unique     | display name    |
-| fistName    | string            | fist name       |
-| lastName    | string            | last name       |
-| createdAt   | datetime required | time created    |
-| updatedAt   | datetime required | time updated    |
-| deletedAt   | datetime          | time deleted    |
-
----
-
-### Channel table
-
-| key       | type              | Description  |
-| --------- | ----------------- | ------------ |
-| id        | string(UUIDv4) PK |              |
-| name      | string required   | channel name |
-| createdAt | datetime required | time created |
-| updatedAt | datetime required | time updated |
-| deletedAt | datetime          | time deleted |
-
----
-
-### Roster table
-
-| key       | type                        | Description  |
-| --------- | --------------------------- | ------------ |
-| channelId | string (UUIDv4) FK required | channel ID   |
-| userId    | string (UUIDv4) FK required | user ID      |
-| joinedAt  | datetime required           | time joined  |
-| removedAt | datetime                    | time removed |
-
----
-
-### Messages table
-
-| key       | type                        | Description              |
-| --------- | --------------------------- | ------------------------ |
-| id        | string(UUIDv4) PK required  | Message ID               |
-| channelId | string (UUIDv4) FK required | channel ID it belongs to |
-| senderId  | string (UUIDv4) FK required | sender's user ID         |
-| content   | string required             | message content itself   |
-| createdAt | datetime required           | time created             |
-| updatedAt | datetime required           | time updated             |
-| deletedAt | datetime                    | time deleted             |

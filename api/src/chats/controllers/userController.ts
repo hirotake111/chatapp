@@ -112,7 +112,6 @@ export const getUserController = (
       // validate query string
       if (typeof q !== "string" || q.length < 1)
         return res.status(400).send({ detail: "invalid query string" });
-      console.log(q);
       // validate requester ID
       if (!validate(requesterId))
         return res.status(400).send({ detail: "invalid requester ID" });

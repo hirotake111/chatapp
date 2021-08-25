@@ -9,7 +9,7 @@ export const getRegisterUser = (userQuery: UserQuery) => {
     }
     // parse message
     const event = JSON.parse(message.value.toString()) as RegisteredEvent;
-
+    // console.log("aggrigator received an event:", event);
     try {
       // check event type
       switch (event.type) {

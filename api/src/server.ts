@@ -32,6 +32,7 @@ const io = new Server(http, {
     app.use(express.json()); // body parser
     app.use(session); // session
     app.use(morgan("common")); // logger
+    app.set("trust proxy", 1); // necessary as it is placed behind proxy server
 
     // connect Kafka cluster
     connectKafkaCluster(
