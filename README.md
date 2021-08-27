@@ -1,11 +1,24 @@
 # Chat App
 
-Chat App built on top of React/WebSocket/Docker(Kubernetes)
+Chat App built on top of
+
+client side:
+
+- React / Redux (TypeScript)
+- Rest API / WebSocket
+
+server side:
+
+- NodeJS (TypeScript)
+- Docker(Kubernetes)
+- Kafka
+- Redis
+- Rest API / WebSocket
 
 ### TODO
 
-- add member button
 - notify user when he/she gets added to a new chanel
+- Redis for WebScoket backend
 - test code
 - delete channel button
 - delete message button
