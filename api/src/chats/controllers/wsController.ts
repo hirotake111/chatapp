@@ -6,12 +6,21 @@ import { Queries } from "../queries/query";
 import { getCheckMember } from "./utils";
 import { validateMessage } from "../../utils/utils";
 
+// This stores user ID as key, socket object as value
+const userSession: { [key: string]: Socket } = {};
+
 export const sendExceptionToSender = (
   socket: Socket,
   payload: ExceptionPayload
 ): void => {
   // send exception event to sender
   socket.emit("exception", payload);
+};
+
+// helper function that lets user join a room, then send a event to the user
+const joinAndNotifyUser = (channelId: string, socket: Socket): void => {
+  socket.join(channelId);
+  socket.emit("joined a new room", { channelId });
 };
 
 export interface WSController {
@@ -63,6 +72,8 @@ export const getWSController = (
         // join room(s) and notify user
         socket.join(channelIds);
         socket.emit("joined channels", { channelIds });
+        // store user' WebSocket object
+        userSession[userId] = socket;
       } catch (e) {
         throw e;
       }
@@ -191,9 +202,10 @@ export const getWSController = (
             detail: `sender is not a member of channel ${channelId}`,
             timestamp: Date.now(),
           });
-        // let user join the room
-        socket.join(channelId);
-        socket.emit("joined room", { channelId });
+        // let users join the room
+        (await userQuery.getUsersByChannelId(channelId)).forEach((user) => {
+          joinAndNotifyUser(channelId, userSession[user.id]);
+        });
       } catch (e) {
         return sendExceptionToSender(socket, {
           code: 500,
