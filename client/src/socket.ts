@@ -12,11 +12,5 @@ socket.onAny((event, data) =>
   console.log("socket.onAny - event: ", event, " data: ", data)
 );
 
-socket.on("disconnect", (reason) => {
-  console.log("WebSocket disconnected - reason: ", reason);
-  console.log("Retrying connection to server...");
-  socket.connect();
-});
-
 // socket.connect();
 export { socket };

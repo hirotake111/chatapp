@@ -5,7 +5,6 @@ import { Queries } from "../queries/query";
 
 import { getCheckMember } from "./utils";
 import { validateMessage } from "../../utils/utils";
-import Channel from "../models/Channel.model";
 
 // This stores user ID as key, socket object as value
 const userSession: { [key: string]: Socket } = {};
@@ -19,9 +18,9 @@ export const sendExceptionToSender = (
 };
 
 // helper function that lets user join a room, then send a event to the user
-const joinAndNotifyUser = (channel: Channel, socket: Socket): void => {
-  socket.join(channel.id);
-  socket.emit("joined a new room", { channel });
+const joinAndNotifyUser = (channelId: string, socket: Socket): void => {
+  socket.join(channelId);
+  socket.emit("joined a new room", { channelId });
 };
 
 export interface WSController {
@@ -202,19 +201,11 @@ export const getWSController = (
             detail: `sender is not a member of channel ${channelId}`,
             timestamp: Date.now(),
           });
-        // get channel data from db
-        const channel = await channelQuery.getChannelById(channelId);
-        if (!channel)
-          return sendExceptionToSender(socket, {
-            code: 400, // bad request
-            detail: `channel not found: ${channelId}`,
-            timestamp: Date.now(),
-          });
         // let users join the room
         (await userQuery.getUsersByChannelId(channelId))
           .filter((user) => user.id !== userId)
           .forEach((user) => {
-            joinAndNotifyUser(channel, userSession[user.id]);
+            joinAndNotifyUser(channelId, userSession[user.id]);
           });
       } catch (e) {
         return sendExceptionToSender(socket, {
