@@ -1,0 +1,19 @@
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  padding: 30px;
+  background-color: #fefefe;
+  border: 1px solid #888;
+  border-radius: 10px;
+  height: 60%;
+  width: 50%;
+}
+
+.modal-content-title {
+  font-size: 1.8rem;
+  margin-bottom: 5px;
+}
+
+.modal-content-span {
+  font-size: 1.4rem;
+}

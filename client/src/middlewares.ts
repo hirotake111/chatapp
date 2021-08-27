@@ -2,9 +2,11 @@ import { MiddlewareAPI } from "@reduxjs/toolkit";
 import { Middleware, Dispatch } from "redux";
 import {
   ChannelActionTypes,
+  ClearCandidateFromExistingChannelAction,
   GetChannelMessagesAction,
   GetMyChannelsAction,
   HighlightChannelAction,
+  UpdateMemberCandidateSearchStatusAction,
 } from "./actions/channelActions";
 import { MessageActionTypes } from "./actions/messageActions";
 import {
@@ -33,6 +35,13 @@ export const myMiddleware: Middleware =
     /**
      * middleware before next()
      */
+    if (action.type === "channel/updateMemberModal") {
+      // remove candidates and set status as "notInitiated"
+      storeApi.dispatch(ClearCandidateFromExistingChannelAction());
+      storeApi.dispatch(
+        UpdateMemberCandidateSearchStatusAction({ type: "notInitiated" })
+      );
+    }
     next(action);
     /**
      * middlewarer after next()

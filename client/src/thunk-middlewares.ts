@@ -17,6 +17,10 @@ import {
   GetChannelMessagesAction,
   HighlightChannelAction,
   ReceiveMessageAction,
+  UpdateMemberModalAction,
+  UpdateMemberCandidateSearchStatusAction,
+  AddCandidateToExistingChannelAction,
+  RemoveCandidateFromExistingChannelAction,
 } from "./actions/channelActions";
 
 import {
@@ -33,7 +37,6 @@ import {
 } from "./actions/newChannelActions";
 import { ChangeMessageBeenEditedAction } from "./actions/messageActions";
 import { RefObject } from "react";
-import { UpdateMemberModalAction } from "./actions/memberActions";
 
 export const thunkSignIn = (): AppThunk => async (dispatch) => {
   try {
@@ -306,4 +309,64 @@ export const thunkUpdateMemberModal =
   (enabled: boolean): AppThunk =>
   async (dispatch) => {
     dispatch(UpdateMemberModalAction(enabled));
+  };
+
+export const thunkUpdateMemberCandidateSearchStatus =
+  (status: UserSearchStatus): AppThunk =>
+  async (dispatch) => {
+    dispatch(UpdateMemberCandidateSearchStatusAction(status));
+  };
+
+export const thunkAddCandidateToExistingChannel =
+  (candidate: SearchedUser): AppThunk =>
+  async (dispatch) => {
+    dispatch(UpdateMemberCandidateSearchStatusAction({ type: "searchDone" }));
+    dispatch(AddCandidateToExistingChannelAction(candidate));
+  };
+
+export const thunkRemoveCandidateFromExistingChannel =
+  (candidate: SearchedUser): AppThunk =>
+  async (dispatch) => {
+    dispatch(RemoveCandidateFromExistingChannelAction(candidate));
+  };
+
+export const thunkGetUserByQuery =
+  (
+    query: string,
+    candidates: SearchedUser[],
+    channel: ChannelPayload
+  ): AppThunk =>
+  async (dispatch) => {
+    // change search status
+    dispatch(UpdateMemberCandidateSearchStatusAction({ type: "searching" }));
+    try {
+      const body = await fetch(`/api/user?q=${query}`)
+        .then((data) => data.json())
+        .catch((e) => {
+          throw e;
+        });
+      const { detail, users }: { detail: string; users: SearchedUser[] } = body;
+      // validate body
+      if (!(detail && detail === "success" && users && Array.isArray(users)))
+        return console.error("invalid response from server");
+      // filter users
+      const channelUserIds = channel.users.map((user) => user.id);
+      const candidateIds = candidates.map((c) => c.id);
+      const suggestedUsers = users
+        .filter((user) => !channelUserIds.includes(user.id))
+        .filter((user) => !candidateIds.includes(user.id));
+      // if suggested user is 0, then update status into "noUserFound"
+      if (suggestedUsers.length === 0)
+        return dispatch(
+          UpdateMemberCandidateSearchStatusAction({ type: "noUserFound" })
+        );
+      dispatch(
+        UpdateMemberCandidateSearchStatusAction({
+          type: "userFound",
+          users: suggestedUsers,
+        })
+      );
+    } catch (e) {
+      throw e;
+    }
   };

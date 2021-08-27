@@ -9,7 +9,7 @@ import {
 
 import "./SearchBoxAndCardContainer.css";
 
-export const _SearchboxAndCardContainer = ({
+const _SearchboxAndCardContainer = ({
   selectedUsers,
   updateSearchStatus,
 }: Props) => {

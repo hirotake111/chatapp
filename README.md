@@ -17,7 +17,6 @@ server side:
 
 ### TODO
 
-- notify user when he/she gets added to a new chanel
 - Add/Remove member button
 - Redis for WebScoket backend
 - test code

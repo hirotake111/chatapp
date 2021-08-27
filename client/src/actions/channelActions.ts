@@ -1,10 +1,19 @@
-import { PayloadAction } from "@reduxjs/toolkit";
+import { Action, PayloadAction } from "@reduxjs/toolkit";
 
 type GetChannelDetailType = "channel/fetchOneChannel";
 type GetMyChannelsType = "channel/fetchChannels";
 type GetChannelMessagesType = "channel/getChannelMessages";
 type HighlightChannelType = "channel/highlightChannel";
 type ReceiveMessageType = "channel/receiveMessage";
+type UpdateMemberModalType = "channel/updateMemberModal";
+type AddCandidateToExistingChannelType =
+  "channel/addCandidateToExistingChannel";
+type RemoveCandidateFromExistingChannelType =
+  "channel/removeCandidateFromExistingChannel";
+type ClearCandidateFromExistingChannelType =
+  "channel/clearCandidateFromExistingChannel";
+type UpdateMemberCandidateSearchStatusType = "channel/UpdateSearchStatus";
+type UpdateMemberButtonEnabledType = "channelUpdateMemberButtonEnabled";
 
 /**
  * Payload Types
@@ -23,6 +32,26 @@ export interface GetChannelMessagesPayload {
   detail: string;
   channel: ChannelPayload;
   messages: Message[];
+}
+
+export interface UpdateMemberModalPayload {
+  enabled: boolean;
+}
+
+export interface AddCandidateToExistingChannelPayload {
+  candidate: SearchedUser;
+}
+
+export interface RemoveCandidateFromExistingChannelPayload {
+  candidate: SearchedUser;
+}
+
+export interface UpdateMemberCandidateSearchStatusPayload {
+  status: UserSearchStatus;
+}
+
+export interface UpdateMemberButtonEnabledPayload {
+  enabled: boolean;
 }
 
 /**
@@ -58,12 +87,65 @@ interface ReceiveMessageActionType
   payload: Message;
 }
 
+interface UpdateMemberModalActionType
+  extends PayloadAction<UpdateMemberModalPayload, UpdateMemberModalType> {
+  type: UpdateMemberModalType;
+  payload: UpdateMemberModalPayload;
+}
+
+interface AddCandidateToExistingChannelActionType
+  extends PayloadAction<
+    AddCandidateToExistingChannelPayload,
+    AddCandidateToExistingChannelType
+  > {
+  type: AddCandidateToExistingChannelType;
+  payload: AddCandidateToExistingChannelPayload;
+}
+
+interface RemoveCandidateFromExistingChannelActionType
+  extends PayloadAction<
+    RemoveCandidateFromExistingChannelPayload,
+    RemoveCandidateFromExistingChannelType
+  > {
+  type: RemoveCandidateFromExistingChannelType;
+  payload: RemoveCandidateFromExistingChannelPayload;
+}
+
+interface ClearCandidateFromExistingChannelActionType
+  extends Action<ClearCandidateFromExistingChannelType> {
+  type: ClearCandidateFromExistingChannelType;
+}
+
+interface UpdateMemberCandidateSearchStatusActionType
+  extends PayloadAction<
+    UpdateMemberCandidateSearchStatusPayload,
+    UpdateMemberCandidateSearchStatusType
+  > {
+  type: UpdateMemberCandidateSearchStatusType;
+  payload: UpdateMemberCandidateSearchStatusPayload;
+}
+
+interface UpdateMemberButtonEnabledActionType
+  extends PayloadAction<
+    UpdateMemberButtonEnabledPayload,
+    UpdateMemberButtonEnabledType
+  > {
+  type: UpdateMemberButtonEnabledType;
+  payload: UpdateMemberButtonEnabledPayload;
+}
+
 export type ChannelActionTypes =
   | GetChannelDetailActionType
   | GetMyChannelsActionType
   | GetChannelMessagesActionType
   | HighlightChannelActionType
-  | ReceiveMessageActionType;
+  | ReceiveMessageActionType
+  | UpdateMemberModalActionType
+  | AddCandidateToExistingChannelActionType
+  | RemoveCandidateFromExistingChannelActionType
+  | ClearCandidateFromExistingChannelActionType
+  | UpdateMemberCandidateSearchStatusActionType
+  | UpdateMemberButtonEnabledActionType;
 
 /**
  * Actions
@@ -92,4 +174,44 @@ export const ReceiveMessageAction = (
 ): ReceiveMessageActionType => ({
   type: "channel/receiveMessage",
   payload,
+});
+
+export const UpdateMemberModalAction = (
+  enabled: boolean
+): UpdateMemberModalActionType => ({
+  type: "channel/updateMemberModal",
+  payload: { enabled },
+});
+
+export const AddCandidateToExistingChannelAction = (
+  candidate: SearchedUser
+): AddCandidateToExistingChannelActionType => ({
+  type: "channel/addCandidateToExistingChannel",
+  payload: { candidate },
+});
+
+export const RemoveCandidateFromExistingChannelAction = (
+  candidate: SearchedUser
+): RemoveCandidateFromExistingChannelActionType => ({
+  type: "channel/removeCandidateFromExistingChannel",
+  payload: { candidate },
+});
+
+export const ClearCandidateFromExistingChannelAction =
+  (): ClearCandidateFromExistingChannelActionType => ({
+    type: "channel/clearCandidateFromExistingChannel",
+  });
+
+export const UpdateMemberCandidateSearchStatusAction = (
+  status: UserSearchStatus
+): UpdateMemberCandidateSearchStatusActionType => ({
+  type: "channel/UpdateSearchStatus",
+  payload: { status },
+});
+
+export const UpdateMemberButtonEnabledAction = (
+  enabled: boolean
+): UpdateMemberButtonEnabledActionType => ({
+  type: "channelUpdateMemberButtonEnabled",
+  payload: { enabled },
 });

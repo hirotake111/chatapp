@@ -1,20 +1,28 @@
+import { FC, MouseEventHandler } from "react";
 import "./Modal.css";
 
-export const Modal = ({ enabled }: { enabled: boolean }) => {
-  return enabled ? (
-    <>
-      <div className="modal-background">
-        <div id="modal-content" className="modal-content">
-          <span className="modal-content-title">
-            Add new member to this channel
-          </span>
-          <span className="modal-content-span">
-            Start typing a name to add new users to your channel
-          </span>
-        </div>
-      </div>
-    </>
-  ) : (
-    <></>
+interface Props {
+  id: string;
+  enabled: boolean;
+  onClick: (enabled: boolean) => void;
+}
+
+export const Modal: FC<Props> = ({ id, enabled, onClick, children }) => {
+  const handleClickBackgrond: MouseEventHandler = (e) => {
+    const element = e.target as HTMLElement;
+    if (element.id === id) {
+      onClick(!enabled);
+    }
+  };
+
+  return (
+    <div
+      id={id}
+      className="modal-background"
+      style={{ display: enabled ? "" : "none" }}
+      onClick={handleClickBackgrond}
+    >
+      {children}
+    </div>
   );
 };

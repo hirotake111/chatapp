@@ -1,0 +1,26 @@
+.searchbox-container {
+  display: flex;
+  margin-top: 2rem;
+  margin-right: 2rem;
+  justify-content: left;
+  align-items: center;
+  height: 32px;
+}
+
+.searchbox-span {
+  margin-right: 10px;
+  font-size: 1.4rem;
+  min-width: 100px;
+}
+
+.searchbox {
+  height: 100%;
+  width: 50%;
+  border-radius: 3px;
+  background-color: #f3f2f1;
+  border: 0 solid transparent;
+}
+
+.searchbox:focus {
+  outline: none;
+}
