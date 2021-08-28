@@ -1,6 +1,6 @@
 # Chat App
 
-Chat App built on top of
+Portofolio chat app built on top of
 
 client side:
 
@@ -14,6 +14,7 @@ server side:
 - Kafka
 - Redis
 - Rest API / WebSocket
+- and Raspberry PI 
 
 ### TODO
 
