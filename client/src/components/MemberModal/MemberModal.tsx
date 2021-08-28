@@ -1,14 +1,39 @@
 import { connect, ConnectedProps } from "react-redux";
 import { RootState } from "../../store";
+
 import { thunkUpdateMemberModal } from "../../thunk-middlewares";
-import { MemberModalForm } from "../MemberModalForm/MemberModalForm";
-import { Modal } from "../Modal/Modal";
+import { CandidateListForMemberModal } from "../CandidateListForMemberModal/CandidateListForMemberModal";
+import { CustomButton } from "../CustomButton/CustomButton";
+import { MemberModalForm } from "../ModalForm/ModalForm";
+import { ModalBackground } from "../ModalBackground/ModalBackground";
+import { SearchboxForMemberModal } from "../SearchboxForMemberModal/SearchboxForMemberModal";
+import { SuggestedCardListForMemberModal } from "../SuggestedCardListForMemberModal/SuggestedCardListForMemberModal";
+
+import "./MemberModal.css";
 
 const Component = ({ enabled, updateMemberModal }: Props) => {
   return (
-    <Modal id="member-modal" enabled={enabled} onClick={updateMemberModal}>
-      <MemberModalForm />
-    </Modal>
+    <ModalBackground
+      id="member-modal"
+      enabled={enabled}
+      onClick={updateMemberModal}
+    >
+      <MemberModalForm
+        title="Add new member to this channel"
+        subtitle="Start typing a name to add new users to your channel"
+      >
+        <div className="modal-forms-compoents-buttons">
+          <div className="moda-forms-top">
+            <SearchboxForMemberModal />
+            <SuggestedCardListForMemberModal />
+            <CandidateListForMemberModal />
+          </div>
+          <div className="modal-forms-bottom">
+            <CustomButton value="save" onClick={() => {}} />
+          </div>
+        </div>
+      </MemberModalForm>
+    </ModalBackground>
   );
 };
 

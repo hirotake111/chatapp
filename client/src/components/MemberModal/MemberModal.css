@@ -1,0 +1,15 @@
+.modal-forms-compoents-buttons {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.searchbox-and-card-container {
+  display: block;
+}
+
+.modal-forms-bottom {
+  display: flex;
+  justify-content: center;
+}
