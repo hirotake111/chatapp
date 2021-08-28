@@ -4,11 +4,21 @@ import { ChannelActionTypes } from "../actions/channelActions";
 interface ChannelState {
   channels: ChannelPayload[];
   highlighted?: { id: string; name: string };
+  memberModalEnabled: boolean;
+  candidates: SearchedUser[];
+  suggestions: SearchedUser[];
+  searchStatus: UserSearchStatus;
+  addMemberButtonEnabled: boolean;
 }
 
 export const initialChannelState: ChannelState = {
   channels: [],
   highlighted: undefined,
+  memberModalEnabled: false,
+  candidates: [],
+  suggestions: [],
+  searchStatus: { type: "notInitiated" },
+  addMemberButtonEnabled: true,
 };
 
 export const channelReducer: Reducer<ChannelState, ChannelActionTypes> = (
@@ -56,6 +66,32 @@ export const channelReducer: Reducer<ChannelState, ChannelActionTypes> = (
       const updated = { ...channel, messages: [...channel.messages, message] };
       return { ...state, channels: [...others, updated] };
     }
+
+    case "channel/addCandidateToExistingChannel":
+      return {
+        ...state,
+        candidates: [...state.candidates, action.payload.candidate],
+      };
+
+    case "channel/removeCandidateFromExistingChannel":
+      return {
+        ...state,
+        candidates: state.candidates.filter(
+          (candidate) => candidate.id !== action.payload.candidate.id
+        ),
+      };
+
+    case "channel/clearCandidateFromExistingChannel":
+      return { ...state, candidates: [] };
+
+    case "channel/updateMemberModal":
+      return { ...state, memberModalEnabled: action.payload.enabled };
+
+    case "channel/UpdateSearchStatus":
+      return { ...state, searchStatus: action.payload.status };
+
+    case "channel/UpdateMemberButtonEnabled":
+      return { ...state, addMemberButtonEnabled: action.payload.enabled };
 
     default:
       return state;

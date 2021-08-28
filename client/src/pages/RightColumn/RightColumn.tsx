@@ -11,7 +11,7 @@ import { ChatTextarea } from "../../components/ChatTextarea/ChatTextarea";
 // import { MessageContainerItem } from "../MessageContainer/MessageContainerItem";
 import { PaperPlaneIcon } from "../../components/PaperPlaneIcon/PaperPlaneIcon";
 import { ChatPane } from "../../components/ChatPane/ChatPane";
-import { CustomButton } from "../../components/CustomButton/CustomButton";
+import { Button } from "../../components/Button/Button";
 
 import "./RightColumn.css";
 import { MouseEventHandler } from "react";
@@ -71,10 +71,11 @@ const RColumn = ({
           {highlighted ? highlighted.name : " "}
         </span>
         <div className="add-member-button-container">
-          <CustomButton
+          <Button
             value="ADD USERS"
+            enabled={true}
             onClick={handleClickAddMemberButton}
-          ></CustomButton>
+          ></Button>
         </div>
       </div>
       {highlighted && sender.userId ? (

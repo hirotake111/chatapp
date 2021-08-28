@@ -42,7 +42,7 @@ jobs:
         env:
           DEPLOYMENT: ${{ secrets.DEPLOYMENT_NAME_API }}
           CONTAINER: ${{ secrets.KUBE_CONTAINER_NAME_API }}
-          IMAGE: ${{ secrets.DOCKER_IMAGE_TAG_NAME_API }}
+          IMAGE: ${{ secrets.DOCKER_IMAGE_TAG_NAME_API }}:latest
         with:
           config: ${{ secrets.KUBE_CONFIG_DATA }}
           version: v1.22.1

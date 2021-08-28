@@ -1,15 +1,17 @@
 import { MouseEventHandler } from "react";
-import "./CustomButton.css";
+import "./Button.css";
 
-export const CustomButton = ({
+export const Button = ({
   value,
+  enabled,
   onClick,
 }: {
   value: string;
+  enabled: boolean;
   onClick: MouseEventHandler<HTMLButtonElement>;
 }) => {
   return (
-    <button className="new-channel-button" onClick={onClick}>
+    <button className="button" onClick={onClick} disabled={!enabled}>
       {value}
     </button>
   );

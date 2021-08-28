@@ -7,7 +7,7 @@ import {
 
 import { RootState } from "../../store";
 import { ChannelItem } from "../../components/ChannelItem/ChannelItem";
-import { CustomButton } from "../../components/CustomButton/CustomButton";
+import { Button } from "../../components/Button/Button";
 
 import "./LeftColumn.css";
 import { useEffect } from "react";
@@ -83,7 +83,8 @@ const _LeftColumn = ({
         )}
       </div>
       <div className="new-channel-button-container">
-        <CustomButton
+        <Button
+          enabled={true}
           value="NEW CHANNEL"
           onClick={handleNewChannelButtonClick}
         />

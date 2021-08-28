@@ -46,7 +46,7 @@ jobs:
         with:
           config: ${{ secrets.KUBE_CONFIG_DATA }}
           version: v1.22.1
-          command: set image $DEPLOYMENT $CONTAINER=$IMAGE
+          command: set image $DEPLOYMENT $CONTAINER=$IMAGE:latest
 
       - name: Verify deployment
         if: ${{ success() }}
