@@ -1,7 +1,7 @@
 import { MouseEventHandler } from "react";
-import "./CustomButton.css";
+import "./Button.css";
 
-export const CustomButton = ({
+export const Button = ({
   value,
   onClick,
 }: {

@@ -3,7 +3,7 @@ import { RootState } from "../../store";
 
 import { thunkUpdateMemberModal } from "../../thunk-middlewares";
 import { CandidateListForMemberModal } from "../CandidateListForMemberModal/CandidateListForMemberModal";
-import { CustomButton } from "../CustomButton/CustomButton";
+import { Button } from "../Button/Button";
 import { MemberModalForm } from "../ModalForm/ModalForm";
 import { ModalBackground } from "../ModalBackground/ModalBackground";
 import { SearchboxForMemberModal } from "../SearchboxForMemberModal/SearchboxForMemberModal";
@@ -29,7 +29,7 @@ const Component = ({ enabled, updateMemberModal }: Props) => {
             <CandidateListForMemberModal />
           </div>
           <div className="modal-forms-bottom">
-            <CustomButton value="save" onClick={() => {}} />
+            <Button value="save" onClick={() => {}} />
           </div>
         </div>
       </MemberModalForm>
