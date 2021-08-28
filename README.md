@@ -17,7 +17,6 @@ server side:
 
 ### TODO
 
-- Add/Remove member button
 - Redis for WebScoket backend
 - test code
 - delete channel button

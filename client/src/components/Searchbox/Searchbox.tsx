@@ -27,7 +27,7 @@ export const Searchbox = ({
       return;
     }
     // set current value
-    let query = searchbox.current.value;
+    const query = searchbox.current.value;
     setTimeout(() => {
       // after milliseconds passed, check current value
       // if same, invoke searchbox change callback

@@ -90,6 +90,9 @@ export const channelReducer: Reducer<ChannelState, ChannelActionTypes> = (
     case "channel/UpdateSearchStatus":
       return { ...state, searchStatus: action.payload.status };
 
+    case "channel/UpdateMemberButtonEnabled":
+      return { ...state, addMemberButtonEnabled: action.payload.enabled };
+
     default:
       return state;
   }

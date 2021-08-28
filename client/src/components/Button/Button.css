@@ -1,4 +1,4 @@
-.new-channel-button {
+.button {
   padding: 5px;
   height: 30px;
   border-color: #7c83fd;
@@ -10,9 +10,19 @@
   border-width: 0px;
   transition: 300ms;
 }
-.new-channel-button:hover {
+.button:hover {
   background-color: #fff;
   color: #7c83fd;
   border: 1px solid #7c83fd;
   transition: 300ms;
+}
+
+.button:disabled {
+  background-color: #5f5f68;
+}
+
+.button:disabled:hover {
+  background-color: #5f5f68;
+  color: #fff;
+  border: none;
 }

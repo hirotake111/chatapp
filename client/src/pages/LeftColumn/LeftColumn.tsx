@@ -83,7 +83,11 @@ const _LeftColumn = ({
         )}
       </div>
       <div className="new-channel-button-container">
-        <Button value="NEW CHANNEL" onClick={handleNewChannelButtonClick} />
+        <Button
+          enabled={true}
+          value="NEW CHANNEL"
+          onClick={handleNewChannelButtonClick}
+        />
       </div>
     </div>
   );

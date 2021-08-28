@@ -1,7 +1,10 @@
 import { connect, ConnectedProps } from "react-redux";
 import { RootState } from "../../store";
 
-import { thunkUpdateMemberModal } from "../../thunk-middlewares";
+import {
+  thunkAddMemberToChannel,
+  thunkUpdateMemberModal,
+} from "../../thunk-middlewares";
 import { CandidateListForMemberModal } from "../CandidateListForMemberModal/CandidateListForMemberModal";
 import { Button } from "../Button/Button";
 import { MemberModalForm } from "../ModalForm/ModalForm";
@@ -11,7 +14,14 @@ import { SuggestedCardListForMemberModal } from "../SuggestedCardListForMemberMo
 
 import "./MemberModal.css";
 
-const Component = ({ enabled, updateMemberModal }: Props) => {
+const Component = ({
+  enabled,
+  candidates,
+  buttonEnabled,
+  highlighted,
+  updateMemberModal,
+  addMember,
+}: Props) => {
   return (
     <ModalBackground
       id="member-modal"
@@ -29,7 +39,16 @@ const Component = ({ enabled, updateMemberModal }: Props) => {
             <CandidateListForMemberModal />
           </div>
           <div className="modal-forms-bottom">
-            <Button value="save" onClick={() => {}} />
+            <Button
+              value="save"
+              enabled={buttonEnabled}
+              onClick={() =>
+                addMember(
+                  candidates.map((c) => c.id),
+                  highlighted
+                )
+              }
+            />
           </div>
         </div>
       </MemberModalForm>
@@ -39,10 +58,14 @@ const Component = ({ enabled, updateMemberModal }: Props) => {
 
 const mapStateToProps = (state: RootState) => ({
   enabled: state.channel.memberModalEnabled,
+  candidates: state.channel.candidates,
+  buttonEnabled: state.channel.addMemberButtonEnabled,
+  highlighted: state.channel.highlighted,
 });
 
 const mapDispatchToProps = {
   updateMemberModal: thunkUpdateMemberModal,
+  addMember: thunkAddMemberToChannel,
 };
 
 const connector = connect(mapStateToProps, mapDispatchToProps);

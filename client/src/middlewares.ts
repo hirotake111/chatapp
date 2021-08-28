@@ -6,6 +6,7 @@ import {
   GetChannelMessagesAction,
   GetMyChannelsAction,
   HighlightChannelAction,
+  UpdateMemberButtonEnabledAction,
   UpdateMemberCandidateSearchStatusAction,
 } from "./actions/channelActions";
 import { MessageActionTypes } from "./actions/messageActions";
@@ -41,6 +42,7 @@ export const myMiddleware: Middleware =
       storeApi.dispatch(
         UpdateMemberCandidateSearchStatusAction({ type: "notInitiated" })
       );
+      storeApi.dispatch(UpdateMemberButtonEnabledAction(true));
     }
     next(action);
     /**

@@ -21,6 +21,7 @@ import {
   UpdateMemberCandidateSearchStatusAction,
   AddCandidateToExistingChannelAction,
   RemoveCandidateFromExistingChannelAction,
+  UpdateMemberButtonEnabledAction,
 } from "./actions/channelActions";
 
 import {
@@ -272,10 +273,9 @@ export const thunkCreateChannel =
         if (count > 3) {
           // stop the network call
           clearTimeout(timeout);
-          dispatch(
+          return dispatch(
             UpdateCreateChannelStatusAction("Error: failed to create channel")
           );
-          return;
         }
         try {
           // get channel detail. This will throw an error if response code !== 200
@@ -368,5 +368,68 @@ export const thunkGetUserByQuery =
       );
     } catch (e) {
       throw e;
+    }
+  };
+
+export const thunkAddMemberToChannel =
+  (
+    memberIds: string[],
+    channel: { id: string; name: string } | undefined
+  ): AppThunk =>
+  async (dispatch) => {
+    // if no candidate, return
+    if (memberIds.length === 0) return;
+    // if no channel ID, return
+    const channelId = channel?.id;
+    if (!channelId) {
+      console.error("invalid channel ID");
+      return;
+    }
+    try {
+      // disable button
+      dispatch(UpdateMemberButtonEnabledAction(false));
+      // post data to channel endpoint
+      const body = await fetch(`/api/channel/${channelId}/member`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userIds: memberIds }),
+      }).then((data) => data.json());
+      // validate body
+      const { detail, added }: { detail: string; added: string[] } = body;
+      if (!(detail && detail === "success"))
+        return console.error("failed to fetch data from server:", body);
+      if (
+        !(
+          added &&
+          Array.isArray(added) &&
+          added.length > 0 &&
+          typeof added[0] === "string"
+        )
+      )
+        return console.error("invalid added payload from server:", added);
+      try {
+        // fetch channel info and update UI
+        let count = 0;
+        const timeout = setInterval(async () => {
+          if (count++ > 3) {
+            console.error("failed to get channel data - timeout");
+            // stop the network call
+            clearTimeout(timeout);
+            return;
+          }
+          // get/validate channel detail.
+          // This will throw an error if response code !== 200
+          const payload = await fetchChannelDetailPayload(channelId);
+          // if succeeded, clear timeout function
+          clearTimeout(timeout);
+          dispatch(GetChannelDetailAction(payload));
+          // Enable button, clear candidate, disable modal, update channel
+          dispatch(UpdateMemberModalAction(false));
+        }, 2000);
+      } catch (e) {
+        console.error(e.message);
+      }
+    } catch (e) {
+      throw console.error(e.message);
     }
   };

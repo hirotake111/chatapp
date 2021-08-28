@@ -13,7 +13,7 @@ type RemoveCandidateFromExistingChannelType =
 type ClearCandidateFromExistingChannelType =
   "channel/clearCandidateFromExistingChannel";
 type UpdateMemberCandidateSearchStatusType = "channel/UpdateSearchStatus";
-type UpdateMemberButtonEnabledType = "channelUpdateMemberButtonEnabled";
+type UpdateMemberButtonEnabledType = "channel/UpdateMemberButtonEnabled";
 
 /**
  * Payload Types
@@ -212,6 +212,6 @@ export const UpdateMemberCandidateSearchStatusAction = (
 export const UpdateMemberButtonEnabledAction = (
   enabled: boolean
 ): UpdateMemberButtonEnabledActionType => ({
-  type: "channelUpdateMemberButtonEnabled",
+  type: "channel/UpdateMemberButtonEnabled",
   payload: { enabled },
 });

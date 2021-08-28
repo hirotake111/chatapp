@@ -73,6 +73,7 @@ const RColumn = ({
         <div className="add-member-button-container">
           <Button
             value="ADD USERS"
+            enabled={true}
             onClick={handleClickAddMemberButton}
           ></Button>
         </div>
