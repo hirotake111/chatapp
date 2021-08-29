@@ -58,7 +58,6 @@ export const getWSController = (
   const checkMember = getCheckMember(userQuery);
   return {
     onConnection: async (io: Server, socket: Socket) => {
-      console.log("onConnect()");
       // validate user
       const { userId, username } = socket.request.session;
       if (!userId || !username) throw new Error("user is not authenticated");
