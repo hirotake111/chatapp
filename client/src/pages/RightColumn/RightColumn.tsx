@@ -71,11 +71,13 @@ const RColumn = ({
           {highlighted ? highlighted.name : " "}
         </span>
         <div className="add-member-button-container">
-          <Button
-            value="ADD USERS"
-            enabled={true}
-            onClick={handleClickAddMemberButton}
-          ></Button>
+          {!!highlighted ? (
+            <Button
+              value="ADD USERS"
+              enabled={true}
+              onClick={handleClickAddMemberButton}
+            ></Button>
+          ) : null}
         </div>
       </div>
       {highlighted && sender.userId ? (
