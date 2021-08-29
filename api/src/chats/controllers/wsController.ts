@@ -18,9 +18,15 @@ export const sendExceptionToSender = (
 };
 
 // helper function that lets user join a room, then send a event to the user
-const joinAndNotifyUser = (channelId: string, socket: Socket): void => {
-  socket.join(channelId);
-  socket.emit("joined a new room", { channelId });
+const joinAndNotifyUser = (
+  channelId: string,
+  socket: Socket | undefined
+): void => {
+  // if user is not signed in, socket should be undefined - then skip it
+  if (socket) {
+    socket.join(channelId);
+    socket.emit("joined a new room", { channelId });
+  }
 };
 
 export interface WSController {
@@ -201,12 +207,12 @@ export const getWSController = (
             timestamp: Date.now(),
           });
         // let users join the room
-        (await userQuery.getUsersByChannelId(channelId))
-          .filter((user) => user.id !== userId)
-          .forEach((user) => {
-            joinAndNotifyUser(channelId, userSession[user.id]);
-          });
+        const users = await userQuery.getUsersByChannelId(channelId);
+        users.forEach((user) => {
+          joinAndNotifyUser(channelId, userSession[user.id]);
+        });
       } catch (e) {
+        console.log(e);
         return sendExceptionToSender(socket, {
           code: 500,
           detail: e.message,
