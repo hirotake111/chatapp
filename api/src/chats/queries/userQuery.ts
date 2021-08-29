@@ -93,6 +93,7 @@ export const getUserQuery = ({
             : {
                 id: { [Op.ne]: id },
               },
+          limit: 4,
         });
         return users;
       } catch (e) {
