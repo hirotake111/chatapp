@@ -44,6 +44,7 @@ describe("wsController", () => {
       emit: jest.fn(),
     } as any;
     socket = {
+      id: userId,
       request: { session: { userId, username } },
       join: jest.fn(),
       emit: jest.fn(),
@@ -202,8 +203,8 @@ describe("wsController", () => {
         );
       try {
         await controller.onChatMessage(io, socket, data);
-        expect(mockEmit.mock.calls[0][0]).toEqual("exception");
-        expect(mockEmit.mock.calls[0][1].code).toEqual(500);
+        expect(mockEmit.mock.calls[1][0]).toEqual("exception");
+        expect(mockEmit.mock.calls[1][1].code).toEqual(500);
       } catch (e) {
         throw e;
       }

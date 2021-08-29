@@ -88,9 +88,12 @@ describe("messageController", () => {
       deleteUserById: jest.fn(),
     };
     channelQuery = {
-      getChannelById: jest
-        .fn()
-        .mockReturnValue({ id: channelId, name: nanoid() }),
+      getChannelById: jest.fn().mockReturnValue({
+        id: channelId,
+        name: nanoid(),
+        createdAt: { getTime: () => 123 },
+        updatedAt: { getTime: () => 123 },
+      }),
       getChannelByChannelIdWithMessages: jest.fn(),
       getChannelsByUserId: jest.fn(),
       createChannel: jest.fn(),

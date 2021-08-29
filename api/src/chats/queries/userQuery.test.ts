@@ -213,6 +213,7 @@ describe("userQuery", () => {
         expect(users).toEqual(otherUsers);
         expect(findAllUserMock.mock.calls[0][0]).toEqual({
           where: { id: { [Op.ne]: id } },
+          limit: 4,
         });
       } catch (e) {
         throw e;
