@@ -6,15 +6,17 @@ import { RootState } from "../../store";
 
 import "./style.css";
 
-const LoadingSpinner = ({ signIn }: Props) => {
+const LoadingSpinner = ({ signinEnabled, signIn }: Props) => {
   useEffect(() => {
-    try {
-      setTimeout(signIn, 500);
-    } catch (e) {
-      console.log("error");
-      throw e;
+    if (signinEnabled) {
+      try {
+        setTimeout(signIn, 500);
+      } catch (e) {
+        console.log("errror while signing in:", e.mesage);
+        throw e;
+      }
     }
-  }, [signIn]);
+  }, [signinEnabled, signIn]);
 
   return (
     <div className="loading-parent">
@@ -34,6 +36,6 @@ const mapDispatchToProps = {
 const connector = connect(mapStateToProps, mapDispatchToProps);
 
 type PropsFromRedux = ConnectedProps<typeof connector>;
-type Props = PropsFromRedux & {};
+type Props = PropsFromRedux & { signinEnabled: boolean };
 
 export default connect(mapStateToProps, mapDispatchToProps)(LoadingSpinner);
