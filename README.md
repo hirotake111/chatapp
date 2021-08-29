@@ -18,6 +18,8 @@ server side:
 - Rest API / WebSocket
 - and Raspberry PI
 
+Currently mobie device is not suported.
+
 ### [Demo](https://chat.hiro.one) (username/password)
 
 - alex/qwer1234
