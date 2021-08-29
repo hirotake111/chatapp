@@ -13,11 +13,12 @@ server side:
 - Docker(Kubernetes & Raspberry PI)
 - Kafka
 - Redis
-- Open ID Connect
-- Rest API / WebSocket
-- and Raspberry PI 
+- Open ID Connect ([repo](https://github.com/hirotake111/oidc-provider-typescript))
 
-### Demo (username/password)
+- Rest API / WebSocket
+- and Raspberry PI
+
+### [Demo](https://chat.hiro.one) (username/password)
 
 - alex/qwer1234
 - megan/qwer1234
