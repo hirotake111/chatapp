@@ -199,7 +199,7 @@ describe("userController", () => {
 
     beforeEach(() => {
       userId = uuid();
-      req = { session: { userId } } as any;
+      req = { session: { userId }, query: { q: "something" } } as any;
       res = {
         status: jest.fn().mockReturnThis(),
         send: jest.fn(),
