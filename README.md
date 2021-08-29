@@ -10,14 +10,21 @@ client side:
 server side:
 
 - NodeJS (TypeScript)
-- Docker(Kubernetes)
+- Docker(Kubernetes & Raspberry PI)
 - Kafka
 - Redis
+- Open ID Connect
 - Rest API / WebSocket
 - and Raspberry PI 
 
+### Demo (username/password)
+
+- alex/qwer1234
+- megan/qwer1234
+
 ### TODO
 
+- disable [add user] button if user belongs no channels
 - Redis for WebScoket backend
 - test code
 - delete channel button
