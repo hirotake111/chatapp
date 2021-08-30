@@ -20,11 +20,6 @@ server side:
 
 Currently mobie device is not suported.
 
-### [Demo](https://chat.hiro.one) (username/password)
-
-- alex/qwer1234
-- megan/qwer1234
-
 ### TODO
 
 - disable [add user] button if user belongs no channels
