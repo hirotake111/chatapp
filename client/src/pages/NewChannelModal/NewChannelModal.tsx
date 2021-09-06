@@ -1,8 +1,8 @@
 import { ChangeEventHandler, MouseEvent } from "react";
 import { connect, ConnectedProps } from "react-redux";
-import { SuggestedUser } from "../../components/SuggestedUser/SuggestedUser";
+import { SuggestedUser } from "../../components/Search/SuggestedUser/SuggestedUser";
 
-import { RootState } from "../../store";
+import { RootState } from "../../utils/store";
 import {
   thunkCreateChannel,
   thunkHideNewChannelModal,
@@ -10,7 +10,7 @@ import {
   thunkRemoveSuggestedUser,
   thunkUpdateChannelName,
   thunkUpdateCreateButtonStatus,
-} from "../../thunk-middlewares";
+} from "../../utils/thunk-middlewares";
 import { SearchboxAndCardContainer } from "../SearchBoxAndCardContainer/SearchBoxAndCardContainer";
 
 import "./NewChannelModal.css";

@@ -3,11 +3,11 @@ import {
   thunkGetChannelMessages,
   thunkGetMyChannels,
   thunkShowNewChannelModal,
-} from "../../thunk-middlewares";
+} from "../../utils/thunk-middlewares";
 
-import { RootState } from "../../store";
-import { ChannelItem } from "../../components/ChannelItem/ChannelItem";
-import { Button } from "../../components/Button/Button";
+import { RootState } from "../../utils/store";
+import { ChannelItem } from "../../components/Channel/ChannelItem/ChannelItem";
+import { Button } from "../../components/Common/Button/Button";
 
 import "./LeftColumn.css";
 import { useEffect } from "react";

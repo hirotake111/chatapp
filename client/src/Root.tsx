@@ -2,7 +2,7 @@ import { connect, ConnectedProps } from "react-redux";
 
 import App from "./App";
 
-import { RootState } from "./store";
+import { RootState } from "./utils/store";
 
 const mapStateToProps = (state: RootState) => ({
   user: state.user,
