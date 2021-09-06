@@ -18,11 +18,6 @@ server side:
 - Rest API / WebSocket
 - and Raspberry PI
 
-### [Demo](https://chat.hiro.one) (username/password)
-
-- alex/qwer1234
-- megan/qwer1234
-
 ### TODO
 
 - disable [add user] button if user belongs no channels

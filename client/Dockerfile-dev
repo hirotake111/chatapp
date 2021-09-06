@@ -9,7 +9,7 @@ COPY ./tsconfig.json /app/
 COPY .env /app/
 
 # Install dev modules
-RUN npm install
+RUN npm install --no-optional
 
 # Copy and compile files
 COPY src /app/src

@@ -160,7 +160,8 @@ export const getChannelMessages = async (channelId: string) => {
     const payload = validateGetChannelMessagesPayload(body);
     return payload;
   } catch (e) {
-    throw new Error(e);
+    if (e instanceof Error) throw e;
+    else throw e;
   }
 };
 

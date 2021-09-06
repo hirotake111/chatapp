@@ -223,7 +223,9 @@ export const thunkUpdateSearchStatus =
         );
       }, 1000);
     } catch (e) {
-      console.error(e.message);
+      if (e instanceof Error) {
+        console.error(e.message);
+      } else throw e;
     }
   };
 
@@ -291,11 +293,15 @@ export const thunkCreateChannel =
           // join the channel (room)
           socket.emit("join new room", { channelId: payload.channel.id });
         } catch (e) {
-          console.error(e.message);
+          if (e instanceof Error) {
+            console.error(e.message);
+          } else throw e;
         }
       }, 2000);
     } catch (e) {
-      console.error(e.message);
+      if (e instanceof Error) {
+        console.error(e.message);
+      } else throw e;
     }
   };
 
@@ -427,9 +433,13 @@ export const thunkAddMemberToChannel =
           dispatch(UpdateMemberModalAction(false));
         }, 2000);
       } catch (e) {
-        console.error(e.message);
+        if (e instanceof Error) {
+          console.error(e.message);
+        } else throw e;
       }
     } catch (e) {
-      throw console.error(e.message);
+      if (e instanceof Error) {
+        console.error(e.message);
+      } else throw e;
     }
   };
