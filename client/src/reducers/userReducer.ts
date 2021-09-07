@@ -26,7 +26,7 @@ export const userReducer: Reducer<UserState, UserActionTypes> = (
   switch (action.type) {
     // sign in action
     case "user/signedIn":
-      console.log("payload: ", action.payload);
+      // console.log("payload: ", action.payload);
       return {
         isAuthenticated: true,
         userInfo: { ...action.payload },

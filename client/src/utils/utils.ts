@@ -146,7 +146,9 @@ export const validateGetChannelMessagesPayload = (
   };
 };
 
-export const getChannelMessages = async (channelId: string) => {
+export const getChannelMessages = async (
+  channelId: string
+): Promise<GetChannelMessagesPayload> => {
   // validate channnel ID
   if (!validate(channelId)) throw new Error(`invalid channel ID: ${channelId}`);
   try {
@@ -187,6 +189,20 @@ export const fetchChannelDetailPayload = async (
     const body = await response.json();
     // validate payload
     return validateGetChannelDetailPayload(body);
+  } catch (e) {
+    throw e;
+  }
+};
+
+/**
+ * gets data from server and returns body, or redirect to auth server when it gets HTTP 401
+ */
+export const getData = async (url: string): Promise<any> => {
+  try {
+    const res = await fetch(url);
+    const body = await res.json();
+    if (res.status === 401) return window.location.replace(body.location);
+    return body;
   } catch (e) {
     throw e;
   }

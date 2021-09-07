@@ -2,13 +2,13 @@ import { v4 as uuid } from "uuid";
 import { AppThunk } from "./store";
 
 import { socket } from "./socket";
-import { UserInfoType } from "../reducers/userReducer";
 import {
   validateGetChannelDetailPayload,
   validateGetMyChannelsPayload,
   getChannelMessages,
   validateSearchSuggestionUser,
   fetchChannelDetailPayload,
+  getData,
 } from "./utils";
 import { userSignInAction } from "../actions/userActions";
 import {
@@ -38,14 +38,13 @@ import {
 } from "../actions/newChannelActions";
 import { ChangeMessageBeenEditedAction } from "../actions/messageActions";
 import { RefObject } from "react";
+import { validateUserInfo } from "./validators";
 
 export const thunkSignIn = (): AppThunk => async (dispatch) => {
   try {
-    const res = await fetch("/api/user/me");
-    const body = await res.json();
-    if (res.status === 401) return window.location.replace(body.location);
-
-    dispatch(userSignInAction(body as UserInfoType));
+    const body = await getData("/api/user/me");
+    const userInfo = validateUserInfo(body);
+    dispatch(userSignInAction(userInfo));
   } catch (e) {
     throw e;
   }
