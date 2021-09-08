@@ -9,13 +9,14 @@ import "./style.css";
 const LoadingSpinner = ({ signinEnabled, signIn }: Props) => {
   useEffect(() => {
     if (signinEnabled) {
-      try {
-        setTimeout(signIn, 500);
-      } catch (e) {
-        if (e instanceof Error)
-          console.log("errror while signing in:", e.message);
-        throw e;
-      }
+      setTimeout(async () => {
+        try {
+          await signIn();
+        } catch (e) {
+          if (e instanceof Error) return console.error(e.message);
+          throw e;
+        }
+      }, 500);
     }
   }, [signinEnabled, signIn]);
 
