@@ -198,10 +198,21 @@ export const fetchChannelDetailPayload = async (
  * gets data from server and returns body, or redirect to auth server when it gets HTTP 401
  */
 export const getData = async (url: string): Promise<any> => {
+  const asyncWait = (milliseconds: number): Promise<void> => {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve(), milliseconds);
+    });
+  };
+
   try {
     const res = await fetch(url);
     const body = await res.json();
-    if (res.status === 401) return window.location.replace(body.location);
+    if (res.status === 401) {
+      window.location.replace(body.location);
+      // wait for a few seconds to prevent app from clashing with invalid body
+      await asyncWait(1000);
+      return body;
+    }
     return body;
   } catch (e) {
     throw e;
