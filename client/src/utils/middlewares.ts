@@ -57,10 +57,14 @@ export const myMiddleware: Middleware =
         action.payload.channels[0]
       );
       if (latestChannel) {
-        // get messages in the channel
-        const payload = await getChannelMessages(latestChannel.id);
-        // dispatch GetChannelMessagesAction to update store
-        storeApi.dispatch(GetChannelMessagesAction(payload));
+        try {
+          // get messages in the channel
+          const payload = await getChannelMessages(latestChannel.id);
+          // dispatch GetChannelMessagesAction to update store
+          storeApi.dispatch(GetChannelMessagesAction(payload));
+        } catch (e) {
+          console.error(e);
+        }
       }
     }
     if (action.type === "channel/getChannelMessages") {
@@ -105,7 +109,6 @@ export const myMiddleware: Middleware =
       // then add the channel to channel state
       storeApi.dispatch(
         GetMyChannelsAction({
-          detail: "success",
           channels: [
             action.payload.newChannel,
             ...storeApi.getState().channel.channels,

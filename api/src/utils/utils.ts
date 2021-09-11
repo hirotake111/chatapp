@@ -11,7 +11,7 @@ export const validateMessage = (data: Message): boolean => {
   if (!(sender.id && typeof sender.id === "string" && validate(sender.id)))
     return false;
   // sender.name field
-  if (!(sender.name && typeof sender.name === "string")) return false;
+  if (!(sender.username && typeof sender.username === "string")) return false;
   // createdAt field
   if (!(createdAt && typeof createdAt === "number")) return false;
   // updatedAt field

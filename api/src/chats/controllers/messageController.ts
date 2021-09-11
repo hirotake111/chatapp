@@ -79,7 +79,7 @@ export const getMessageController = (
           messages,
         });
       } catch (e) {
-        return res.status(500).send({ detail: e.message });
+        return res.status(500).send({ detail: e });
       }
     },
 
@@ -139,7 +139,7 @@ export const getMessageController = (
           },
         });
       } catch (e) {
-        return res.status(500).send({ detail: e.message });
+        return res.status(500).send({ detail: e });
       }
     },
 
@@ -166,7 +166,7 @@ export const getMessageController = (
         if (await messageQuery.getSpecificMessage(messageId, channelId))
           return res.status(400).send({ detail: "message ID already exists" });
         // create message
-        const sender = { id: requesterId, name: username };
+        const sender = { id: requesterId, username };
         const event: MessageCreatedEvent = {
           type: "MessageCreated",
           metadata: { traceId: uuid(), timestamp: Date.now() },
@@ -186,9 +186,12 @@ export const getMessageController = (
           },
         });
       } catch (e) {
-        const statusCode =
-          e.message === `channel ID ${channelId} doesn't exist` ? 400 : 500;
-        return res.status(statusCode).send({ detail: e.message });
+        if (
+          e instanceof Error &&
+          e.message === `channel ID ${channelId} doesn't exist`
+        )
+          return res.status(400).send({ detail: e.message });
+        return res.status(500).send({ detail: e });
       }
     },
 
@@ -220,7 +223,7 @@ export const getMessageController = (
             .status(400)
             .send({ detail: "you can't edit other user's message" });
         // update the message
-        const sender = { id: requesterId, name: username };
+        const sender = { id: requesterId, username };
         const event: MessageUpdatedEvent = {
           type: "MessageUpdated",
           metadata: { traceId: uuid(), timestamp: Date.now() },
@@ -232,7 +235,7 @@ export const getMessageController = (
         });
         return res.status(200).send({ detail: "success" });
       } catch (e) {
-        return res.status(500).send({ detail: e.message });
+        return res.status(500).send({ detail: e });
       }
     },
 
@@ -269,7 +272,7 @@ export const getMessageController = (
             .status(400)
             .send({ detail: "you can't edit other user's message" });
         // const count = await messageQuery.deleteMessage(messageId);
-        const sender = { id: requesterId, name: username };
+        const sender = { id: requesterId, username };
         const event: MessageDeletedEvent = {
           type: "MessageDeleted",
           metadata: { traceId: uuid(), timestamp: Date.now() },
@@ -281,7 +284,7 @@ export const getMessageController = (
         });
         return res.status(204).send();
       } catch (e) {
-        return res.status(500).send({ detail: e.message });
+        return res.status(500).send({ detail: e });
       }
     },
   };

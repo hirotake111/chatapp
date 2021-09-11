@@ -27,9 +27,11 @@ export const channelReducer: Reducer<ChannelState, ChannelActionTypes> = (
 ): ChannelState => {
   switch (action.type) {
     case "channel/fetchOneChannel": {
-      const { channel } = action.payload;
-      const others = state.channels.filter(({ id }) => id !== channel.id);
-      return { ...state, channels: [...others, channel] };
+      // const { channel } = action.payload;
+      const others = state.channels.filter(
+        ({ id }) => id !== action.payload.id
+      );
+      return { ...state, channels: [...others, action.payload] };
     }
 
     case "channel/fetchChannels":

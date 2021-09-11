@@ -15,7 +15,7 @@ declare interface Message {
   updatedAt: number;
   sender: {
     id: string;
-    name: string;
+    username: string;
     displayName?: string;
     firstName?: string;
     lastName?: string;

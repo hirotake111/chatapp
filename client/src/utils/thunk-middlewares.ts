@@ -38,12 +38,17 @@ import {
 } from "../actions/newChannelActions";
 import { ChangeMessageBeenEditedAction } from "../actions/messageActions";
 import { RefObject } from "react";
-import { validateUserInfo } from "./validators";
+import { validateData } from "./validators";
+import { UserInfoType } from "../reducers/userReducer";
 
 export const thunkSignIn = (): AppThunk => async (dispatch) => {
   try {
     const body = await getData("/api/user/me");
-    const userInfo = validateUserInfo(body);
+    const userInfo = validateData<UserInfoType>(body, {
+      userId: { type: "string", isUUID: true },
+      username: { type: "string" },
+      displayName: { type: "string" },
+    });
     dispatch(userSignInAction(userInfo));
   } catch (e) {
     throw e;
@@ -54,17 +59,7 @@ export const thunkGetChannelDetail =
   (channelId: string): AppThunk =>
   async (dispatch) => {
     try {
-      // get channel detail from API server
-      const res = await fetch(`/api/channel/${channelId}`);
-      const body = await res.json();
-      // if status code is 4xx or 5xx alert it
-      if (res.status >= 400) {
-        console.error(`error code: ${res.status}`);
-        console.error("body: ", body);
-        return;
-      }
-      // validate payload
-      const payload = validateGetChannelDetailPayload(body);
+      const payload = await fetchChannelDetailPayload(channelId);
       // dispatch actio
       dispatch(GetChannelDetailAction(payload));
     } catch (e) {
@@ -137,7 +132,7 @@ export const thunkSendMessage =
     // generate new message ID
     const chatMessage: Message = {
       id: uuid(),
-      sender: { id: sender.id, name: sender.username },
+      sender: { id: sender.id, username: sender.username },
       createdAt: Date.now(),
       updatedAt: Date.now(),
       channelId,
@@ -280,7 +275,7 @@ export const thunkCreateChannel =
         }
         try {
           // get channel detail. This will throw an error if response code !== 200
-          const payload = await fetchChannelDetailPayload(channelId);
+          const channel = await fetchChannelDetailPayload(channelId);
           // if succeeded, do the followning code
           // console.warn(payload);
           // stop network call
@@ -288,9 +283,9 @@ export const thunkCreateChannel =
           // hide modal
           dispatch(hideNewChannelModalAction());
           // update channel state
-          dispatch(CreateChannelAction(payload.channel));
+          dispatch(CreateChannelAction(channel));
           // join the channel (room)
-          socket.emit("join new room", { channelId: payload.channel.id });
+          socket.emit("join new room", { channelId: channel.id });
         } catch (e) {
           if (e instanceof Error) {
             console.error(e.message);
