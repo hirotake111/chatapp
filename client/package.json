@@ -28,7 +28,8 @@
     "build": "react-scripts build",
     "prebuild": "tslint -c tslint.json -p tsconfig.json --fix",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "coverage": "npm test -- --coverage --watchAll=false"
   },
   "eslintConfig": {
     "extends": [

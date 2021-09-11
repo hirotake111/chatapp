@@ -14,7 +14,7 @@ const getMessage = (channelId: string): Message => ({
   updatedAt: Math.floor(Math.random() * 1000),
   sender: {
     id: uuid(),
-    username: nanoid(),
+    name: nanoid(),
     displayName: nanoid(),
   },
 });
@@ -41,7 +41,8 @@ describe("test", () => {
     try {
       validateGetChannelMessagesPayload(data);
     } catch (e) {
-      expect(e.message).toEqual("invalid detail property: undefined");
+      if (e instanceof Error)
+        expect(e.message).toEqual("invalid detail property: undefined");
     }
   });
 
@@ -51,7 +52,8 @@ describe("test", () => {
     try {
       validateGetChannelMessagesPayload(data);
     } catch (e) {
-      expect(e.message).toEqual("invalid channel property: undefined");
+      if (e instanceof Error)
+        expect(e.message).toEqual("invalid channel property: undefined");
     }
   });
 
@@ -61,19 +63,22 @@ describe("test", () => {
       data.channel.id = null;
       validateGetChannelMessagesPayload(data);
     } catch (e) {
-      expect(e.message).toEqual("invalid channel.id property: null");
+      if (e instanceof Error)
+        expect(e.message).toEqual("invalid channel.id property: null");
     }
     try {
       data.channel.id = 123;
       validateGetChannelMessagesPayload(data);
     } catch (e) {
-      expect(e.message).toEqual("invalid channel.id property: 123");
+      if (e instanceof Error)
+        expect(e.message).toEqual("invalid channel.id property: 123");
     }
     try {
       data.channel.id = "xxxx";
       validateGetChannelMessagesPayload(data);
     } catch (e) {
-      expect(e.message).toEqual("invalid channel.id property: xxxx");
+      if (e instanceof Error)
+        expect(e.message).toEqual("invalid channel.id property: xxxx");
     }
   });
 
@@ -83,13 +88,15 @@ describe("test", () => {
       data.channel.name = undefined;
       validateGetChannelMessagesPayload(data);
     } catch (e) {
-      expect(e.message).toEqual("invalid channel.name property: undefined");
+      if (e instanceof Error)
+        expect(e.message).toEqual("invalid channel.name property: undefined");
     }
     try {
       data.channel.name = 123;
       validateGetChannelMessagesPayload(data);
     } catch (e) {
-      expect(e.message).toEqual("invalid channel.name property: 123");
+      if (e instanceof Error)
+        expect(e.message).toEqual("invalid channel.name property: 123");
     }
   });
 
@@ -99,13 +106,15 @@ describe("test", () => {
       data.messages = undefined;
       validateGetChannelMessagesPayload(data);
     } catch (e) {
-      expect(e.message).toEqual("invalid messages property: undefined");
+      if (e instanceof Error)
+        expect(e.message).toEqual("invalid messages property: undefined");
     }
     try {
       data.messages = "msg";
       validateGetChannelMessagesPayload(data);
     } catch (e) {
-      expect(e.message).toEqual("invalid messages property: msg");
+      if (e instanceof Error)
+        expect(e.message).toEqual("invalid messages property: msg");
     }
   });
 
@@ -115,19 +124,22 @@ describe("test", () => {
       data.messages[0].id = undefined;
       validateGetChannelMessagesPayload(data);
     } catch (e) {
-      expect(e.message).toEqual("invalid message.id property: undefined");
+      if (e instanceof Error)
+        expect(e.message).toEqual("invalid message.id property: undefined");
     }
     try {
       data.messages[0].id = 123;
       validateGetChannelMessagesPayload(data);
     } catch (e) {
-      expect(e.message).toEqual("invalid message.id property: 123");
+      if (e instanceof Error)
+        expect(e.message).toEqual("invalid message.id property: 123");
     }
     try {
       data.messages[0].id = "xxxx";
       validateGetChannelMessagesPayload(data);
     } catch (e) {
-      expect(e.message).toEqual("invalid message.id property: xxxx");
+      if (e instanceof Error)
+        expect(e.message).toEqual("invalid message.id property: xxxx");
     }
   });
 
@@ -137,21 +149,24 @@ describe("test", () => {
       data.messages[0].channelId = undefined;
       validateGetChannelMessagesPayload(data);
     } catch (e) {
-      expect(e.message).toEqual(
-        "invalid message.channelId property: undefined"
-      );
+      if (e instanceof Error)
+        expect(e.message).toEqual(
+          "invalid message.channelId property: undefined"
+        );
     }
     try {
       data.messages[0].channelId = 123;
       validateGetChannelMessagesPayload(data);
     } catch (e) {
-      expect(e.message).toEqual("invalid message.channelId property: 123");
+      if (e instanceof Error)
+        expect(e.message).toEqual("invalid message.channelId property: 123");
     }
     try {
       data.messages[0].channelId = "xxxx";
       validateGetChannelMessagesPayload(data);
     } catch (e) {
-      expect(e.message).toEqual("invalid message.channelId property: xxxx");
+      if (e instanceof Error)
+        expect(e.message).toEqual("invalid message.channelId property: xxxx");
     }
   });
 
@@ -161,13 +176,17 @@ describe("test", () => {
       data.messages[0].content = undefined;
       validateGetChannelMessagesPayload(data);
     } catch (e) {
-      expect(e.message).toEqual("invalid message.content property: undefined");
+      if (e instanceof Error)
+        expect(e.message).toEqual(
+          "invalid message.content property: undefined"
+        );
     }
     try {
       data.messages[0].content = 123;
       validateGetChannelMessagesPayload(data);
     } catch (e) {
-      expect(e.message).toEqual("invalid message.content property: 123");
+      if (e instanceof Error)
+        expect(e.message).toEqual("invalid message.content property: 123");
     }
   });
 
@@ -177,7 +196,8 @@ describe("test", () => {
       data.messages[0].sender = undefined;
       validateGetChannelMessagesPayload(data);
     } catch (e) {
-      expect(e.message).toEqual("invalid message.sender property: undefined");
+      if (e instanceof Error)
+        expect(e.message).toEqual("invalid message.sender property: undefined");
     }
   });
 
@@ -187,21 +207,24 @@ describe("test", () => {
       data.messages[0].sender.id = undefined;
       validateGetChannelMessagesPayload(data);
     } catch (e) {
-      expect(e.message).toEqual(
-        "invalid message.sender.id property: undefined"
-      );
+      if (e instanceof Error)
+        expect(e.message).toEqual(
+          "invalid message.sender.id property: undefined"
+        );
     }
     try {
       data.messages[0].sender.id = 123;
       validateGetChannelMessagesPayload(data);
     } catch (e) {
-      expect(e.message).toEqual("invalid message.sender.id property: 123");
+      if (e instanceof Error)
+        expect(e.message).toEqual("invalid message.sender.id property: 123");
     }
     try {
       data.messages[0].sender.id = "xxxx";
       validateGetChannelMessagesPayload(data);
     } catch (e) {
-      expect(e.message).toEqual("invalid message.sender.id property: xxxx");
+      if (e instanceof Error)
+        expect(e.message).toEqual("invalid message.sender.id property: xxxx");
     }
   });
 
@@ -211,17 +234,19 @@ describe("test", () => {
       data.messages[0].sender.username = undefined;
       validateGetChannelMessagesPayload(data);
     } catch (e) {
-      expect(e.message).toEqual(
-        "invalid message.sender.username property: undefined"
-      );
+      if (e instanceof Error)
+        expect(e.message).toEqual(
+          "invalid message.sender.username property: undefined"
+        );
     }
     try {
       data.messages[0].sender.username = 123;
       validateGetChannelMessagesPayload(data);
     } catch (e) {
-      expect(e.message).toEqual(
-        "invalid message.sender.username property: 123"
-      );
+      if (e instanceof Error)
+        expect(e.message).toEqual(
+          "invalid message.sender.username property: 123"
+        );
     }
   });
 
@@ -231,17 +256,19 @@ describe("test", () => {
       data.messages[0].sender.displayName = undefined;
       validateGetChannelMessagesPayload(data);
     } catch (e) {
-      expect(e.message).toEqual(
-        "invalid message.sender.displayName property: undefined"
-      );
+      if (e instanceof Error)
+        expect(e.message).toEqual(
+          "invalid message.sender.displayName property: undefined"
+        );
     }
     try {
       data.messages[0].sender.displayName = 123;
       validateGetChannelMessagesPayload(data);
     } catch (e) {
-      expect(e.message).toEqual(
-        "invalid message.sender.displayName property: 123"
-      );
+      if (e instanceof Error)
+        expect(e.message).toEqual(
+          "invalid message.sender.displayName property: 123"
+        );
     }
   });
 });
