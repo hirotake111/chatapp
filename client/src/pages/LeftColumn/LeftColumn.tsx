@@ -6,7 +6,7 @@ import {
 } from "../../utils/thunk-middlewares";
 
 import { RootState } from "../../utils/store";
-import { ChannelItem } from "../../components/Channel/ChannelItem/ChannelItem";
+import { ChannelList } from "../../components/Channel/ChannelItem/ChannelList";
 import { Button } from "../../components/Common/Button/Button";
 
 import "./LeftColumn.css";
@@ -52,36 +52,11 @@ const _LeftColumn = ({
 
   return (
     <div className="left-column">
-      <div className="channel-list">
-        {channels.length ? (
-          <ul>
-            {channels
-              .sort((a, b) => b.updatedAt - a.updatedAt)
-              .map((ch) => (
-                <ChannelItem
-                  key={ch.id}
-                  title={ch.name}
-                  memberSummary={getMemberSummary(ch)}
-                  isHighlighted={!!highlighted && highlighted.id === ch.id}
-                  onClick={async () => handleClick(ch)}
-                />
-              ))}
-          </ul>
-        ) : (
-          <div
-            style={{
-              height: "100%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <div style={{ textAlign: "center", fontSize: "1.4rem" }}>
-              You don't have any channels yet.
-            </div>
-          </div>
-        )}
-      </div>
+      <ChannelList
+        channels={channels}
+        highlighted={highlighted}
+        getMessages={getMessages}
+      />
       <div className="new-channel-button-container">
         <Button
           enabled={true}

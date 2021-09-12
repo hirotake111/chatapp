@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import Home from "./pages/Home/Home";
-import LoadingSpinner from "./components/Common/LoadingSpinner";
+import LoadingSpinner from "./components/Common/LoadingSpinner/LoadingSpinner";
 import { DisplayWrapper } from "./components/Common/DisplayWrapper/DisplayWrapper";
 
 export default function App({
