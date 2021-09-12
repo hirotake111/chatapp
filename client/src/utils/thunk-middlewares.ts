@@ -1,15 +1,14 @@
-import { v4 as uuid } from "uuid";
+import { v4 as uuid, validate } from "uuid";
 import { AppThunk } from "./store";
 
 import { socket } from "./socket";
 import {
-  validateGetChannelDetailPayload,
-  validateGetMyChannelsPayload,
   getChannelMessages,
-  validateSearchSuggestionUser,
   fetchChannelDetailPayload,
-  getData,
+  validateChannelsPayload,
+  getUserSearchSuggestions,
 } from "./utils";
+import { getData, postData } from "./network";
 import { userSignInAction } from "../actions/userActions";
 import {
   GetChannelDetailAction,
@@ -70,13 +69,9 @@ export const thunkGetChannelDetail =
 export const thunkGetMyChannels = (): AppThunk => async (dispatch) => {
   try {
     // get channel detail from API server
-    const res = await fetch("/api/channel/");
-    const body = await res.json();
-    // if status code is 4xx or 5xx alert it
-    if (res.status >= 400)
-      throw new Error(`error code: ${res.status}, body: ${body}`);
+    const body = await getData("/api/channel/");
     // validate payload
-    const payload = validateGetMyChannelsPayload(body);
+    const payload = validateChannelsPayload(body);
     // dispatch actio
     dispatch(GetMyChannelsAction(payload));
   } catch (e) {
@@ -186,35 +181,20 @@ export const thunkUpdateSearchStatus =
       if (!(searchbox.current && searchbox.current.value.length !== 0))
         return dispatch(UpdateSearchStatusAction({ type: "notInitiated" }));
       const query = searchbox.current.value;
-
-      // change tate to "searching"
+      // change state to "searching"
       dispatch(UpdateSearchStatusAction({ type: "searching" }));
       const timeout: NodeJS.Timeout = setTimeout(async () => {
         // if string differs from the previous value, then user is still typing... end function
         if (searchbox.current?.value !== query) return clearTimeout(timeout);
-        // get data
-        const { detail, users }: { detail: string; users: SearchedUser[] } =
-          await fetch(`/api/user?q=${query}`).then((data) => data.json());
-        // validate body
-        if (!(detail && detail === "success" && users && Array.isArray(users)))
-          return console.error("invalid response from server");
-        // if body.users is empty, then show message
+        // get users from server
+        let users = await getUserSearchSuggestions(query);
         const suggestedIds = suggestedUsers.map((u) => u.id);
-        const searchedUser = users.filter((u) => !suggestedIds.includes(u.id));
-        if (searchedUser.length === 0)
+        users = users.filter((u) => !suggestedIds.includes(u.id));
+        if (users.length === 0)
+          // no users suggested -> show "no user found"
           return dispatch(UpdateSearchStatusAction({ type: "noUserFound" }));
-        // at least one user found -> validate the first user
-        if (!validateSearchSuggestionUser(users[0]))
-          dispatch(
-            UpdateSearchStatusAction({
-              type: "error",
-              detail: "validation error - invalid response from server",
-            })
-          );
-        // update state
-        return dispatch(
-          UpdateSearchStatusAction({ type: "userFound", users: searchedUser })
-        );
+        // at least one user found -> update state
+        return dispatch(UpdateSearchStatusAction({ type: "userFound", users }));
       }, 1000);
     } catch (e) {
       if (e instanceof Error) {
@@ -232,12 +212,6 @@ export const thunkUpdateCreateButtonStatus =
       return dispatch(DisableCreateButtonAction());
   };
 
-// export const thunkUpdateCreateChannelStatus =
-//   (message: string): AppThunk =>
-//   async (dispatch) => {
-//     dispatch(UpdateCreateChannelStatusAction(message));
-//   };
-
 /**
  * create a new channel, then get the information, upate channel state
  */
@@ -250,11 +224,7 @@ export const thunkCreateChannel =
       // disable create button
       dispatch(DisableCreateButtonAction());
       // post data to channel endpoint
-      const body = await fetch("/api/channel", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ channelName, memberIds }),
-      }).then((data) => data.json());
+      const body = await postData("/api/channel", { channelName, memberIds });
       // validate body
       const { channelId } = body;
       // if the network call failed - stop processing
@@ -276,8 +246,7 @@ export const thunkCreateChannel =
         try {
           // get channel detail. This will throw an error if response code !== 200
           const channel = await fetchChannelDetailPayload(channelId);
-          // if succeeded, do the followning code
-          // console.warn(payload);
+          // if succeeded, proceed
           // stop network call
           clearTimeout(timeout);
           // hide modal
@@ -340,30 +309,21 @@ export const thunkGetUserByQuery =
     // change search status
     dispatch(UpdateMemberCandidateSearchStatusAction({ type: "searching" }));
     try {
-      const body = await fetch(`/api/user?q=${query}`)
-        .then((data) => data.json())
-        .catch((e) => {
-          throw e;
-        });
-      const { detail, users }: { detail: string; users: SearchedUser[] } = body;
-      // validate body
-      if (!(detail && detail === "success" && users && Array.isArray(users)))
-        return console.error("invalid response from server");
-      // filter users
+      let users = await getUserSearchSuggestions(query);
       const channelUserIds = channel.users.map((user) => user.id);
       const candidateIds = candidates.map((c) => c.id);
-      const suggestedUsers = users
+      users = users
         .filter((user) => !channelUserIds.includes(user.id))
         .filter((user) => !candidateIds.includes(user.id));
       // if suggested user is 0, then update status into "noUserFound"
-      if (suggestedUsers.length === 0)
+      if (users.length === 0)
         return dispatch(
           UpdateMemberCandidateSearchStatusAction({ type: "noUserFound" })
         );
       dispatch(
         UpdateMemberCandidateSearchStatusAction({
           type: "userFound",
-          users: suggestedUsers,
+          users,
         })
       );
     } catch (e) {
@@ -380,33 +340,25 @@ export const thunkAddMemberToChannel =
     // if no candidate, return
     if (memberIds.length === 0) return;
     // if no channel ID, return
-    const channelId = channel?.id;
-    if (!channelId) {
-      console.error("invalid channel ID");
-      return;
-    }
+    if (!channel) throw new Error("channel is undefined");
+    const { id: channelId } = channel;
+    if (!channelId) throw new Error("invalid channel ID");
     try {
       // disable button
       dispatch(UpdateMemberButtonEnabledAction(false));
       // post data to channel endpoint
-      const body = await fetch(`/api/channel/${channelId}/member`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userIds: memberIds }),
-      }).then((data) => data.json());
-      // validate body
+      const body = await postData(`/api/channel/${channelId}/member`, {
+        userIds: memberIds,
+      });
+      // validate detail
       const { detail, added }: { detail: string; added: string[] } = body;
       if (!(detail && detail === "success"))
-        return console.error("failed to fetch data from server:", body);
-      if (
-        !(
-          added &&
-          Array.isArray(added) &&
-          added.length > 0 &&
-          typeof added[0] === "string"
-        )
-      )
-        return console.error("invalid added payload from server:", added);
+        throw new Error(`failed to fetch data from server: ${body}`);
+      if (!(Array.isArray(added) && added.length > 0))
+        throw new Error(`invalid added payload from server: ${added}`);
+      added.forEach((id) => {
+        if (!validate(id)) throw new Error(`invalid user id: ${id}`);
+      });
       try {
         // fetch channel info and update UI
         let count = 0;
@@ -427,13 +379,10 @@ export const thunkAddMemberToChannel =
           dispatch(UpdateMemberModalAction(false));
         }, 2000);
       } catch (e) {
-        if (e instanceof Error) {
-          console.error(e.message);
-        } else throw e;
+        throw e;
       }
     } catch (e) {
-      if (e instanceof Error) {
-        console.error(e.message);
-      } else throw e;
+      if (e instanceof Error) return console.error(e.message);
+      throw e;
     }
   };

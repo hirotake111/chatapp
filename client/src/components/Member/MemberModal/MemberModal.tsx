@@ -22,6 +22,15 @@ const Component = ({
   updateMemberModal,
   addMember,
 }: Props) => {
+  const handleClick = async () => {
+    const memberIds = candidates.map((c) => c.id);
+    try {
+      addMember(memberIds, highlighted);
+    } catch (e) {
+      if (e instanceof Error) console.error(e.message);
+    }
+  };
+
   return (
     <ModalBackground
       id="member-modal"
@@ -42,12 +51,7 @@ const Component = ({
             <Button
               value="save"
               enabled={buttonEnabled}
-              onClick={() =>
-                addMember(
-                  candidates.map((c) => c.id),
-                  highlighted
-                )
-              }
+              onClick={handleClick}
             />
           </div>
         </div>

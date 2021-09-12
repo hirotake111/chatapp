@@ -41,8 +41,8 @@ declare interface SearchedUser {
   id: string;
   username: string;
   displayName: string;
-  firstName: string;
-  lastName: string;
+  firstName?: string;
+  lastName?: string;
 }
 
 // user search box state

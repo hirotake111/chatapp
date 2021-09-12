@@ -1,13 +1,13 @@
 import { validate } from "uuid";
 
 import {
-  GetChannelDetailPayload,
   GetMyChannelsPayload,
   GetChannelMessagesPayload,
 } from "../actions/channelActions";
+import { getData } from "./network";
 import { TypeToBeValidated, validateData } from "./validators";
 
-const getNumberWithTwoDigits = (n: number): string =>
+export const getNumberWithTwoDigits = (n: number): string =>
   n.toString().length === 1 ? "0" + n.toString() : n.toString();
 
 export const convertTimestampToDate = (timestamp: number): string => {
@@ -22,6 +22,9 @@ export const convertTimestampToDate = (timestamp: number): string => {
   return `${yy}-${mm}-${dd} ${hh}:${mi}:${ss} ${ampm}`;
 };
 
+/**
+ * validates channel data
+ */
 export const validateChannel = (data: any): ChannelPayload => {
   const customType: TypeToBeValidated = {
     id: { type: "string", isUUID: true },
@@ -41,6 +44,9 @@ export const validateChannel = (data: any): ChannelPayload => {
   return payload;
 };
 
+/**
+ * valivates message data
+ */
 export const validateMessage = (data: any): Message => {
   const customType: TypeToBeValidated = {
     id: { type: "string", isUUID: true },
@@ -60,10 +66,13 @@ export const validateMessage = (data: any): Message => {
   return validateData<Message>(data, customType);
 };
 
+/**
+ * validate an array of message data
+ */
 export const validateMessages = (data: any): Message[] => {
   if (!Array.isArray(data))
     throw new Error(
-      `validation erorr: data is not an array - ${JSON.stringify(data)}`
+      `validateMessages: data is not an array - ${JSON.stringify(data)}`
     );
   data.forEach((elm) => {
     validateMessage(elm);
@@ -72,66 +81,42 @@ export const validateMessages = (data: any): Message[] => {
 };
 
 /**
- * validates payload and returns it.
- * If invalid, then throw an error
- * @param data {any}
- * @returns {GetChannelDetailPayload}
+ * validate an array of channel data
  */
-export const validateGetChannelDetailPayload = (
-  data: any
-): GetChannelDetailPayload => {
-  // detail
-
-  return validateData<GetChannelDetailPayload>(data, {
-    detail: { type: "string" },
-    channel: { type: "parent", child: {} },
-  });
+export const validateChannelsPayload = (data: any): GetMyChannelsPayload => {
+  if (!(data && data.channels && Array.isArray(data.channels)))
+    throw new Error("validateChannelsPayload: invalid data.channels prop");
+  // validate  channels prop
+  data.channels.forEach((elm: any) => validateChannel(elm));
+  return data as GetMyChannelsPayload;
 };
 
-export const validateGetMyChannelsPayload = (
-  data: any
-): GetMyChannelsPayload => {
-  const { detail, channels }: { detail: string; channels: any[] } = data;
-  // detail
-  if (!(detail && typeof data.detail === "string"))
-    throw new Error(`invalid detail property`);
-  // channels
-  if (!(data.channels && Array.isArray(data.channels)))
-    throw new Error(`invalid channels property`);
-  // if channels is empty, then return []
-  if (channels.length === 0) return { channels };
-  const { id, name, createdAt, updatedAt, users } = channels[0];
-  // channel.id
-  if (!(id && typeof id === "string"))
-    throw new Error(`invalid channel.id property`);
-  // channel.name
-  if (!(name && typeof name === "string"))
-    throw new Error(`invalid channel.name property`);
-  /**
-   * need to change type of createdAt and updatedAt on server end
-   */
-  // channel.createdAt
-  if (!createdAt) throw new Error(`invalid channel.createdAt property`);
-  // channel.updatedAt
-  if (!updatedAt) throw new Error(`invalid channel.updatedAt property`);
-  // channel.users
-  if (!(users && Array.isArray(users)))
-    throw new Error(`invalid channel.users property`);
-  return { channels };
+/**
+ * validates user data fetched from server
+ */
+export const validateSearchSuggestionUser = (data: any): SearchedUser => {
+  const customType: TypeToBeValidated = {
+    id: { type: "string", isUUID: true },
+    username: { type: "string" },
+    displayName: { type: "string" },
+  };
+  return validateData<SearchedUser>(data, customType);
 };
 
+/**
+ * get channel messages by channel ID
+ */
 export const getChannelMessages = async (
   channelId: string
 ): Promise<GetChannelMessagesPayload> => {
-  // validate channnel ID
-  if (!validate(channelId)) throw new Error(`invalid channel ID: ${channelId}`);
   try {
+    // validate channnel ID
+    if (!validate(channelId))
+      throw new Error(`getChannelMessages: invalid channel ID - ${channelId}`);
     // fetch messages by channel Id
-    const res = await fetch(`/api/channel/${channelId}/message`);
-    const { channel, messages } = await res.json();
-    if (res.status >= 400) {
-      throw new Error(`error fetching data from server. code: ${res.status}`);
-    }
+    const { channel, messages } = await getData(
+      `/api/channel/${channelId}/message`
+    );
     return {
       channel: validateChannel(channel),
       messages: validateMessages(messages),
@@ -141,15 +126,19 @@ export const getChannelMessages = async (
   }
 };
 
-export const validateSearchSuggestionUser = (data: any): boolean => {
-  const { id, username, displayName } = data;
-  // id
-  if (!(id && validate(id))) return false;
-  // username
-  if (!(username && typeof username === "string")) return false;
-  // displayName
-  if (!(displayName && typeof displayName === "string")) return false;
-  return true;
+/**
+ * gets user data from server and returns an array of users
+ */
+export const getUserSearchSuggestions = async (
+  query: string
+): Promise<SearchedUser[]> => {
+  const { detail, users } = await getData(`/api/user?q=${query}`);
+  if (!(detail && detail === "success" && users && Array.isArray(users))) {
+    throw new Error(
+      `getUserSearchSuggestions: invalid response from server. detail: ${detail}`
+    );
+  }
+  return users.map((user) => validateSearchSuggestionUser(user));
 };
 
 export const fetchChannelDetailPayload = async (
@@ -160,40 +149,6 @@ export const fetchChannelDetailPayload = async (
     // validate payload
     const payload = validateChannel(body.channel);
     return payload;
-  } catch (e) {
-    throw e;
-  }
-};
-
-/**
- * wait for given milliseconds asynchronously, then return it
- */
-export const asyncWait = (
-  milliseconds: number,
-  value: any = true
-): Promise<any> => {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(value), milliseconds);
-  });
-};
-
-/**
- * gets data from server and returns body, or redirect to auth server when it gets HTTP 401
- */
-export const getData = async (url: string): Promise<any> => {
-  try {
-    const res = await fetch(url);
-    const body = await res.json();
-    if (res.status === 401) {
-      window.location.replace(body.location);
-      // wait for a few seconds to prevent app from clashing with invalid body
-      await asyncWait(1000);
-      return body;
-    }
-    if (res.status >= 400)
-      throw new Error(`Network error - status code: ${res.status}`);
-
-    return body;
   } catch (e) {
     throw e;
   }
