@@ -1,5 +1,4 @@
-import { act, render, waitFor } from "@testing-library/react";
-import { asyncWait } from "../../../utils/network";
+import { render } from "@testing-library/react";
 import { LoadingSpinner } from "./LoadingSpinner";
 
 describe("LoadingSpinner", () => {
@@ -31,5 +30,18 @@ describe("LoadingSpinner", () => {
     // run all timers
     jest.runAllTimers();
     expect(callback).toHaveBeenCalledTimes(0);
+  });
+
+  it("should call console.error if callback failed", async () => {
+    expect.assertions(1);
+    const err = new Error("signin error!");
+    console.error = jest.fn();
+    callback = jest.fn().mockImplementation(() => {
+      throw err;
+    });
+    render(<LoadingSpinner enabled={true} callback={callback} ms={10} />);
+    // run all timers
+    jest.runAllTimers();
+    expect(console.error).toHaveBeenCalledWith(err);
   });
 });

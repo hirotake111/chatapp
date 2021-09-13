@@ -19,8 +19,7 @@ export const LoadingSpinner = ({
         try {
           await callback();
         } catch (e) {
-          if (e instanceof Error) return console.error(e.message);
-          throw e;
+          console.error(e);
         }
       }, ms);
     }

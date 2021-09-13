@@ -24,7 +24,7 @@ export const ModalBackground: FC<Props> = ({
     <div
       id={id}
       className="modal-background"
-      style={{ display: enabled ? "" : "none" }}
+      style={{ display: enabled ? "flex" : "none" }}
       onClick={handleClickBackgrond}
     >
       {children}
