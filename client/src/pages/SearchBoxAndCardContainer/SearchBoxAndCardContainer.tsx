@@ -1,11 +1,11 @@
 import { ChangeEventHandler, useRef } from "react";
 import { connect, ConnectedProps } from "react-redux";
-import { CandidateCardList } from "../../components/CandidateCardList/CandidateCardList";
-import { RootState } from "../../store";
+import { CandidateCardList } from "../../components/Search/CandidateCardList/CandidateCardList";
+import { RootState } from "../../utils/store";
 import {
   thunkUpdateCreateButtonStatus,
   thunkUpdateSearchStatus,
-} from "../../thunk-middlewares";
+} from "../../utils/thunk-middlewares";
 
 import "./SearchBoxAndCardContainer.css";
 

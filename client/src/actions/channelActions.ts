@@ -19,17 +19,14 @@ type UpdateMemberButtonEnabledType = "channel/UpdateMemberButtonEnabled";
  * Payload Types
  */
 export interface GetChannelDetailPayload {
-  detail: string;
   channel: ChannelPayload;
 }
 
 export interface GetMyChannelsPayload {
-  detail: string;
   channels: ChannelPayload[];
 }
 
 export interface GetChannelMessagesPayload {
-  detail: string;
   channel: ChannelPayload;
   messages: Message[];
 }
@@ -58,9 +55,9 @@ export interface UpdateMemberButtonEnabledPayload {
  * Action Types
  */
 interface GetChannelDetailActionType
-  extends PayloadAction<GetChannelDetailPayload, GetChannelDetailType> {
+  extends PayloadAction<ChannelPayload, GetChannelDetailType> {
   type: GetChannelDetailType;
-  payload: GetChannelDetailPayload;
+  payload: ChannelPayload;
 }
 
 interface GetMyChannelsActionType
@@ -151,7 +148,7 @@ export type ChannelActionTypes =
  * Actions
  */
 export const GetChannelDetailAction = (
-  payload: GetChannelDetailPayload
+  payload: ChannelPayload
 ): ChannelActionTypes => ({ type: "channel/fetchOneChannel", payload });
 
 export const GetMyChannelsAction = (

@@ -59,7 +59,7 @@ export const getChannelController = (
             channelName,
             sender: {
               id: userId,
-              name: username,
+              username,
             },
             memberIds,
           },
@@ -75,10 +75,9 @@ export const getChannelController = (
           members: [userId, ...memberIds],
         });
       } catch (e) {
-        res
+        return res
           .status(500)
-          .send({ error: "INTERNAL SERVER ERROR", detail: e.message });
-        return;
+          .send({ error: "INTERNAL SERVER ERROR", detail: e });
       }
     },
 
@@ -112,7 +111,7 @@ export const getChannelController = (
       } catch (e) {
         return res
           .status(500)
-          .send({ error: "INTERNAL SERVER ERROR", detail: e.message });
+          .send({ error: "INTERNAL SERVER ERROR", detail: e });
       }
     },
 
@@ -154,7 +153,7 @@ export const getChannelController = (
       } catch (e) {
         return res
           .status(500)
-          .send({ error: "INTERNAL SERVER ERROR", detail: e.message });
+          .send({ error: "INTERNAL SERVER ERROR", detail: e });
       }
     },
 
@@ -198,7 +197,7 @@ export const getChannelController = (
       } catch (e) {
         return res
           .status(500)
-          .send({ error: "INTERNAL SERVER ERROR", detail: e.message });
+          .send({ error: "INTERNAL SERVER ERROR", detail: e });
       }
     },
 
@@ -230,7 +229,7 @@ export const getChannelController = (
             channelId,
             sender: {
               id: requesterId,
-              name: req.session.username,
+              username: req.session.username,
             },
           },
         };
@@ -240,12 +239,15 @@ export const getChannelController = (
         });
         return res.status(204).send({ detail: "success" });
       } catch (e) {
-        if (e.message === `channel ID ${channelId} doesn't exist`) {
-          return res.status(400).send({ detail: e.message });
+        if (
+          e instanceof Error &&
+          e.message === `channel ID ${channelId} doesn't exist`
+        ) {
+          return res.status(400).send({ detail: e });
         }
         return res
           .status(500)
-          .send({ error: "INTERNAL SERVER ERROR", detail: e.message });
+          .send({ error: "INTERNAL SERVER ERROR", detail: e });
       }
     },
 
@@ -281,7 +283,7 @@ export const getChannelController = (
             newChannelName: channelName,
             sender: {
               id: requesterId,
-              name: username,
+              username,
             },
           },
         };
@@ -296,7 +298,7 @@ export const getChannelController = (
       } catch (e) {
         return res
           .status(500)
-          .send({ error: "INTERNAL SERVER ERROR", detail: e.message });
+          .send({ error: "INTERNAL SERVER ERROR", detail: e });
       }
     },
 
@@ -342,7 +344,7 @@ export const getChannelController = (
       } catch (e) {
         return res
           .status(500)
-          .send({ error: "INTERNAL SERVER ERROR", detail: e.message });
+          .send({ error: "INTERNAL SERVER ERROR", detail: e });
       }
     },
   };

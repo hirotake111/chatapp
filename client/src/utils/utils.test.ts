@@ -1,247 +1,213 @@
-import { nanoid } from "@reduxjs/toolkit";
 import { v4 as uuid } from "uuid";
-
 import {
-  validateGetMyChannelsPayload,
-  validateGetChannelMessagesPayload,
+  convertTimestampToDate,
+  fetchChannelDetailPayload,
+  getChannelMessages,
+  getNumberWithTwoDigits,
+  getUserSearchSuggestions,
+  validateChannel,
+  validateChannelsPayload,
+  validateMessage,
+  validateMessages,
+  validateSearchSuggestionUser,
 } from "./utils";
 
-const getMessage = (channelId: string): Message => ({
-  id: uuid(),
-  channelId,
-  content: nanoid(),
-  createdAt: Math.floor(Math.random() * 1000),
-  updatedAt: Math.floor(Math.random() * 1000),
-  sender: {
-    id: uuid(),
-    username: nanoid(),
-    displayName: nanoid(),
+// mocking partials
+jest.mock("./validators", () => ({
+  validateData: (data: any) => {
+    if (data) return data;
+    throw new Error("error!!!!");
   },
+}));
+
+// mock getData
+jest.mock("./network.ts", () => ({
+  getData: (url: string) => {
+    if (/\/api\/user\?q\=fail/g.test(url)) {
+      return {
+        detail: "failed",
+        users: [{ id: "xx-xx-xx-xx" }],
+      };
+    }
+    if (/\/api\/user\?q\=/g.test(url)) {
+      return {
+        detail: "success",
+        users: [{ id: "xx-xx-xx-xx" }],
+      };
+    }
+    if (/\/api\/channel\/id02/g.test(url)) throw new Error("Error from server");
+    return {
+      channel: { id: "xx-xx-xx-xx" },
+      messages: [{ id: "zz-zz-zz-zz" }],
+    };
+  },
+}));
+
+describe("getNumberWithTwoDigists", () => {
+  it("should return value", () => {
+    expect.assertions(2);
+    expect(getNumberWithTwoDigits(1)).toEqual("01");
+    expect(getNumberWithTwoDigits(11)).toEqual("11");
+  });
 });
 
-describe("test", () => {
-  let data: any;
-  beforeEach(() => {
-    const channelId = uuid();
-    data = {
-      detail: "success",
-      channel: { id: channelId, name: nanoid() },
-      messages: Array.from({ length: 10 }, (_, id) => getMessage(channelId)),
-    };
-  });
-
-  it("should return GetChannelMessagesPayload", () => {
-    expect.assertions(1);
-    expect(validateGetChannelMessagesPayload(data).detail).toEqual("success");
-  });
-
-  it("should validate detail prop", () => {
-    expect.assertions(1);
-    data.detail = undefined;
-    try {
-      validateGetChannelMessagesPayload(data);
-    } catch (e) {
-      expect(e.message).toEqual("invalid detail property: undefined");
-    }
-  });
-
-  it("should validate channel prop", () => {
-    expect.assertions(1);
-    data.channel = undefined;
-    try {
-      validateGetChannelMessagesPayload(data);
-    } catch (e) {
-      expect(e.message).toEqual("invalid channel property: undefined");
-    }
-  });
-
-  it("should validate channel.id prop", () => {
-    expect.assertions(3);
-    try {
-      data.channel.id = null;
-      validateGetChannelMessagesPayload(data);
-    } catch (e) {
-      expect(e.message).toEqual("invalid channel.id property: null");
-    }
-    try {
-      data.channel.id = 123;
-      validateGetChannelMessagesPayload(data);
-    } catch (e) {
-      expect(e.message).toEqual("invalid channel.id property: 123");
-    }
-    try {
-      data.channel.id = "xxxx";
-      validateGetChannelMessagesPayload(data);
-    } catch (e) {
-      expect(e.message).toEqual("invalid channel.id property: xxxx");
-    }
-  });
-
-  it("should validate channel.name prop", () => {
+describe("convertTimestampToDate", () => {
+  it("should return date string", () => {
     expect.assertions(2);
-    try {
-      data.channel.name = undefined;
-      validateGetChannelMessagesPayload(data);
-    } catch (e) {
-      expect(e.message).toEqual("invalid channel.name property: undefined");
-    }
-    try {
-      data.channel.name = 123;
-      validateGetChannelMessagesPayload(data);
-    } catch (e) {
-      expect(e.message).toEqual("invalid channel.name property: 123");
-    }
+    expect(convertTimestampToDate(1631407621765)).toEqual(
+      "2021-09-12 00:47:01 AM"
+    );
+    expect(convertTimestampToDate(1631457621765)).toEqual(
+      "2021-09-12 14:40:21 PM"
+    );
+  });
+});
+
+describe("validateChannel", () => {
+  it("should return data", () => {
+    expect.assertions(1);
+    expect(validateChannel({})).toEqual({});
   });
 
-  it("should validate messages prop", () => {
-    expect.assertions(2);
-    try {
-      data.messages = undefined;
-      validateGetChannelMessagesPayload(data);
-    } catch (e) {
-      expect(e.message).toEqual("invalid messages property: undefined");
-    }
-    try {
-      data.messages = "msg";
-      validateGetChannelMessagesPayload(data);
-    } catch (e) {
-      expect(e.message).toEqual("invalid messages property: msg");
-    }
-  });
-
-  it("should validate message.id prop", () => {
-    expect.assertions(3);
-    try {
-      data.messages[0].id = undefined;
-      validateGetChannelMessagesPayload(data);
-    } catch (e) {
-      expect(e.message).toEqual("invalid message.id property: undefined");
-    }
-    try {
-      data.messages[0].id = 123;
-      validateGetChannelMessagesPayload(data);
-    } catch (e) {
-      expect(e.message).toEqual("invalid message.id property: 123");
-    }
-    try {
-      data.messages[0].id = "xxxx";
-      validateGetChannelMessagesPayload(data);
-    } catch (e) {
-      expect(e.message).toEqual("invalid message.id property: xxxx");
-    }
-  });
-
-  it("should validate message.channelId prop", () => {
-    expect.assertions(3);
-    try {
-      data.messages[0].channelId = undefined;
-      validateGetChannelMessagesPayload(data);
-    } catch (e) {
-      expect(e.message).toEqual(
-        "invalid message.channelId property: undefined"
-      );
-    }
-    try {
-      data.messages[0].channelId = 123;
-      validateGetChannelMessagesPayload(data);
-    } catch (e) {
-      expect(e.message).toEqual("invalid message.channelId property: 123");
-    }
-    try {
-      data.messages[0].channelId = "xxxx";
-      validateGetChannelMessagesPayload(data);
-    } catch (e) {
-      expect(e.message).toEqual("invalid message.channelId property: xxxx");
-    }
-  });
-
-  it("should validate message.content prop", () => {
-    expect.assertions(2);
-    try {
-      data.messages[0].content = undefined;
-      validateGetChannelMessagesPayload(data);
-    } catch (e) {
-      expect(e.message).toEqual("invalid message.content property: undefined");
-    }
-    try {
-      data.messages[0].content = 123;
-      validateGetChannelMessagesPayload(data);
-    } catch (e) {
-      expect(e.message).toEqual("invalid message.content property: 123");
-    }
-  });
-
-  it("should validate message.sender prop", () => {
+  it("should throw an error if validateData() throw it", () => {
     expect.assertions(1);
     try {
-      data.messages[0].sender = undefined;
-      validateGetChannelMessagesPayload(data);
+      validateChannel(false);
     } catch (e) {
-      expect(e.message).toEqual("invalid message.sender property: undefined");
+      if (e instanceof Error) expect(e.message).toEqual("error!!!!");
     }
   });
+});
 
-  it("should validate message.sender.id prop", () => {
-    expect.assertions(3);
-    try {
-      data.messages[0].sender.id = undefined;
-      validateGetChannelMessagesPayload(data);
-    } catch (e) {
-      expect(e.message).toEqual(
-        "invalid message.sender.id property: undefined"
-      );
-    }
-    try {
-      data.messages[0].sender.id = 123;
-      validateGetChannelMessagesPayload(data);
-    } catch (e) {
-      expect(e.message).toEqual("invalid message.sender.id property: 123");
-    }
-    try {
-      data.messages[0].sender.id = "xxxx";
-      validateGetChannelMessagesPayload(data);
-    } catch (e) {
-      expect(e.message).toEqual("invalid message.sender.id property: xxxx");
-    }
+describe("validateMessage", () => {
+  it("should return data", () => {
+    expect.assertions(1);
+    expect(validateMessage({})).toEqual({});
   });
 
-  it("should validate message.sender.username prop", () => {
-    expect.assertions(2);
+  it("should throw an error if validateData() throw it", () => {
+    expect.assertions(1);
     try {
-      data.messages[0].sender.username = undefined;
-      validateGetChannelMessagesPayload(data);
+      validateMessage(false);
     } catch (e) {
-      expect(e.message).toEqual(
-        "invalid message.sender.username property: undefined"
-      );
-    }
-    try {
-      data.messages[0].sender.username = 123;
-      validateGetChannelMessagesPayload(data);
-    } catch (e) {
-      expect(e.message).toEqual(
-        "invalid message.sender.username property: 123"
-      );
+      if (e instanceof Error) expect(e.message).toEqual("error!!!!");
     }
   });
+});
 
-  it("should validate message.sender.displayName prop", () => {
-    expect.assertions(2);
+describe("validateMessages", () => {
+  it("should return data", () => {
+    expect.assertions(1);
+    const data = [true, true, true];
+    expect(validateMessages(data)).toEqual(data);
+  });
+
+  it("should throw an error if it's not an array", () => {
+    expect.assertions(1);
     try {
-      data.messages[0].sender.displayName = undefined;
-      validateGetChannelMessagesPayload(data);
+      validateMessages(false);
     } catch (e) {
-      expect(e.message).toEqual(
-        "invalid message.sender.displayName property: undefined"
-      );
+      if (e instanceof Error)
+        expect(e.message).toEqual(
+          "validateMessages: data is not an array - false"
+        );
     }
+  });
+});
+
+describe("validateChannelsPayload", () => {
+  it("should return data", () => {
+    expect.assertions(1);
+    const data = { channels: [true, true, true] };
+    expect(validateChannelsPayload(data)).toEqual(data);
+  });
+
+  it("should throw an error if it's not an array", () => {
+    expect.assertions(1);
     try {
-      data.messages[0].sender.displayName = 123;
-      validateGetChannelMessagesPayload(data);
+      validateChannelsPayload(false);
     } catch (e) {
-      expect(e.message).toEqual(
-        "invalid message.sender.displayName property: 123"
-      );
+      if (e instanceof Error)
+        expect(e.message).toEqual(
+          "validateChannelsPayload: invalid data.channels prop"
+        );
+    }
+  });
+});
+
+describe("validateSearchSuggestionUser", () => {
+  it("should return data", () => {
+    expect.assertions(1);
+    expect(validateSearchSuggestionUser({})).toEqual({});
+  });
+
+  it("should throw an error if validateData() throw it", () => {
+    expect.assertions(1);
+    try {
+      validateSearchSuggestionUser(false);
+    } catch (e) {
+      if (e instanceof Error) expect(e.message).toEqual("error!!!!");
+    }
+  });
+});
+
+describe("getChannelMessages", () => {
+  it("should return channel and messages", async () => {
+    expect.assertions(1);
+    expect(await getChannelMessages(uuid())).toEqual({
+      channel: { id: "xx-xx-xx-xx" },
+      messages: [{ id: "zz-zz-zz-zz" }],
+    });
+  });
+
+  it("should throw an error if channel ID is invalid", async () => {
+    expect.assertions(1);
+    try {
+      await await getChannelMessages("xxxx");
+    } catch (e) {
+      if (e instanceof Error)
+        expect(e.message).toEqual(
+          "getChannelMessages: invalid channel ID - xxxx"
+        );
+    }
+  });
+});
+
+describe("getUserSearchSuggestions", () => {
+  it("should return an array of users", async () => {
+    expect.assertions(1);
+    expect(await getUserSearchSuggestions("qqqq")).toEqual([
+      { id: "xx-xx-xx-xx" },
+    ]);
+  });
+
+  it("should throw an error if it gets invalid response from server", async () => {
+    expect.assertions(1);
+    try {
+      await getUserSearchSuggestions("fail");
+    } catch (e) {
+      if (e instanceof Error)
+        expect(e.message).toEqual(
+          "getUserSearchSuggestions: invalid response from server. detail: failed"
+        );
+    }
+  });
+});
+
+describe("fetchChannelDetailPayload", () => {
+  it("should return channel data", async () => {
+    expect.assertions(1);
+    expect(await fetchChannelDetailPayload("id01")).toEqual({
+      id: "xx-xx-xx-xx",
+    });
+  });
+
+  it("should throw an error if it gets invalid response from server", async () => {
+    expect.assertions(1);
+    try {
+      await fetchChannelDetailPayload("id02");
+    } catch (e) {
+      if (e instanceof Error) expect(e.message).toEqual("Error from server");
     }
   });
 });

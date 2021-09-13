@@ -111,7 +111,7 @@ export const getWSController = (
         });
       // sender and authenticated user must be the same
       const { sender, channelId, id, content } = data;
-      if (username !== sender.name || userId !== sender.id)
+      if (username !== sender.username || userId !== sender.id)
         return sendExceptionToSender(socket, {
           code: 400, // bad request
           detail: "invalid username or user id",
@@ -155,11 +155,13 @@ export const getWSController = (
           messages: [{ value: JSON.stringify(event) }],
         });
       } catch (e) {
-        return sendExceptionToSender(socket, {
-          code: 500,
-          detail: e.message,
-          timestamp: Date.now(),
-        });
+        if (e instanceof Error)
+          return sendExceptionToSender(socket, {
+            code: 500,
+            detail: e.message,
+            timestamp: Date.now(),
+          });
+        throw e;
       }
       // send members the message
       io.to(channelId).emit("chat message", data);
@@ -212,12 +214,13 @@ export const getWSController = (
           joinAndNotifyUser(channelId, userSession[user.id]);
         });
       } catch (e) {
-        console.log(e);
-        return sendExceptionToSender(socket, {
-          code: 500,
-          detail: e.message,
-          timestamp: Date.now(),
-        });
+        if (e instanceof Error)
+          return sendExceptionToSender(socket, {
+            code: 500,
+            detail: e.message,
+            timestamp: Date.now(),
+          });
+        throw e;
       }
     },
   };

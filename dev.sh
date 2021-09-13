@@ -1,5 +1,6 @@
 # remove kafka containers
-docker rm kafka1 kafka2 zookeeper1 zookeeper2
+# docker rm kafka1 kafka2 zookeeper1 zookeeper2
+docker rm kafka1 zookeeper1
 
 # run all containers
 docker-compose up -d

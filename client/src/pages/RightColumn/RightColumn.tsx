@@ -5,13 +5,13 @@ import {
   thunkGetChannelMessages,
   thunkSendMessage,
   thunkUpdateMemberModal,
-} from "../../thunk-middlewares";
-import { RootState } from "../../store";
-import { ChatTextarea } from "../../components/ChatTextarea/ChatTextarea";
+} from "../../utils/thunk-middlewares";
+import { RootState } from "../../utils/store";
+import { ChatTextarea } from "../../components/Chat/ChatTextarea/ChatTextarea";
 // import { MessageContainerItem } from "../MessageContainer/MessageContainerItem";
-import { PaperPlaneIcon } from "../../components/PaperPlaneIcon/PaperPlaneIcon";
-import { ChatPane } from "../../components/ChatPane/ChatPane";
-import { Button } from "../../components/Button/Button";
+import { PaperPlaneIcon } from "../../components/Chat/PaperPlaneIcon/PaperPlaneIcon";
+import { ChatPane } from "../../components/Chat/ChatPane/ChatPane";
+import { Button } from "../../components/Common/Button/Button";
 
 import "./RightColumn.css";
 import { MouseEventHandler } from "react";

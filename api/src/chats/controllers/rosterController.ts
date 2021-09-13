@@ -82,7 +82,7 @@ export const getRosterContoller = (
             channelId,
             sender: {
               id: requesterId,
-              name: username,
+              username,
             },
             memberIds: added,
           },
@@ -95,9 +95,7 @@ export const getRosterContoller = (
         res.status(200).send({ detail: "success", channelId, added, skipped });
         return;
       } catch (e) {
-        res
-          .status(500)
-          .send({ error: "INTERNAL SERVER ERROR", detail: e.message });
+        res.status(500).send({ error: "INTERNAL SERVER ERROR", detail: e });
         return;
       }
     },
@@ -138,7 +136,7 @@ export const getRosterContoller = (
             channelId,
             sender: {
               id: requesterId,
-              name: username,
+              username,
             },
             memberIds: ids,
           },
@@ -150,9 +148,7 @@ export const getRosterContoller = (
 
         return res.status(204).send({ detail: "success", channelId, ids });
       } catch (e) {
-        res
-          .status(500)
-          .send({ error: "INTERNAL SERVER ERROR", detail: e.message });
+        res.status(500).send({ error: "INTERNAL SERVER ERROR", detail: e });
         return;
       }
     },

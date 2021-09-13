@@ -32,7 +32,7 @@ declare interface Message {
   updatedAt: number;
   sender: {
     id: string;
-    name: string;
+    username: string;
     displayName?: string;
     firstName?: string;
     lastName?: string;
@@ -82,7 +82,7 @@ interface EventMetaData {
 
 interface Sender {
   id: string;
-  name: string;
+  username: string;
 }
 
 declare interface UsersJoinedEvent {

@@ -3,27 +3,14 @@ import {
   thunkGetChannelMessages,
   thunkGetMyChannels,
   thunkShowNewChannelModal,
-} from "../../thunk-middlewares";
+} from "../../utils/thunk-middlewares";
 
-import { RootState } from "../../store";
-import { ChannelItem } from "../../components/ChannelItem/ChannelItem";
-import { Button } from "../../components/Button/Button";
+import { RootState } from "../../utils/store";
+import { ChannelList } from "../../components/Channel/ChannelItem/ChannelList";
+import { Button } from "../../components/Common/Button/Button";
 
 import "./LeftColumn.css";
 import { useEffect } from "react";
-
-const getMemberSummary = (channel: ChannelPayload): string => {
-  const { users, name } = channel;
-  if (users.length < 2) {
-    return name;
-  }
-  if (users.length === 2) {
-    return `${users[0].displayName} and ${users[1].displayName}`;
-  }
-  return `${users[0].displayName} and ${users[1].displayName} + ${
-    users.length - 2
-  }`;
-};
 
 const _LeftColumn = ({
   channels,
@@ -37,14 +24,6 @@ const _LeftColumn = ({
     getMychannels();
   }, [getMychannels]);
 
-  // onClick handler
-  const handleClick = async (channel: ChannelPayload) => {
-    if (highlighted && channel.id !== highlighted.id) {
-      // get messages in channel
-      await getMessages(channel.id);
-    }
-  };
-
   // onClick handler for new channel button
   const handleNewChannelButtonClick = () => {
     showNewChannelModal();
@@ -52,36 +31,11 @@ const _LeftColumn = ({
 
   return (
     <div className="left-column">
-      <div className="channel-list">
-        {channels.length ? (
-          <ul>
-            {channels
-              .sort((a, b) => b.updatedAt - a.updatedAt)
-              .map((ch) => (
-                <ChannelItem
-                  key={ch.id}
-                  title={ch.name}
-                  memberSummary={getMemberSummary(ch)}
-                  isHighlighted={!!highlighted && highlighted.id === ch.id}
-                  onClick={async () => handleClick(ch)}
-                />
-              ))}
-          </ul>
-        ) : (
-          <div
-            style={{
-              height: "100%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <div style={{ textAlign: "center", fontSize: "1.4rem" }}>
-              You don't have any channels yet.
-            </div>
-          </div>
-        )}
-      </div>
+      <ChannelList
+        channels={channels}
+        highlighted={highlighted}
+        getMessages={getMessages}
+      />
       <div className="new-channel-button-container">
         <Button
           enabled={true}

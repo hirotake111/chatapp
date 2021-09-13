@@ -1,11 +1,11 @@
 import { Fragment } from "react";
 import { connect, ConnectedProps } from "react-redux";
-import { Header } from "../../components/Header/Header";
+import { Header } from "../../components/Common/Header/Header";
 import { MainContainer } from "../MainContainer/MainContainer";
 import { NewChannelModal } from "../NewChannelModal/NewChannelModal";
 
-import { RootState } from "../../store";
-import { MemberModal } from "../../components/MemberModal/MemberModal";
+import { RootState } from "../../utils/store";
+import { MemberModal } from "../../components/Member/MemberModal/MemberModal";
 
 const Home = ({
   user: {
