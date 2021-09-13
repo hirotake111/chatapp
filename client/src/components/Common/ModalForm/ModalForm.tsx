@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 
 import "./ModalForm.css";
 
-export const MemberModalForm = ({
+export const ModalForm = ({
   title,
   subtitle,
   children,
@@ -13,7 +13,7 @@ export const MemberModalForm = ({
 }) => (
   <div id="modal-content" className="modal-content">
     <span className="modal-content-title">{title}</span>
-    <span className="modal-content-span">{subtitle} </span>
+    <span className="modal-content-span">{subtitle}</span>
     {children}
   </div>
 );

@@ -7,7 +7,7 @@ import {
 } from "../../../utils/thunk-middlewares";
 import { CandidateListForMemberModal } from "../CandidateListForMemberModal/CandidateListForMemberModal";
 import { Button } from "../../Common/Button/Button";
-import { MemberModalForm } from "../../Common/ModalForm/ModalForm";
+import { ModalForm } from "../../Common/ModalForm/ModalForm";
 import { ModalBackground } from "../../Common/ModalBackground/ModalBackground";
 import { SearchboxForMemberModal } from "../../Search/SearchboxForMemberModal/SearchboxForMemberModal";
 import { SuggestedCardListForMemberModal } from "../SuggestedCardListForMemberModal/SuggestedCardListForMemberModal";
@@ -37,7 +37,7 @@ const Component = ({
       enabled={enabled}
       onClick={updateMemberModal}
     >
-      <MemberModalForm
+      <ModalForm
         title="Add new member to this channel"
         subtitle="Start typing a name to add new users to your channel"
       >
@@ -55,7 +55,7 @@ const Component = ({
             />
           </div>
         </div>
-      </MemberModalForm>
+      </ModalForm>
     </ModalBackground>
   );
 };
