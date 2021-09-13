@@ -18,6 +18,8 @@ server side:
 - Rest API / WebSocket
 - and Raspberry PI
 
+Currently mobie device is not suported.
+
 ### TODO
 
 - disable [add user] button if user belongs no channels
