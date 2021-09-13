@@ -1,7 +1,7 @@
 import { connect, ConnectedProps } from "react-redux";
 import { RootState } from "../../../utils/store";
 import { thunkAddCandidateToExistingChannel } from "../../../utils/thunk-middlewares";
-import { SuggestedCardList } from "../../Search/SuggestedCardList/SugggestedCardList";
+import { SuggestedCardList } from "../../Search/SuggestedCardList/SuggestedCardList";
 
 const Component = ({ searchStatus, addCandidate }: Props) => (
   <SuggestedCardList status={searchStatus} onCardClick={addCandidate} />

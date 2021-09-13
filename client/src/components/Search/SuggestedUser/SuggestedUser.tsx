@@ -14,7 +14,7 @@ export const SuggestedUser = ({
 
   return (
     <div id={id} className="suggested-user">
-      {displayName}{" "}
+      <span>{displayName}</span>
       <span className="remove-candidate" onClick={handleClick}>
         &times;
       </span>

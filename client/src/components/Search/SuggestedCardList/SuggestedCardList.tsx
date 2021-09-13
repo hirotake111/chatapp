@@ -1,6 +1,6 @@
 import { MouseEvent } from "react";
 
-import "./SugggestedCardList.css";
+import "./SuggestedCardList.css";
 
 export const SuggestedCardList = ({
   status,
