@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 
 import Home from "./pages/Home/Home";
-import LoadingSpinner from "./components/Common/LoadingSpinner/LoadingSpinner";
+import { LoadingSpinner } from "./components/Common/LoadingSpinner/LoadingSpinner";
 import { DisplayWrapper } from "./components/Common/DisplayWrapper/DisplayWrapper";
 
 export default function App({
   user: { isAuthenticated },
+  signin,
 }: {
   user: { isAuthenticated: boolean };
+  signin: () => void;
 }) {
   const [isMobile, setIsMobile] = useState(true);
 
@@ -32,7 +34,7 @@ export default function App({
         {isAuthenticated ? (
           <Home />
         ) : (
-          <LoadingSpinner signinEnabled={!isMobile} />
+          <LoadingSpinner enabled={!isMobile} callback={signin} ms={300} />
         )}
       </DisplayWrapper>
     </div>

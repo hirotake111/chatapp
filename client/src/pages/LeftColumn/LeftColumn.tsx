@@ -12,19 +12,6 @@ import { Button } from "../../components/Common/Button/Button";
 import "./LeftColumn.css";
 import { useEffect } from "react";
 
-const getMemberSummary = (channel: ChannelPayload): string => {
-  const { users, name } = channel;
-  if (users.length < 2) {
-    return name;
-  }
-  if (users.length === 2) {
-    return `${users[0].displayName} and ${users[1].displayName}`;
-  }
-  return `${users[0].displayName} and ${users[1].displayName} + ${
-    users.length - 2
-  }`;
-};
-
 const _LeftColumn = ({
   channels,
   highlighted,
@@ -36,14 +23,6 @@ const _LeftColumn = ({
   useEffect(() => {
     getMychannels();
   }, [getMychannels]);
-
-  // onClick handler
-  const handleClick = async (channel: ChannelPayload) => {
-    if (highlighted && channel.id !== highlighted.id) {
-      // get messages in channel
-      await getMessages(channel.id);
-    }
-  };
 
   // onClick handler for new channel button
   const handleNewChannelButtonClick = () => {
