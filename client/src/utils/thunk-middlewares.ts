@@ -93,6 +93,7 @@ export const thunkGetChannelMessages =
       // dispatch action
       dispatch(GetChannelMessagesAction(payload));
     } catch (e) {
+      console.warn("errro");
       console.error(e);
     }
   };

@@ -65,7 +65,16 @@ export const channelReducer: Reducer<ChannelState, ChannelActionTypes> = (
       // get other channels
       const others = state.channels.filter((ch) => ch.id !== message.channelId);
       // generate updated channel object
-      const updated = { ...channel, messages: [...channel.messages, message] };
+      const updated: ChannelPayload = channel
+        ? { ...channel, messages: [...channel.messages, message] }
+        : {
+            id: message.channelId,
+            name: "",
+            createdAt: message.createdAt,
+            updatedAt: message.updatedAt,
+            users: [],
+            messages: [message],
+          };
       return { ...state, channels: [...others, updated] };
     }
 
