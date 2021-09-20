@@ -2,32 +2,37 @@ import { connect, ConnectedProps } from "react-redux";
 import { RootState } from "../../../utils/store";
 
 import {
+  thunkAddCandidateToExistingChannel,
   thunkAddMemberToChannel,
+  thunkRemoveCandidateFromExistingChannel,
   thunkUpdateMemberModal,
 } from "../../../utils/thunk-middlewares";
-import { CandidateListForMemberModal } from "../CandidateListForMemberModal/CandidateListForMemberModal";
 import { Button } from "../../Common/Button/Button";
 import { ModalForm } from "../../Common/ModalForm/ModalForm";
 import { ModalBackground } from "../../Common/ModalBackground/ModalBackground";
 import { SearchboxForMemberModal } from "../../Search/SearchboxForMemberModal/SearchboxForMemberModal";
-import { SuggestedCardListForMemberModal } from "../SuggestedCardListForMemberModal/SuggestedCardListForMemberModal";
 
 import "./MemberModal.css";
+import { CandidateList } from "../../Search/CandidateList/CandidateList";
+import { SuggestedCardList } from "../../Search/SuggestedCardList/SuggestedCardList";
 
 const Component = ({
   enabled,
   candidates,
   buttonEnabled,
   highlighted,
+  searchStatus,
   updateMemberModal,
   addMember,
+  addCandidate,
+  removeCandidate,
 }: Props) => {
   const handleClick = async () => {
     const memberIds = candidates.map((c) => c.id);
     try {
       addMember(memberIds, highlighted);
     } catch (e) {
-      if (e instanceof Error) console.error(e.message);
+      console.error(e);
     }
   };
 
@@ -44,8 +49,11 @@ const Component = ({
         <div className="modal-forms-compoents-buttons">
           <div className="moda-forms-top">
             <SearchboxForMemberModal />
-            <SuggestedCardListForMemberModal />
-            <CandidateListForMemberModal />
+            <SuggestedCardList
+              status={searchStatus}
+              onCardClick={addCandidate}
+            />
+            <CandidateList candidates={candidates} onClick={removeCandidate} />
           </div>
           <div className="modal-forms-bottom">
             <Button
@@ -65,11 +73,14 @@ const mapStateToProps = (state: RootState) => ({
   candidates: state.channel.candidates,
   buttonEnabled: state.channel.addMemberButtonEnabled,
   highlighted: state.channel.highlighted,
+  searchStatus: state.channel.searchStatus,
 });
 
 const mapDispatchToProps = {
   updateMemberModal: thunkUpdateMemberModal,
   addMember: thunkAddMemberToChannel,
+  addCandidate: thunkAddCandidateToExistingChannel,
+  removeCandidate: thunkRemoveCandidateFromExistingChannel,
 };
 
 const connector = connect(mapStateToProps, mapDispatchToProps);

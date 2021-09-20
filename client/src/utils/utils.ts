@@ -86,9 +86,14 @@ export const validateMessages = (data: any): Message[] => {
 export const validateChannelsPayload = (data: any): GetMyChannelsPayload => {
   if (!(data && data.channels && Array.isArray(data.channels)))
     throw new Error("validateChannelsPayload: invalid data.channels prop");
-  // validate  channels prop
-  data.channels.forEach((elm: any) => validateChannel(elm));
-  return data as GetMyChannelsPayload;
+  // // validate  channels prop
+  // data.channels.forEach((elm: any) => validateChannel(elm));
+  // return data as GetMyChannelsPayload;
+  const payload: GetMyChannelsPayload = { channels: [] };
+  data.channels.forEach((ch: any) => {
+    payload.channels.push(validateChannel(ch));
+  });
+  return payload;
 };
 
 /**

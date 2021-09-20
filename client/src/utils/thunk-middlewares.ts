@@ -59,10 +59,10 @@ export const thunkGetChannelDetail =
   async (dispatch) => {
     try {
       const payload = await fetchChannelDetailPayload(channelId);
-      // dispatch actio
+      // dispatch action
       dispatch(GetChannelDetailAction(payload));
     } catch (e) {
-      console.error();
+      console.error(e);
     }
   };
 
@@ -185,21 +185,29 @@ export const thunkUpdateSearchStatus =
       dispatch(UpdateSearchStatusAction({ type: "searching" }));
       const timeout: NodeJS.Timeout = setTimeout(async () => {
         // if string differs from the previous value, then user is still typing... end function
-        if (searchbox.current?.value !== query) return clearTimeout(timeout);
-        // get users from server
-        let users = await getUserSearchSuggestions(query);
-        const suggestedIds = suggestedUsers.map((u) => u.id);
-        users = users.filter((u) => !suggestedIds.includes(u.id));
-        if (users.length === 0)
-          // no users suggested -> show "no user found"
-          return dispatch(UpdateSearchStatusAction({ type: "noUserFound" }));
-        // at least one user found -> update state
-        return dispatch(UpdateSearchStatusAction({ type: "userFound", users }));
+        if (searchbox.current?.value !== query) {
+          return clearTimeout(timeout);
+        }
+        try {
+          // get users from server
+          let users = await getUserSearchSuggestions(query);
+          const suggestedIds = suggestedUsers.map((u) => u.id);
+          users = users.filter((u) => !suggestedIds.includes(u.id));
+          if (users.length === 0) {
+            // no users suggested -> show "no user found"
+            return dispatch(UpdateSearchStatusAction({ type: "noUserFound" }));
+          }
+          // at least one user found -> update state
+          return dispatch(
+            UpdateSearchStatusAction({ type: "userFound", users })
+          );
+        } catch (e) {
+          console.error(e);
+          return;
+        }
       }, 1000);
     } catch (e) {
-      if (e instanceof Error) {
-        console.error(e.message);
-      } else throw e;
+      console.error(e);
     }
   };
 
@@ -256,15 +264,11 @@ export const thunkCreateChannel =
           // join the channel (room)
           socket.emit("join new room", { channelId: channel.id });
         } catch (e) {
-          if (e instanceof Error) {
-            console.error(e.message);
-          } else throw e;
+          console.error(e);
         }
       }, 2000);
     } catch (e) {
-      if (e instanceof Error) {
-        console.error(e.message);
-      } else throw e;
+      console.error(e);
     }
   };
 
@@ -310,11 +314,19 @@ export const thunkGetUserByQuery =
     dispatch(UpdateMemberCandidateSearchStatusAction({ type: "searching" }));
     try {
       let users = await getUserSearchSuggestions(query);
+      // console.log("users:", users);
       const channelUserIds = channel.users.map((user) => user.id);
+      // console.log("ids:", channelUserIds);
       const candidateIds = candidates.map((c) => c.id);
+      // console.log("candidateIds:", candidateIds);
+      // console.log(
+      //   "users:",
+      //   users.filter((user) => channelUserIds.includes(user.id))
+      // );
       users = users
         .filter((user) => !channelUserIds.includes(user.id))
         .filter((user) => !candidateIds.includes(user.id));
+      // console.log("users:", users);
       // if suggested user is 0, then update status into "noUserFound"
       if (users.length === 0)
         return dispatch(

@@ -10,15 +10,14 @@ client side:
 server side:
 
 - NodeJS (TypeScript)
-- Docker(Kubernetes & Raspberry PI)
+- Docker(Kubernetes)
 - Kafka
 - Redis
 - Open ID Connect ([repo](https://github.com/hirotake111/oidc-provider-typescript))
-
 - Rest API / WebSocket
 - and Raspberry PI
 
-Currently mobie device is not suported.
+Currently mobile device is not supported.
 
 ### TODO
 
