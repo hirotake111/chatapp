@@ -165,13 +165,13 @@ describe("channelController", () => {
 
     it("should respond HTTP 500 for any other errors", async () => {
       expect.assertions(2);
-      const msg = nanoid();
+      const err = new Error(nanoid());
       config.kafka.producer.send = jest.fn().mockImplementation(() => {
-        throw new Error(msg);
+        throw err;
       });
       try {
         await controller.createNewChannel(req, res, next);
-        expect(sendMock.mock.calls[0][0].detail).toEqual(msg);
+        expect(sendMock.mock.calls[0][0].detail).toEqual(err);
         expect(statusMock.mock.calls[0][0]).toEqual(500);
       } catch (e) {
         throw e;
@@ -292,13 +292,13 @@ describe("channelController", () => {
 
     it("should respond HTTP 500 for any other errors", async () => {
       expect.assertions(2);
-      const msg = nanoid();
+      const err = new Error(nanoid());
       try {
         userQuery.getUsersByChannelId = jest.fn().mockImplementation(() => {
-          throw new Error(msg);
+          throw err;
         });
         await controller.getChannelDetail(req, res, next);
-        expect(sendMock.mock.calls[0][0].detail).toEqual(msg);
+        expect(sendMock.mock.calls[0][0].detail).toEqual(err);
         expect(statusMock.mock.calls[0][0]).toEqual(500);
       } catch (e) {
         throw e;
@@ -347,14 +347,14 @@ describe("channelController", () => {
 
     it("should respond HTTP 400 if channel does not exist", async () => {
       expect.assertions(2);
-      const msg = `channel ID ${channelId} doesn't exist`;
+      const err = new Error(`channel ID ${channelId} doesn't exist`);
       userQuery.getUsersByChannelId = jest.fn().mockImplementation(() => {
-        throw new Error(msg);
+        throw err;
       });
       try {
         await controller.deleteChannel(req, res, next);
         expect(statusMock.mock.calls[0][0]).toEqual(400);
-        expect(sendMock.mock.calls[0][0].detail).toEqual(msg);
+        expect(sendMock.mock.calls[0][0].detail).toEqual(err);
       } catch (e) {
         throw e;
       }
@@ -376,14 +376,14 @@ describe("channelController", () => {
 
     it("should respond HTTP 500 for any other errors", async () => {
       expect.assertions(2);
-      const msg = "db error!!!";
+      const err = new Error("db error!!!");
       userQuery.getUsersByChannelId = jest.fn().mockImplementation(() => {
-        throw new Error(msg);
+        throw err;
       });
       try {
         await controller.deleteChannel(req, res, next);
         expect(statusMock.mock.calls[0][0]).toEqual(500);
-        expect(sendMock.mock.calls[0][0].detail).toEqual(msg);
+        expect(sendMock.mock.calls[0][0].detail).toEqual(err);
       } catch (e) {
         throw e;
       }
@@ -448,15 +448,15 @@ describe("channelController", () => {
 
     it("should raise an error for any other reasons", async () => {
       expect.assertions(2);
-      const msg = "db err";
+      const err = new Error(nanoid());
       // this always throw an error
       userQuery.getUsersByChannelId = jest.fn().mockImplementation(() => {
-        throw new Error(msg);
+        throw err;
       });
       try {
         await controller.getChannelMembers(req, res, next);
         expect(statusMock.mock.calls[0][0]).toEqual(500);
-        expect(sendMock.mock.calls[0][0].detail).toEqual(msg);
+        expect(sendMock.mock.calls[0][0].detail).toEqual(err);
       } catch (e) {
         throw e;
       }
@@ -535,14 +535,14 @@ describe("channelController", () => {
 
     it("should respond HTTP 500 for any other errors", async () => {
       expect.assertions(2);
-      const msg = "db errorrrr";
+      const err = new Error("db errorrrr");
       config.kafka.producer.send = jest.fn().mockImplementation(() => {
-        throw new Error(msg);
+        throw err;
       });
       try {
         await controller.updateChannel(req, res, next);
         expect(statusMock.mock.calls[0][0]).toEqual(500);
-        expect(sendMock.mock.calls[0][0].detail).toEqual(msg);
+        expect(sendMock.mock.calls[0][0].detail).toEqual(err);
       } catch (e) {
         throw e;
       }
@@ -641,18 +641,18 @@ describe("channelController", () => {
 
     it("should respond HTTP 500 for any other errors", async () => {
       expect.assertions(2);
-      const msg = "db error...";
+      const err = new Error("db error...");
       channelQuery.getChannelByChannelIdWithMessages = jest
         .fn()
         .mockImplementation(() => {
-          throw new Error(msg);
+          throw err;
         });
       try {
         await controller.getChannelDetailWithMessages(req, res, next);
         expect(statusMock.mock.calls[0][0]).toEqual(500);
         expect(sendMock.mock.calls[0][0]).toEqual({
           error: "INTERNAL SERVER ERROR",
-          detail: msg,
+          detail: err,
         });
       } catch (e) {
         throw e;

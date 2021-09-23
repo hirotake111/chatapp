@@ -93,7 +93,7 @@ export const getWSController = (
     },
 
     onChatMessage: async (io: Server, socket: Socket, data: Message) => {
-      console.log(`Received message from ${socket.id} - ${new Date()} `);
+      // console.log(`Received message from ${socket.id} - ${new Date()} `);
       // validate user
       const { userId, username } = socket.request.session;
       if (!username || !userId)
@@ -161,6 +161,7 @@ export const getWSController = (
             detail: e.message,
             timestamp: Date.now(),
           });
+        console.log("e is ", e);
         throw e;
       }
       // send members the message

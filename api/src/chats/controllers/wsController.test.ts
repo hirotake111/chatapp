@@ -36,7 +36,7 @@ describe("wsController", () => {
       channelId: uuid(),
       createdAt: Date.now(),
       updatedAt: Date.now(),
-      sender: { id: userId, name: username },
+      sender: { id: userId, username },
       content: uuid(),
     };
     io = {
@@ -106,7 +106,8 @@ describe("wsController", () => {
         socket.request.session = {} as any;
         await controller.onConnection(io, socket);
       } catch (e) {
-        expect(e.message).toEqual("user is not authenticated");
+        if (e instanceof Error)
+          expect(e.message).toEqual("user is not authenticated");
       }
     });
 
@@ -121,7 +122,7 @@ describe("wsController", () => {
       try {
         await controller.onConnection(io, socket);
       } catch (e) {
-        expect(e.message).toEqual(msg);
+        if (e instanceof Error) expect(e.message).toEqual(msg);
       }
     });
   });
@@ -198,14 +199,15 @@ describe("wsController", () => {
       expect.assertions(2);
       queries.messageQuery.getSpecificMessage = jest
         .fn()
-        .mockImplementation(
-          async () => new Promise((_, reject) => reject("err"))
-        );
+        .mockImplementation(() => {
+          throw new Error("err");
+        });
       try {
         await controller.onChatMessage(io, socket, data);
         expect(mockEmit.mock.calls[1][0]).toEqual("exception");
         expect(mockEmit.mock.calls[1][1].code).toEqual(500);
       } catch (e) {
+        console.log("error:", e);
         throw e;
       }
     });

@@ -192,14 +192,14 @@ describe("rosterController", () => {
 
     it("should raise an error for any other errors", async () => {
       expect.assertions(2);
-      const msg = "database error!";
+      const err = new Error("database error!");
       config.kafka.producer.send = jest.fn().mockImplementation(() => {
-        throw new Error(msg);
+        throw err;
       });
       try {
         await rosterController.addChannelMember(req, res, next);
         expect(statusMock.mock.calls[0][0]).toEqual(500);
-        expect(sendMock.mock.calls[0][0].detail).toEqual(msg);
+        expect(sendMock.mock.calls[0][0].detail).toEqual(err);
       } catch (e) {
         throw e;
       }
@@ -326,14 +326,14 @@ describe("rosterController", () => {
 
     it("should raise an error for any other errors", async () => {
       expect.assertions(2);
-      const msg = "database error!";
+      const err = new Error("database error!");
       config.kafka.producer.send = jest.fn().mockImplementation(() => {
-        throw new Error(msg);
+        throw err;
       });
       try {
         await rosterController.removeChannelMember(req, res, next);
         expect(statusMock.mock.calls[0][0]).toEqual(500);
-        expect(sendMock.mock.calls[0][0].detail).toEqual(msg);
+        expect(sendMock.mock.calls[0][0].detail).toEqual(err);
       } catch (e) {
         throw e;
       }
