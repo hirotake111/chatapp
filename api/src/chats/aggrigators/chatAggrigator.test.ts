@@ -20,7 +20,7 @@ describe("chatAggrigator", () => {
   let aggrigator: ChatAggrigator;
   let messageId: string;
   let channelId: string;
-  let sender: { id: string; name: string };
+  let sender: { id: string; username: string };
   let content: string;
   let channelName: string;
   let memberIds: string[];
@@ -66,7 +66,8 @@ describe("chatAggrigator", () => {
       try {
         await aggrigator.process({} as any);
       } catch (e) {
-        expect(e.message).toEqual("message.value is empty");
+        if (e instanceof Error)
+          expect(e.message).toEqual("message.value is empty");
       }
     });
   });
@@ -75,7 +76,7 @@ describe("chatAggrigator", () => {
     beforeEach(() => {
       messageId = uuid();
       channelId = uuid();
-      sender = { id: uuid(), name: nanoid() };
+      sender = { id: uuid(), username: nanoid() };
       content = nanoid();
       value = {
         type: "MessageCreated",
@@ -106,7 +107,8 @@ describe("chatAggrigator", () => {
       try {
         await aggrigator.process(message);
       } catch (e) {
-        expect(e.message).toEqual("Failed to store a message to database");
+        if (e instanceof Error)
+          expect(e.message).toEqual("Failed to store a message to database");
       }
     });
 
@@ -119,7 +121,7 @@ describe("chatAggrigator", () => {
       try {
         await aggrigator.process(message);
       } catch (e) {
-        expect(e.message).toEqual(msg);
+        if (e instanceof Error) expect(e.message).toEqual(msg);
       }
     });
   });
@@ -128,7 +130,7 @@ describe("chatAggrigator", () => {
     beforeEach(() => {
       messageId = uuid();
       channelId = uuid();
-      sender = { id: uuid(), name: nanoid() };
+      sender = { id: uuid(), username: nanoid() };
       value = {
         type: "MessageDeleted",
         metadata: { traceId: uuid(), timestamp: Date.now() },
@@ -156,7 +158,7 @@ describe("chatAggrigator", () => {
       try {
         await aggrigator.process(message);
       } catch (e) {
-        expect(e.message).toEqual(msg);
+        if (e instanceof Error) expect(e.message).toEqual(msg);
       }
     });
   });
@@ -165,7 +167,7 @@ describe("chatAggrigator", () => {
     beforeEach(() => {
       messageId = uuid();
       channelId = uuid();
-      sender = { id: uuid(), name: nanoid() };
+      sender = { id: uuid(), username: nanoid() };
       content = nanoid();
       value = {
         type: "MessageUpdated",
@@ -198,7 +200,7 @@ describe("chatAggrigator", () => {
       try {
         await aggrigator.process(message);
       } catch (e) {
-        expect(e.message).toEqual(msg);
+        if (e instanceof Error) expect(e.message).toEqual(msg);
       }
     });
   });
@@ -207,7 +209,7 @@ describe("chatAggrigator", () => {
     beforeEach(() => {
       channelId = uuid();
       channelName = nanoid();
-      sender = { id: uuid(), name: nanoid() };
+      sender = { id: uuid(), username: nanoid() };
       memberIds = [uuid()];
       value = {
         type: "ChannelCreated",
@@ -253,7 +255,8 @@ describe("chatAggrigator", () => {
       try {
         await aggrigator.process(message);
       } catch (e) {
-        expect(e.message).toEqual("Failed to store a channel to database");
+        if (e instanceof Error)
+          expect(e.message).toEqual("Failed to store a channel to database");
       }
     });
 
@@ -263,9 +266,10 @@ describe("chatAggrigator", () => {
       try {
         await aggrigator.process(message);
       } catch (e) {
-        expect(e.message).toEqual(
-          `Failed to add requester ${sender.id} to channel ${channelId}`
-        );
+        if (e instanceof Error)
+          expect(e.message).toEqual(
+            `Failed to add requester ${sender.id} to channel ${channelId}`
+          );
       }
     });
 
@@ -278,7 +282,7 @@ describe("chatAggrigator", () => {
       try {
         await aggrigator.process(message);
       } catch (e) {
-        expect(e.message).toEqual(msg);
+        if (e instanceof Error) expect(e.message).toEqual(msg);
       }
     });
   });
@@ -287,7 +291,7 @@ describe("chatAggrigator", () => {
     beforeEach(() => {
       channelId = uuid();
       channelName = nanoid();
-      sender = { id: uuid(), name: nanoid() };
+      sender = { id: uuid(), username: nanoid() };
       value = {
         type: "ChannelUpdated",
         metadata: { traceId: uuid(), timestamp: Date.now() },
@@ -320,7 +324,7 @@ describe("chatAggrigator", () => {
       try {
         await aggrigator.process(message);
       } catch (e) {
-        expect(e.message).toEqual(msg);
+        if (e instanceof Error) expect(e.message).toEqual(msg);
       }
     });
   });
@@ -328,7 +332,7 @@ describe("chatAggrigator", () => {
   describe("deleteChannel", () => {
     beforeEach(() => {
       channelId = uuid();
-      sender = { id: uuid(), name: nanoid() };
+      sender = { id: uuid(), username: nanoid() };
       value = {
         type: "ChannelDeleted",
         metadata: { traceId: uuid(), timestamp: Date.now() },
@@ -358,7 +362,7 @@ describe("chatAggrigator", () => {
       try {
         await aggrigator.process(message);
       } catch (e) {
-        expect(e.message).toEqual(msg);
+        if (e instanceof Error) expect(e.message).toEqual(msg);
       }
     });
   });
@@ -366,7 +370,7 @@ describe("chatAggrigator", () => {
   describe("addUserToChannel", () => {
     beforeEach(() => {
       channelId = uuid();
-      sender = { id: uuid(), name: nanoid() };
+      sender = { id: uuid(), username: nanoid() };
       memberIds = [uuid(), uuid(), uuid()];
       value = {
         type: "UsersJoined",
@@ -397,7 +401,7 @@ describe("chatAggrigator", () => {
       try {
         await aggrigator.process(message);
       } catch (e) {
-        expect(e.message).toEqual(msg);
+        if (e instanceof Error) expect(e.message).toEqual(msg);
       }
     });
   });
@@ -405,7 +409,7 @@ describe("chatAggrigator", () => {
   describe("removeUserFromChannel", () => {
     beforeEach(() => {
       channelId = uuid();
-      sender = { id: uuid(), name: nanoid() };
+      sender = { id: uuid(), username: nanoid() };
       memberIds = [uuid(), uuid(), uuid()];
       value = {
         type: "UsersRemoved",
@@ -436,7 +440,7 @@ describe("chatAggrigator", () => {
       try {
         await aggrigator.process(message);
       } catch (e) {
-        expect(e.message).toEqual(msg);
+        if (e instanceof Error) expect(e.message).toEqual(msg);
       }
     });
   });

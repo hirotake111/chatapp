@@ -196,14 +196,14 @@ describe("messageController", () => {
     });
     it("should respond HTTP 500 for any other errors", async () => {
       expect.assertions(2);
-      const msg = "database error";
+      const err = new Error("database error");
       config.kafka.producer.send = jest.fn().mockImplementation(() => {
-        throw new Error(msg);
+        throw err;
       });
       try {
         await controller.postMessage(req, res, next);
         expect(mockStatus.mock.calls[0][0]).toEqual(500);
-        expect(mockSend.mock.calls[0][0]).toEqual({ detail: msg });
+        expect(mockSend.mock.calls[0][0]).toEqual({ detail: err });
       } catch (e) {
         throw e;
       }
@@ -265,15 +265,15 @@ describe("messageController", () => {
 
     it("should respond HTTP 500 for any other errors", async () => {
       expect.assertions(2);
-      const msg = "db error";
+      const err = new Error("db error");
       messageQuery.getMessagesInChannel = jest.fn().mockImplementation(() => {
-        throw new Error(msg);
+        throw err;
       });
       try {
         await controller.getMessagesInChannel(req, res, next);
         expect(mockStatus.mock.calls[0][0]).toEqual(500);
         expect(mockSend.mock.calls[0][0]).toEqual({
-          detail: msg,
+          detail: err,
         });
       } catch (e) {
         throw e;
@@ -373,14 +373,14 @@ describe("messageController", () => {
 
     it("should respond HTTP 500 for any other errors", async () => {
       expect.assertions(2);
-      const msg = "error";
+      const err = new Error("error");
       messageQuery.getSpecificMessage = jest.fn().mockImplementation(() => {
-        throw new Error(msg);
+        throw err;
       });
       try {
         await controller.getSpecificMessageInChannel(req, res, next);
         expect(mockStatus.mock.calls[0][0]).toEqual(500);
-        expect(mockSend.mock.calls[0][0]).toEqual({ detail: msg });
+        expect(mockSend.mock.calls[0][0]).toEqual({ detail: err });
       } catch (e) {
         throw e;
       }
@@ -488,14 +488,14 @@ describe("messageController", () => {
 
     it("should respond HTTP 500 for any other errors", async () => {
       expect.assertions(2);
-      const msg = "errrrrr";
+      const err = new Error("errrrrr");
       config.kafka.producer.send = jest.fn().mockImplementation(() => {
-        throw new Error(msg);
+        throw err;
       });
       try {
         await controller.editMessage(req, res, next);
         expect(mockStatus.mock.calls[0][0]).toEqual(500);
-        expect(mockSend.mock.calls[0][0]).toEqual({ detail: msg });
+        expect(mockSend.mock.calls[0][0]).toEqual({ detail: err });
       } catch (e) {
         throw e;
       }
@@ -591,14 +591,14 @@ describe("messageController", () => {
 
     it("should respond HTTP 500 for any other errors", async () => {
       expect.assertions(2);
-      const detail = nanoid();
+      const err = new Error(nanoid());
       config.kafka.producer.send = jest.fn().mockImplementation(() => {
-        throw new Error(detail);
+        throw err;
       });
       try {
         await controller.deleteMessage(req, res, next);
         expect(mockStatus.mock.calls[0][0]).toEqual(500);
-        expect(mockSend.mock.calls[0][0]).toEqual({ detail });
+        expect(mockSend.mock.calls[0][0]).toEqual({ detail: err });
       } catch (e) {
         throw e;
       }

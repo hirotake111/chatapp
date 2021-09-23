@@ -7,7 +7,7 @@ describe("validateChatPaylaod", () => {
   const getData = (): Message => ({
     id: uuid(),
     channelId: uuid(),
-    sender: { id: uuid(), name: nanoid() },
+    sender: { id: uuid(), username: nanoid() },
     createdAt: Date.now(),
     updatedAt: Date.now(),
     content: nanoid(),
@@ -31,7 +31,7 @@ describe("validateChatPaylaod", () => {
     expect(validateMessage(data)).toEqual(false);
     // sender.name
     data = getData();
-    data.sender.name = 123 as any;
+    data.sender.username = 123 as any;
     expect(validateMessage(data)).toEqual(false);
     // createdAt
     expect(validateMessage({ ...getData(), createdAt: "xxx" } as any)).toEqual(
