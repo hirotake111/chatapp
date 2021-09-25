@@ -18,6 +18,7 @@ export const ChannelList = ({
       await getMessages(channel.id);
     }
   };
+  console.log("length: ", channels.length);
   return (
     <div className="channel-list">
       {channels.length ? (

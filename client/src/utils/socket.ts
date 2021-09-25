@@ -3,9 +3,9 @@ import Client from "socket.io-client";
 const url = process.env.REACT_APP_WS_URL;
 
 const socket =
-  url && url !== "dummyurl"
+  url && url !== "ws://localhost:8888"
     ? Client(url, { autoConnect: true })
-    : Client({ autoConnect: true });
+    : Client({ autoConnect: false });
 
 console.log("registering onAny handler for debugging purpose");
 socket.onAny((event, data) =>
