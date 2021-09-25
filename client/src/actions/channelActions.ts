@@ -14,6 +14,7 @@ type ClearCandidateFromExistingChannelType =
   "channel/clearCandidateFromExistingChannel";
 type UpdateMemberCandidateSearchStatusType = "channel/UpdateSearchStatus";
 type UpdateMemberButtonEnabledType = "channel/UpdateMemberButtonEnabled";
+type ToggleChannelLoading = "channel/ToggleChannelLoading";
 
 /**
  * Payload Types
@@ -131,6 +132,10 @@ interface UpdateMemberButtonEnabledActionType
   payload: UpdateMemberButtonEnabledPayload;
 }
 
+interface ToggleChannelLoadingActionType extends Action<ToggleChannelLoading> {
+  type: ToggleChannelLoading;
+}
+
 export type ChannelActionTypes =
   | GetChannelDetailActionType
   | GetMyChannelsActionType
@@ -142,7 +147,8 @@ export type ChannelActionTypes =
   | RemoveCandidateFromExistingChannelActionType
   | ClearCandidateFromExistingChannelActionType
   | UpdateMemberCandidateSearchStatusActionType
-  | UpdateMemberButtonEnabledActionType;
+  | UpdateMemberButtonEnabledActionType
+  | ToggleChannelLoadingActionType;
 
 /**
  * Actions
@@ -212,3 +218,8 @@ export const UpdateMemberButtonEnabledAction = (
   type: "channel/UpdateMemberButtonEnabled",
   payload: { enabled },
 });
+
+export const ToggleChannelLoadingAction =
+  (): ToggleChannelLoadingActionType => ({
+    type: "channel/ToggleChannelLoading",
+  });

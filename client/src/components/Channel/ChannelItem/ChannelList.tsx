@@ -18,37 +18,22 @@ export const ChannelList = ({
       await getMessages(channel.id);
     }
   };
-  console.log("length: ", channels.length);
+
   return (
     <div className="channel-list">
-      {channels.length ? (
-        <ul>
-          {channels
-            .sort((a, b) => b.updatedAt - a.updatedAt)
-            .map((ch) => (
-              <ChannelItem
-                key={ch.id}
-                title={ch.name}
-                memberSummary={getMemberSummary(ch.name, ch.users)}
-                isHighlighted={!!highlighted && highlighted.id === ch.id}
-                onClick={async () => handleClick(ch)}
-              />
-            ))}
-        </ul>
-      ) : (
-        <div
-          style={{
-            height: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <div style={{ textAlign: "center", fontSize: "1.4rem" }}>
-            You don't have any channels yet.
-          </div>
-        </div>
-      )}
+      <ul>
+        {channels
+          .sort((a, b) => b.updatedAt - a.updatedAt)
+          .map((ch) => (
+            <ChannelItem
+              key={ch.id}
+              title={ch.name}
+              memberSummary={getMemberSummary(ch.name, ch.users)}
+              isHighlighted={!!highlighted && highlighted.id === ch.id}
+              onClick={async () => handleClick(ch)}
+            />
+          ))}
+      </ul>
     </div>
   );
 };

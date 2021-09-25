@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import {
   thunkGetChannelMessages,
@@ -8,13 +9,14 @@ import {
 import { RootState } from "../../utils/store";
 import { ChannelList } from "../../components/Channel/ChannelItem/ChannelList";
 import { Button } from "../../components/Common/Button/Button";
+import { LoadingSpinner2 } from "../../components/Common/LoadingSpinner2/LoadingSpinner2";
 
 import "./LeftColumn.css";
-import { useEffect } from "react";
 
 const _LeftColumn = ({
   channels,
   highlighted,
+  loading,
   getMessages,
   showNewChannelModal,
   getMychannels,
@@ -31,11 +33,21 @@ const _LeftColumn = ({
 
   return (
     <div className="left-column">
-      <ChannelList
-        channels={channels}
-        highlighted={highlighted}
-        getMessages={getMessages}
-      />
+      {loading ? (
+        <div className="leftcolumn-nochannel">
+          <LoadingSpinner2 />
+        </div>
+      ) : channels.length === 0 ? (
+        <div className="leftcolumn-nochannel">
+          <span>You don't have any channels yet.</span>
+        </div>
+      ) : (
+        <ChannelList
+          channels={channels}
+          highlighted={highlighted}
+          getMessages={getMessages}
+        />
+      )}
       <div className="new-channel-button-container">
         <Button
           enabled={true}
@@ -50,6 +62,7 @@ const _LeftColumn = ({
 const mapStateToProps = (state: RootState) => ({
   channels: state.channel.channels,
   highlighted: state.channel.highlighted,
+  loading: state.channel.loading,
 });
 
 const mapDispatchToProps = {
