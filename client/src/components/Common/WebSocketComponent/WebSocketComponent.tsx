@@ -13,11 +13,17 @@ import {
  */
 const _WebSocketComponent = ({
   socket,
+  isAuthenticated,
   onChatMessage,
   onJoinNewChannel,
-}: Props & { socket: Socket }) => {
+}: Props) => {
   // utilize userEffect hook to register WebSocket event handler
   useEffect(() => {
+    // if user is authenticated, then connect to WebSocket server
+    if (isAuthenticated) {
+      console.log("connecting WebSocket server now...");
+      socket.connect();
+    }
     // on chat message
     socket.on("chat message", (data) => {
       onChatMessage(data);
@@ -49,13 +55,13 @@ const _WebSocketComponent = ({
       );
       // socket.disconnect();
     };
-  }, [socket, onChatMessage, onJoinNewChannel]);
+  }, [socket, onChatMessage, onJoinNewChannel, isAuthenticated]);
 
   return null;
 };
 
 const mapStateToProps = (state: RootState) => ({
-  // socket: state,
+  isAuthenticated: state.user.isAuthenticated,
 });
 const mapDispatchToProps = {
   onChatMessage: (message: Message) => thunkOnChatMessage(message),
@@ -64,7 +70,7 @@ const mapDispatchToProps = {
 
 const connector = connect(mapStateToProps, mapDispatchToProps);
 type PropsFromRedux = ConnectedProps<typeof connector>;
-type Props = PropsFromRedux & {};
+type Props = PropsFromRedux & { socket: Socket };
 
 export const WebSocketComponent = connect(
   mapStateToProps,
