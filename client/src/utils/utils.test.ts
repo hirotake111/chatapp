@@ -1,9 +1,11 @@
-import { jest, describe, it, expect } from "@jest/globals";
+import { jest, describe, it, expect, beforeEach } from "@jest/globals";
+import { nanoid } from "@reduxjs/toolkit";
 import { v4 as uuid } from "uuid";
 import {
   convertTimestampToDate,
   fetchChannelDetailPayload,
   getChannelMessages,
+  getMemberSummary,
   getNumberWithTwoDigits,
   getUserSearchSuggestions,
   validateChannel,
@@ -210,5 +212,40 @@ describe("fetchChannelDetailPayload", () => {
     } catch (e) {
       if (e instanceof Error) expect(e.message).toEqual("Error from server");
     }
+  });
+});
+
+describe("getMemberSummary", () => {
+  let channelName: string;
+  type User = { id: string; displayName: string };
+
+  const getUser = (displayName: string): User => ({ id: uuid(), displayName });
+
+  beforeEach(() => {
+    channelName = nanoid();
+  });
+
+  it("should return channel name if member < 2", () => {
+    expect.assertions(1);
+    expect(getMemberSummary(channelName, [])).toEqual(channelName);
+  });
+
+  it("should return 2 users if member == 2", () => {
+    expect.assertions(1);
+    expect(
+      getMemberSummary(channelName, [getUser("ALICE"), getUser("BOB")])
+    ).toEqual("ALICE and BOB");
+  });
+
+  it("should retrun 2 users with number for other extra members", () => {
+    expect.assertions(1);
+    expect(
+      getMemberSummary(channelName, [
+        getUser("BOB"),
+        getUser("ALICE"),
+        getUser("CHRIS"),
+        getUser("DANNY"),
+      ])
+    ).toEqual("BOB and ALICE + 2");
   });
 });

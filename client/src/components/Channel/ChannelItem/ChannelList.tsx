@@ -1,18 +1,6 @@
 import { MouseEventHandler } from "react";
+import { getMemberSummary } from "../../../utils/utils";
 import "./ChannelList.css";
-
-const getMemberSummary = (channel: ChannelPayload): string => {
-  const { users, name } = channel;
-  if (users.length < 2) {
-    return name;
-  }
-  if (users.length === 2) {
-    return `${users[0].displayName} and ${users[1].displayName}`;
-  }
-  return `${users[0].displayName} and ${users[1].displayName} + ${
-    users.length - 2
-  }`;
-};
 
 export const ChannelList = ({
   channels,
@@ -40,7 +28,7 @@ export const ChannelList = ({
               <ChannelItem
                 key={ch.id}
                 title={ch.name}
-                memberSummary={getMemberSummary(ch)}
+                memberSummary={getMemberSummary(ch.name, ch.users)}
                 isHighlighted={!!highlighted && highlighted.id === ch.id}
                 onClick={async () => handleClick(ch)}
               />
