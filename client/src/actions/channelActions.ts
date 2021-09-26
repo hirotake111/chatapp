@@ -36,6 +36,10 @@ export interface UpdateMemberModalPayload {
   enabled: boolean;
 }
 
+export interface HighlightChannelPayload {
+  channelId: string;
+}
+
 export interface AddCandidateToExistingChannelPayload {
   candidate: SearchedUser;
 }
@@ -74,9 +78,9 @@ interface GetChannelMessagesActionType
 }
 
 interface HighlightChannelActionType
-  extends PayloadAction<ChannelPayload, HighlightChannelType> {
+  extends PayloadAction<HighlightChannelPayload, HighlightChannelType> {
   type: HighlightChannelType;
-  payload: ChannelPayload;
+  payload: HighlightChannelPayload;
 }
 
 interface ReceiveMessageActionType
@@ -165,9 +169,9 @@ export const GetChannelMessagesAction = (
   payload: GetChannelMessagesPayload
 ): ChannelActionTypes => ({ type: "channel/getChannelMessages", payload });
 
-export const HighlightChannelAction = (
-  payload: ChannelPayload
-): HighlightChannelActionType => ({
+export const HighlightChannelAction = (payload: {
+  channelId: string;
+}): HighlightChannelActionType => ({
   type: "channel/highlightChannel",
   payload,
 });

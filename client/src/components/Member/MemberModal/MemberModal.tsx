@@ -29,6 +29,11 @@ const Component = ({
 }: Props) => {
   const handleClick = async () => {
     const memberIds = candidates.map((c) => c.id);
+    if (!highlighted) {
+      console.log("highlighted ID is null -> skip adding user to the channel");
+      return;
+    }
+
     try {
       addMember(memberIds, highlighted);
     } catch (e) {
