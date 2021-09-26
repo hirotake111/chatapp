@@ -14,6 +14,7 @@ import { ChatConfigType } from "../chats/config";
 
 export const getConfig = async (env: Env): Promise<ConfigType> => {
   try {
+    console.log(`connecting to ${env.ISSUER}`);
     const issuer = await getIssuer(env.ISSUER);
     const metadata: ClientMetadata = {
       client_id: env.OAUTH_CLIENTID,
