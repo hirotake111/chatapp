@@ -69,7 +69,9 @@ export const myMiddleware: Middleware =
     }
     if (action.type === "channel/getChannelMessages") {
       // also highlight channel
-      storeApi.dispatch(HighlightChannelAction(action.payload.channel));
+      // storeApi.dispatch(
+      //   HighlightChannelAction({ channelId: action.payload.channel.id })
+      // );
     }
     if (
       action.type === "channel/highlightChannel" ||

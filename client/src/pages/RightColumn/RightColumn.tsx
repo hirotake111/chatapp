@@ -37,7 +37,7 @@ const RColumn = ({
       return;
     }
     const message: MessageWithNoId = {
-      channelId: highlighted.id,
+      channelId: highlighted,
       content,
       createdAt: Date.now(),
       updatedAt: Date.now(),
@@ -68,7 +68,9 @@ const RColumn = ({
     <div className="right-column">
       <div className="channel-title-container">
         <span className="channel-title">
-          {highlighted ? highlighted.name : " "}
+          {highlighted
+            ? channels.filter((ch) => ch.id === highlighted)[0].name
+            : ""}
         </span>
         <div className="add-member-button-container">
           {!!highlighted ? (

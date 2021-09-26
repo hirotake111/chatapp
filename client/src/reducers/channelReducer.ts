@@ -3,7 +3,7 @@ import { ChannelActionTypes } from "../actions/channelActions";
 
 interface ChannelState {
   channels: ChannelPayload[];
-  highlighted?: { id: string; name: string };
+  highlighted?: string;
   memberModalEnabled: boolean;
   candidates: SearchedUser[];
   suggestions: SearchedUser[];
@@ -54,7 +54,7 @@ export const channelReducer: Reducer<ChannelState, ChannelActionTypes> = (
     case "channel/highlightChannel": {
       return {
         ...state,
-        highlighted: { id: action.payload.id, name: action.payload.name },
+        highlighted: action.payload.channelId,
       };
     }
 

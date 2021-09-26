@@ -8,14 +8,16 @@ export const ChannelList = ({
   getMessages,
 }: {
   channels: ChannelPayload[];
-  highlighted?: { id: string; name: string };
+  highlighted: string;
   getMessages: (channelId: string) => void;
 }) => {
   // onClick handler
-  const handleClick = async (channel: ChannelPayload) => {
-    if (highlighted && channel.id !== highlighted.id) {
+  const handleClick = (channel: ChannelPayload) => {
+    if (highlighted && channel.id !== highlighted) {
+      // if (channel.id !== highlighted?.id) {
+      console.warn("fire!!!", channel.id, highlighted);
       // get messages in channel
-      await getMessages(channel.id);
+      getMessages(channel.id);
     }
   };
 
@@ -29,7 +31,7 @@ export const ChannelList = ({
               key={ch.id}
               title={ch.name}
               memberSummary={getMemberSummary(ch.name, ch.users)}
-              isHighlighted={!!highlighted && highlighted.id === ch.id}
+              isHighlighted={!!highlighted && highlighted === ch.id}
               onClick={async () => handleClick(ch)}
             />
           ))}

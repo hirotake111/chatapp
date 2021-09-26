@@ -7,11 +7,11 @@ export const ChatPane = ({
   channels,
   senderId,
 }: {
-  highlighted: { id: string; name: string };
+  highlighted: string;
   channels: ChannelPayload[];
   senderId: string;
 }) => {
-  const channel = channels.filter((ch) => ch.id === highlighted.id)[0];
+  const channel = channels.filter((ch) => ch.id === highlighted)[0];
 
   return (
     <div className="chat-pane">
