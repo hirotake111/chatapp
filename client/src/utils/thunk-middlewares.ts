@@ -96,9 +96,7 @@ export const thunkGetChannelMessages =
   (channelId: string): AppThunk =>
   async (dispatch) => {
     // highlight channel in the first place
-    // dispatch(
-    //   HighlightChannelAction({ id: channelId, name: "tmp channel name" })
-    // );
+    dispatch(HighlightChannelAction({ channelId }));
     try {
       // fetch data from local storage
       const dataInLocalStorage = storage.getChannel(channelId);
@@ -110,7 +108,7 @@ export const thunkGetChannelMessages =
           (Date.now() - data.channel.updatedAt) / 1000 / 60
         );
         // also, highlight channel
-        dispatch(HighlightChannelAction(data.channel));
+        // dispatch(HighlightChannelAction({ channelId: data.channel.id }));
         // if channel is updated within 2 minutes, then do nothing
         if (tsIntervalMinutes <= 2) return;
       }
@@ -128,7 +126,7 @@ export const thunkGetChannelMessages =
 export const thunkHighlightChannel =
   (channel: ChannelPayload): AppThunk =>
   async (dispatch) => {
-    dispatch(HighlightChannelAction(channel));
+    dispatch(HighlightChannelAction({ channelId: channel.id }));
   };
 
 export const thunkChangeFormContent =
@@ -373,16 +371,13 @@ export const thunkGetUserByQuery =
   };
 
 export const thunkAddMemberToChannel =
-  (
-    memberIds: string[],
-    channel: { id: string; name: string } | undefined
-  ): AppThunk =>
+  (memberIds: string[], channelId: string | undefined): AppThunk =>
   async (dispatch) => {
     // if no candidate, return
     if (memberIds.length === 0) return;
     // if no channel ID, return
-    if (!channel) throw new Error("channel is undefined");
-    const { id: channelId } = channel;
+    if (!channelId) throw new Error("channel is undefined");
+    // const { id: channelId } = channel;
     if (!channelId) throw new Error("invalid channel ID");
     try {
       // disable button

@@ -25,7 +25,7 @@ const Component = ({
 const mapStateToProps = (state: RootState) => ({
   candidates: state.channel.candidates,
   highlightedChannel: state.channel.channels.filter(
-    (ch) => ch.id === state.channel.highlighted?.id
+    (ch) => ch.id === state.channel.highlighted
   )[0],
 });
 

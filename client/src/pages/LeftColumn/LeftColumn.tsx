@@ -44,7 +44,7 @@ const _LeftColumn = ({
       ) : (
         <ChannelList
           channels={channels}
-          highlighted={highlighted}
+          highlighted={highlighted || "no channel is highlighted"}
           getMessages={getMessages}
         />
       )}
