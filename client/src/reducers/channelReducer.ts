@@ -9,6 +9,7 @@ interface ChannelState {
   suggestions: SearchedUser[];
   searchStatus: UserSearchStatus;
   addMemberButtonEnabled: boolean;
+  loading: boolean;
 }
 
 export const initialChannelState: ChannelState = {
@@ -19,6 +20,7 @@ export const initialChannelState: ChannelState = {
   suggestions: [],
   searchStatus: { type: "notInitiated" },
   addMemberButtonEnabled: true,
+  loading: true,
 };
 
 export const channelReducer: Reducer<ChannelState, ChannelActionTypes> = (
@@ -103,6 +105,9 @@ export const channelReducer: Reducer<ChannelState, ChannelActionTypes> = (
 
     case "channel/UpdateMemberButtonEnabled":
       return { ...state, addMemberButtonEnabled: action.payload.enabled };
+
+    case "channel/ToggleChannelLoading":
+      return { ...state, loading: !state.loading };
 
     default:
       return state;

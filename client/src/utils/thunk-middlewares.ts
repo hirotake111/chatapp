@@ -21,6 +21,7 @@ import {
   AddCandidateToExistingChannelAction,
   RemoveCandidateFromExistingChannelAction,
   UpdateMemberButtonEnabledAction,
+  ToggleChannelLoadingAction,
 } from "../actions/channelActions";
 
 import {
@@ -66,14 +67,19 @@ export const thunkGetChannelDetail =
     }
   };
 
+/**
+ * Fetch a list of channels from server, then update store
+ */
 export const thunkGetMyChannels = (): AppThunk => async (dispatch) => {
   try {
     // get channel detail from API server
     const body = await getData("/api/channel/");
     // validate payload
     const payload = validateChannelsPayload(body);
-    // dispatch actio
+    // dispatch action
     dispatch(GetMyChannelsAction(payload));
+    // update loading state
+    dispatch(ToggleChannelLoadingAction());
   } catch (e) {
     throw e;
   }

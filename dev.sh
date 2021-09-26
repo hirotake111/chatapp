@@ -14,4 +14,4 @@ docker-compose exec -T kafka1 kafka-topics --create --bootstrap-server localhost
 docker-compose exec -T kafka1 kafka-topics --create --bootstrap-server localhost:29092 --partitions 1 --topic identity
 
 echo "restarting app container"
-docker restart app
+docker restart chat-api

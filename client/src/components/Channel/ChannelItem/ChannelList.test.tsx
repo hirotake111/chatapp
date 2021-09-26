@@ -91,3 +91,19 @@ it("should not invoke getMessages callback when highlighted channel is no given"
   fireEvent.click(container.getElementsByClassName("channel-list-title")[0]);
   expect(callback).toHaveBeenCalledTimes(0);
 });
+
+it("should add channel-list-selected class when a channel is highlighted", () => {
+  expect.assertions(1);
+  const highlighted = getChannel();
+  const channels: ChannelPayload[] = [getChannel(), highlighted, getChannel()];
+  const { container } = render(
+    <ChannelList
+      channels={channels}
+      highlighted={highlighted}
+      getMessages={callback}
+    />
+  );
+  expect(
+    container.getElementsByClassName("channel-list-selected").length
+  ).toEqual(1);
+});

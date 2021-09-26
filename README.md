@@ -38,6 +38,7 @@ The following secrets are necessary to trigger GitHub actions
 - DEPLOYMENT_NAME_FRONTEND
 - DEPLOYMENT_NAME_API (deployment/name_of_deployment)
 - DEPLOYMENT_NAME_FRONTEND
+- REACT_APP_WS_URL (URL pointing WebSocket server)
 - KUBE_CONTAINER_NAME_API (container name)
 - KUBE_CONTAINER_NAME_FRONTEND
 

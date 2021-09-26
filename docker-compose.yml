@@ -1,9 +1,9 @@
 version: "3.7"
 
 services:
-  app: # app
+  chat-api: # app
     image: video_chat_api-dev
-    container_name: app
+    container_name: chat-api
     volumes:
       - type: bind
         source: ./api/src
@@ -13,8 +13,8 @@ services:
       - app_redis
       - kafka1
       # - kafka2
-    # ports:
-    #   - 3000:3000
+    ports:
+      - 3000:3000
     environment:
       - "SECRETKEY=${SECRETKEY}"
       - "OAUTH_CLIENTID=${OAUTH_CLIENTID}"
@@ -49,15 +49,16 @@ services:
     # ports:
     #   - "6380:6379"
 
-  rp: # Reverse Proxy
+  chat-rp: # Reverse Proxy
     image: nginx:1.19.1-alpine
-    container_name: rp
+    container_name: chat-rp
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
     ports:
       - "8888:80"
     depends_on:
-      - app
+      - chat-api
+      - chat-fe
 
   zookeeper1:
     container_name: zookeeper1
@@ -110,10 +111,10 @@ services:
   #     KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
   #     KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
-  fe: # frontend
+  chat-fe: # frontend
     image: video_chat_frontend-dev
     # image: temp_prod_frontend
-    container_name: fe
+    container_name: chat-fe
     volumes:
       - type: bind
         source: ./client/src

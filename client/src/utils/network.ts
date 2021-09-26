@@ -13,7 +13,7 @@ export const asyncWait = (
 /**
  * gets data from server and returns body, or redirect to auth server when it gets HTTP 401
  */
-export const getData = async (url: string, waitFor = 300): Promise<any> => {
+export const getData = async (url: string, waitFor = 1000): Promise<any> => {
   try {
     const res = await fetch(url);
     const body = await res.json();

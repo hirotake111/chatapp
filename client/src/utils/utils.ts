@@ -146,6 +146,9 @@ export const getUserSearchSuggestions = async (
   return users.map((user) => validateSearchSuggestionUser(user));
 };
 
+/**
+ * get channel data and validate it, then return it
+ */
 export const fetchChannelDetailPayload = async (
   channelId: string
 ): Promise<ChannelPayload> => {
@@ -157,4 +160,22 @@ export const fetchChannelDetailPayload = async (
   } catch (e) {
     throw e;
   }
+};
+
+/**
+ * returns channel name, member names, or membernames with number
+ */
+export const getMemberSummary = (
+  channelName: string,
+  users: { id: string; displayName: string }[]
+): string => {
+  if (users.length < 2) {
+    return channelName;
+  }
+  if (users.length === 2) {
+    return `${users[0].displayName} and ${users[1].displayName}`;
+  }
+  return `${users[0].displayName} and ${users[1].displayName} + ${
+    users.length - 2
+  }`;
 };

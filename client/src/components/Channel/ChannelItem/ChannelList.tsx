@@ -1,18 +1,6 @@
 import { MouseEventHandler } from "react";
+import { getMemberSummary } from "../../../utils/utils";
 import "./ChannelList.css";
-
-const getMemberSummary = (channel: ChannelPayload): string => {
-  const { users, name } = channel;
-  if (users.length < 2) {
-    return name;
-  }
-  if (users.length === 2) {
-    return `${users[0].displayName} and ${users[1].displayName}`;
-  }
-  return `${users[0].displayName} and ${users[1].displayName} + ${
-    users.length - 2
-  }`;
-};
 
 export const ChannelList = ({
   channels,
@@ -30,36 +18,22 @@ export const ChannelList = ({
       await getMessages(channel.id);
     }
   };
+
   return (
     <div className="channel-list">
-      {channels.length ? (
-        <ul>
-          {channels
-            .sort((a, b) => b.updatedAt - a.updatedAt)
-            .map((ch) => (
-              <ChannelItem
-                key={ch.id}
-                title={ch.name}
-                memberSummary={getMemberSummary(ch)}
-                isHighlighted={!!highlighted && highlighted.id === ch.id}
-                onClick={async () => handleClick(ch)}
-              />
-            ))}
-        </ul>
-      ) : (
-        <div
-          style={{
-            height: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <div style={{ textAlign: "center", fontSize: "1.4rem" }}>
-            You don't have any channels yet.
-          </div>
-        </div>
-      )}
+      <ul>
+        {channels
+          .sort((a, b) => b.updatedAt - a.updatedAt)
+          .map((ch) => (
+            <ChannelItem
+              key={ch.id}
+              title={ch.name}
+              memberSummary={getMemberSummary(ch.name, ch.users)}
+              isHighlighted={!!highlighted && highlighted.id === ch.id}
+              onClick={async () => handleClick(ch)}
+            />
+          ))}
+      </ul>
     </div>
   );
 };
