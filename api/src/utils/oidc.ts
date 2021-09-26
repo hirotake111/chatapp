@@ -3,8 +3,12 @@ import { ConfigType } from "../server/config";
 
 export const getIssuer = async (issuerUrl: string): Promise<Issuer<Client>> => {
   try {
-    return await Issuer.discover(issuerUrl);
+    console.log(`discovering issuer ${issuerUrl}`);
+    const client = await Issuer.discover(issuerUrl);
+    console.log("successfully got Issuer");
+    return client;
   } catch (e) {
+    console.log("debug - e:", e);
     throw e;
   }
 };
