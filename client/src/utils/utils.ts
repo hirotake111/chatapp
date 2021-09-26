@@ -1,9 +1,6 @@
 import { validate } from "uuid";
 
-import {
-  GetMyChannelsPayload,
-  GetChannelMessagesPayload,
-} from "../actions/channelActions";
+import { GetMyChannelsPayload } from "../actions/channelActions";
 import { getData } from "./network";
 import { TypeToBeValidated, validateData } from "./validators";
 
@@ -113,19 +110,14 @@ export const validateSearchSuggestionUser = (data: any): SearchedUser => {
  */
 export const getChannelMessages = async (
   channelId: string
-): Promise<GetChannelMessagesPayload> => {
+): Promise<ChannelPayload> => {
   try {
     // validate channnel ID
     if (!validate(channelId))
       throw new Error(`getChannelMessages: invalid channel ID - ${channelId}`);
     // fetch messages by channel Id
-    const { channel, messages } = await getData(
-      `/api/channel/${channelId}/message`
-    );
-    return {
-      channel: validateChannel(channel),
-      messages: validateMessages(messages),
-    };
+    const { channel } = await getData(`/api/channel/${channelId}/message`);
+    return validateChannel(channel);
   } catch (e) {
     throw e;
   }

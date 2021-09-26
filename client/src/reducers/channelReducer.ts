@@ -43,11 +43,12 @@ export const channelReducer: Reducer<ChannelState, ChannelActionTypes> = (
       };
 
     case "channel/getChannelMessages": {
-      const { channel } = action.payload;
-      const others = state.channels.filter(({ id }) => id !== channel.id);
+      const others = state.channels.filter(
+        ({ id }) => id !== action.payload.id
+      );
       return {
         ...state,
-        channels: [...others, { ...channel }],
+        channels: [...others, { ...action.payload }],
       };
     }
 

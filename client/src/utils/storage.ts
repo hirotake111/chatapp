@@ -1,23 +1,19 @@
-import { GetChannelMessagesPayload } from "../actions/channelActions";
 import { validateChannel, validateMessages } from "./utils";
 
 interface CustomStorage {
-  getChannel(channelId: string): GetChannelMessagesPayload | {};
-  setChannel(channelId: string, payload: GetChannelMessagesPayload): void;
+  getChannel(channelId: string): ChannelPayload | {};
+  setChannel(channelId: string, payload: ChannelPayload): void;
 }
 
 interface ValueInChannelsKey {
-  [key: string]: GetChannelMessagesPayload;
+  [key: string]: ChannelPayload;
 }
 
 export const storage: CustomStorage = {
   /**
    * get data by channel ID from local storage. If not data in it, then return {}
    */
-  getChannel(
-    this: CustomStorage,
-    channelId: string
-  ): GetChannelMessagesPayload | {} {
+  getChannel(this: CustomStorage, channelId: string): ChannelPayload | {} {
     // get channels data
     const allChannels = JSON.parse(localStorage.getItem("channels") || "{}");
     // if fetched data is empty object, then return it as default value
@@ -34,14 +30,9 @@ export const storage: CustomStorage = {
   /**
    * set data using channel ID to local storage
    */
-  setChannel(
-    this: CustomStorage,
-    channelId: string,
-    payload: GetChannelMessagesPayload
-  ) {
+  setChannel(this: CustomStorage, channelId: string, payload: ChannelPayload) {
     // validation
-    validateChannel(payload.channel);
-    validateMessages(payload.messages);
+    validateChannel(payload);
     // get current data in local storage
     const allChannels = JSON.parse(localStorage.getItem("channels") || "{}");
     localStorage.setItem(

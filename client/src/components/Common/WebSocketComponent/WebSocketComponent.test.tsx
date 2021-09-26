@@ -9,7 +9,6 @@ import { Server, Socket as ServerSocket } from "socket.io";
 import { WebSocketComponent } from "./WebSocketComponent";
 import { store } from "../../../utils/store";
 import Client, { Socket } from "socket.io-client";
-import { GetChannelMessagesPayload } from "../../../actions/channelActions";
 
 let http: HTTPServer;
 let io: Server;
@@ -40,11 +39,8 @@ const mockChannel = {
 };
 
 jest.mock("../../../utils/utils", () => ({
-  getChannelMessages: async (): Promise<GetChannelMessagesPayload> => {
-    return {
-      channel: mockChannel,
-      messages: mockMessages,
-    };
+  getChannelMessages: async (): Promise<ChannelPayload> => {
+    return mockChannel;
   },
 }));
 

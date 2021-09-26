@@ -22,7 +22,6 @@ import {
   RemoveCandidateFromExistingChannelAction,
   UpdateMemberButtonEnabledAction,
   ToggleChannelLoadingAction,
-  GetChannelMessagesPayload,
 } from "../actions/channelActions";
 
 import {
@@ -102,10 +101,10 @@ export const thunkGetChannelMessages =
       const dataInLocalStorage = storage.getChannel(channelId);
       // if data is found in local storage, then update channel message
       if (dataInLocalStorage && Object.keys(dataInLocalStorage).length !== 0) {
-        const data = dataInLocalStorage as GetChannelMessagesPayload;
+        const data = dataInLocalStorage as ChannelPayload;
         dispatch(GetChannelMessagesAction(data));
         const tsIntervalMinutes = Math.floor(
-          (Date.now() - data.channel.updatedAt) / 1000 / 60
+          (Date.now() - data.updatedAt) / 1000 / 60
         );
         // also, highlight channel
         // dispatch(HighlightChannelAction({ channelId: data.channel.id }));

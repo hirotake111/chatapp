@@ -8,12 +8,11 @@ import {
 } from "@jest/globals";
 import { nanoid } from "@reduxjs/toolkit";
 import { v4 as uuid } from "uuid";
-import { GetChannelMessagesPayload } from "../actions/channelActions";
 import { storage } from "./storage";
 
 let channelId: string;
 let messages: Message[];
-let data: GetChannelMessagesPayload;
+let data: ChannelPayload;
 
 let fakeLocalStorage: { [key: string]: string };
 
@@ -44,17 +43,14 @@ beforeEach(() => {
     },
   ];
   data = {
-    channel: {
-      id: channelId,
-      name: nanoid(),
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-      users: [
-        { id: uuid(), displayName: nanoid() },
-        { id: uuid(), displayName: nanoid() },
-      ],
-      messages,
-    },
+    id: channelId,
+    name: nanoid(),
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+    users: [
+      { id: uuid(), displayName: nanoid() },
+      { id: uuid(), displayName: nanoid() },
+    ],
     messages,
   };
 });
@@ -99,7 +95,7 @@ describe("getChannel", () => {
       "channels",
       JSON.stringify({
         [channelId]: {
-          channel: { ...data.channel, createdAt: "now" },
+          channel: { ...data, createdAt: "now" },
           messages: { ...data.messages },
         },
       })
@@ -116,7 +112,7 @@ describe("getChannel", () => {
 });
 
 describe("setChannel", () => {
-  it("should set GetChannelMessagesPayload", () => {
+  it("should set ChannelPayload", () => {
     expect.assertions(1);
     // set data
     storage.setChannel(channelId, data);
@@ -129,10 +125,7 @@ describe("setChannel", () => {
     expect.assertions(1);
     try {
       // set data with invalid format
-      storage.setChannel(channelId, {
-        ...data,
-        channel: { ...data.channel, id: "xxxx" },
-      });
+      storage.setChannel(channelId, { ...data, id: "xxxx" });
     } catch (e) {
       if (e instanceof Error)
         expect(e.message).toEqual('validation error: key "id" must be UUIDv4');
