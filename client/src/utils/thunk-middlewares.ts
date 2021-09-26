@@ -22,6 +22,7 @@ import {
   RemoveCandidateFromExistingChannelAction,
   UpdateMemberButtonEnabledAction,
   ToggleChannelLoadingAction,
+  GetChannelMessagesPayload,
 } from "../actions/channelActions";
 
 import {
@@ -40,6 +41,7 @@ import { ChangeMessageBeenEditedAction } from "../actions/messageActions";
 import { RefObject } from "react";
 import { validateData } from "./validators";
 import { UserInfoType } from "../reducers/userReducer";
+import { storage } from "./storage";
 
 export const thunkSignIn = (): AppThunk => async (dispatch) => {
   try {
@@ -93,11 +95,31 @@ export const thunkGetMyChannels = (): AppThunk => async (dispatch) => {
 export const thunkGetChannelMessages =
   (channelId: string): AppThunk =>
   async (dispatch) => {
+    // highlight channel in the first place
+    // dispatch(
+    //   HighlightChannelAction({ id: channelId, name: "tmp channel name" })
+    // );
     try {
-      // get channel messages from server
+      // fetch data from local storage
+      const dataInLocalStorage = storage.getChannel(channelId);
+      // if data is found in local storage, then update channel message
+      if (dataInLocalStorage && Object.keys(dataInLocalStorage).length !== 0) {
+        const data = dataInLocalStorage as GetChannelMessagesPayload;
+        dispatch(GetChannelMessagesAction(data));
+        const tsIntervalMinutes = Math.floor(
+          (Date.now() - data.channel.updatedAt) / 1000 / 60
+        );
+        // also, highlight channel
+        dispatch(HighlightChannelAction(data.channel));
+        // if channel is updated within 2 minutes, then do nothing
+        if (tsIntervalMinutes <= 2) return;
+      }
+      // otherwise, get channel messages from server
       const payload = await getChannelMessages(channelId);
       // dispatch action
       dispatch(GetChannelMessagesAction(payload));
+      // store messages to local storage
+      storage.setChannel(channelId, payload);
     } catch (e) {
       console.error(e);
     }
@@ -149,6 +171,7 @@ export const thunkOnChatMessage =
   (message: Message): AppThunk =>
   async (dispatch) => {
     dispatch(ReceiveMessageAction(message));
+    //
   };
 
 export const thunkShowNewChannelModal = (): AppThunk => async (dispatch) => {

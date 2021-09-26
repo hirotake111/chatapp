@@ -12,10 +12,12 @@ export const ChannelList = ({
   getMessages: (channelId: string) => void;
 }) => {
   // onClick handler
-  const handleClick = async (channel: ChannelPayload) => {
+  const handleClick = (channel: ChannelPayload) => {
     if (highlighted && channel.id !== highlighted.id) {
+      // if (channel.id !== highlighted?.id) {
+      console.warn("fire!!!", channel.id, highlighted?.id);
       // get messages in channel
-      await getMessages(channel.id);
+      getMessages(channel.id);
     }
   };
 

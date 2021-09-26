@@ -68,7 +68,9 @@ const RColumn = ({
     <div className="right-column">
       <div className="channel-title-container">
         <span className="channel-title">
-          {highlighted ? highlighted.name : " "}
+          {highlighted
+            ? channels.filter((ch) => ch.id === highlighted.id)[0].name
+            : "channel doesn't have name"}
         </span>
         <div className="add-member-button-container">
           {!!highlighted ? (
