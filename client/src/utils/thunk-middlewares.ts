@@ -1,12 +1,13 @@
 import { v4 as uuid, validate } from "uuid";
 import { AppThunk } from "./store";
 
-import { socket } from "./socket";
+import { registerWSEventHandlers, socket } from "./socket";
 import {
   getChannelMessages,
   fetchChannelDetailPayload,
   validateChannelsPayload,
   getUserSearchSuggestions,
+  validateMessage,
 } from "./utils";
 import { getData, postData } from "./network";
 import { userSignInAction } from "../actions/userActions";
@@ -44,12 +45,39 @@ import { storage } from "./storage";
 
 export const thunkSignIn = (): AppThunk => async (dispatch) => {
   try {
+    // get user info from server
     const body = await getData("/api/user/me");
     const userInfo = validateData<UserInfoType>(body, {
       userId: { type: "string", isUUID: true },
       username: { type: "string" },
       displayName: { type: "string" },
     });
+    // now we are sure the user is authenticated -> register event handlers for WS
+    // thunkOnChatMessage({} as any)()
+    registerWSEventHandlers({
+      "chat message": (data: any) => {
+        // validate data
+        const message = validateMessage(data);
+        dispatch(ReceiveMessageAction(message));
+      },
+      // // on joined a new room
+      "joined a new room": async (data: any) => {
+        // validate channel ID
+        const { channelId } = data;
+        if (!(channelId && validate(channelId))) {
+          console.error(
+            `invalid channelId was given on "joined a new room" event"`
+          );
+          console.error(channelId);
+          return;
+        }
+        // get channel info and messages from server
+        const payload = await getChannelMessages(channelId);
+        // dispatch action
+        dispatch(GetChannelMessagesAction(payload));
+      },
+    });
+    // dispatch sign in action
     dispatch(userSignInAction(userInfo));
   } catch (e) {
     throw e;
@@ -153,7 +181,7 @@ export const thunkSendMessage =
     // generate new message ID
     const chatMessage: Message = {
       id: uuid(),
-      sender: { id: sender.id, username: sender.username },
+      sender,
       createdAt: Date.now(),
       updatedAt: Date.now(),
       channelId,

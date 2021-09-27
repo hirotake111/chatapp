@@ -39,10 +39,7 @@ jest.mock("./network.ts", () => ({
       };
     }
     if (/\/api\/channel\/id02/g.test(url)) throw new Error("Error from server");
-    return {
-      channel: { id: "xx-xx-xx-xx" },
-      messages: [{ id: "zz-zz-zz-zz" }],
-    };
+    return { channel: { id: "xx-xx-xx-xx" } };
   },
 }));
 
@@ -157,10 +154,7 @@ describe("validateSearchSuggestionUser", () => {
 describe("getChannelMessages", () => {
   it("should return channel and messages", async () => {
     expect.assertions(1);
-    expect(await getChannelMessages(uuid())).toEqual({
-      channel: { id: "xx-xx-xx-xx" },
-      messages: [{ id: "zz-zz-zz-zz" }],
-    });
+    expect(await getChannelMessages(uuid())).toEqual({ id: "xx-xx-xx-xx" });
   });
 
   it("should throw an error if channel ID is invalid", async () => {

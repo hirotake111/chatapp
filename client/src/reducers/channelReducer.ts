@@ -108,7 +108,8 @@ export const channelReducer: Reducer<ChannelState, ChannelActionTypes> = (
       return { ...state, addMemberButtonEnabled: action.payload.enabled };
 
     case "channel/ToggleChannelLoading":
-      return { ...state, loading: !state.loading };
+      // should be problematic but for now it's OK for development
+      return { ...state, loading: false };
 
     default:
       return state;

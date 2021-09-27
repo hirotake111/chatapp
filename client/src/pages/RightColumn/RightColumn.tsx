@@ -27,7 +27,7 @@ const RColumn = ({
 }: Props) => {
   const handleClickPaperPlane = (): void => {
     // check if user is authenticated
-    if (!(sender.userId && sender.username)) {
+    if (!(sender && sender.userId && sender.username)) {
       console.log("prop sender is undefined - you are probably not signed in");
       return;
     }
@@ -41,7 +41,11 @@ const RColumn = ({
       content,
       createdAt: Date.now(),
       updatedAt: Date.now(),
-      sender: { id: sender.userId, username: sender.username },
+      sender: {
+        id: sender.userId,
+        username: sender.username,
+        displayName: sender.displayName,
+      },
     };
     sendMessage(message);
   };
@@ -82,7 +86,7 @@ const RColumn = ({
           ) : null}
         </div>
       </div>
-      {highlighted && sender.userId ? (
+      {highlighted && sender && sender.userId ? (
         <ChatPane
           highlighted={highlighted}
           channels={channels}

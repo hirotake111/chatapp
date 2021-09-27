@@ -3,20 +3,20 @@ import { UserActionTypes } from "../actions/userActions";
 
 interface UserState {
   isAuthenticated: boolean;
-  userInfo: UserInfoType;
+  userInfo?: UserInfoType;
 }
 
 export interface UserInfoType {
-  userId?: string;
-  username?: string;
-  displayName?: string;
+  userId: string;
+  username: string;
+  displayName: string;
   firstName?: string;
   lastName?: string;
 }
 
 export const initialState: UserState = {
   isAuthenticated: false,
-  userInfo: {},
+  // userInfo: {},
 };
 
 export const userReducer: Reducer<UserState, UserActionTypes> = (
@@ -34,7 +34,7 @@ export const userReducer: Reducer<UserState, UserActionTypes> = (
 
     // sign out action
     case "user/signedOut":
-      return { isAuthenticated: false, userInfo: {} };
+      return { isAuthenticated: false };
 
     // default action
     default:

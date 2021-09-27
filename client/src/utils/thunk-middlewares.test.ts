@@ -1,12 +1,4 @@
 import { v4 as uuid } from "uuid";
-import {
-  describe,
-  it,
-  expect,
-  beforeEach,
-  beforeAll,
-  jest,
-} from "@jest/globals";
 
 import {
   thunkAddCandidateToExistingChannel,
@@ -134,7 +126,12 @@ jest.mock("./socket", () => ({
       return null;
     },
   },
+  registerWSEventHandlers: (data: any) => {
+    return;
+  },
 }));
+
+// import { registerWSEventHandlers, socket } from "./socket";
 
 describe("thunkSignIn", () => {
   it("should dispatch user info", async () => {
@@ -217,6 +214,7 @@ describe("thunkSendMessage", () => {
       sender: {
         id: uuid(),
         username: "BOB",
+        displayName: "BOBBY",
       },
       content: "hello world",
       createdAt: Date.now(),

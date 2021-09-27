@@ -14,8 +14,6 @@ export const ChannelList = ({
   // onClick handler
   const handleClick = (channel: ChannelPayload) => {
     if (highlighted && channel.id !== highlighted) {
-      // if (channel.id !== highlighted?.id) {
-      console.warn("fire!!!", channel.id, highlighted);
       // get messages in channel
       getMessages(channel.id);
     }
