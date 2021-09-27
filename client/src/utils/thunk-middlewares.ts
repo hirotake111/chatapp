@@ -98,27 +98,28 @@ export const thunkGetChannelMessages =
     dispatch(HighlightChannelAction({ channelId }));
     try {
       // fetch data from local storage
-      const dataInLocalStorage = storage.getChannel(channelId);
-      // if data is found in local storage, then update channel message
-      if (dataInLocalStorage && Object.keys(dataInLocalStorage).length !== 0) {
-        const data = dataInLocalStorage as ChannelPayload;
-        dispatch(GetChannelMessagesAction(data));
-        const tsIntervalMinutes = Math.floor(
-          (Date.now() - data.updatedAt) / 1000 / 60
-        );
-        // also, highlight channel
-        // dispatch(HighlightChannelAction({ channelId: data.channel.id }));
-        // if channel is updated within 2 minutes, then do nothing
-        if (tsIntervalMinutes <= 2) return;
-      }
+      // const dataInLocalStorage = storage.getChannel(channelId);
+      // // if data is found in local storage, then update channel message
+      // if (dataInLocalStorage && Object.keys(dataInLocalStorage).length !== 0) {
+      //   const data = dataInLocalStorage as ChannelPayload;
+      //   dispatch(GetChannelMessagesAction(data));
+      //   const tsIntervalMinutes = Math.floor(
+      //     (Date.now() - data.updatedAt) / 1000 / 60
+      //   );
+      //   // also, highlight channel
+      //   // dispatch(HighlightChannelAction({ channelId: data.channel.id }));
+      //   // if channel is updated within 2 minutes, then do nothing
+      //   if (tsIntervalMinutes <= 2) return;
+      // }
       // otherwise, get channel messages from server
       const payload = await getChannelMessages(channelId);
       // dispatch action
       dispatch(GetChannelMessagesAction(payload));
       // store messages to local storage
-      storage.setChannel(channelId, payload);
+      // storage.setChannel(channelId, payload);
     } catch (e) {
-      console.error(e);
+      // console.error(e);
+      throw e;
     }
   };
 

@@ -23,30 +23,32 @@ const _WebSocketComponent = ({
     if (isAuthenticated) {
       console.log("connecting WebSocket server now...");
       socket.connect();
+      // on chat message
+      socket.on("chat message", (data) => {
+        onChatMessage(data);
+      });
+
+      // on disconnect event
+      socket.on("disconnect", (reason) => {
+        console.log("WebSocket disconnected - reason: ", reason);
+        // console.log("Retrying connection to server...");
+        // checkWSConnectivity(socket);
+      });
+
+      // on joined a new room
+      socket.on("joined a new room", (data) => {
+        // validate channel ID
+        const channelId = data?.channelId;
+        // add channel to the list
+        if (channelId && validate(channelId)) {
+          onJoinNewChannel(channelId);
+          return;
+        }
+        console.warn(
+          `error - event name: "joined a new room", data: "${data}"`
+        );
+      });
     }
-    // on chat message
-    socket.on("chat message", (data) => {
-      onChatMessage(data);
-    });
-
-    // on disconnect event
-    socket.on("disconnect", (reason) => {
-      console.log("WebSocket disconnected - reason: ", reason);
-      // console.log("Retrying connection to server...");
-      // checkWSConnectivity(socket);
-    });
-
-    // on joined a new room
-    socket.on("joined a new room", (data) => {
-      // validate channel ID
-      const channelId = data?.channelId;
-      // add channel to the list
-      if (channelId && validate(channelId)) {
-        onJoinNewChannel(channelId);
-        return;
-      }
-      console.warn(`error - event name: "joined a new room", data: "${data}"`);
-    });
 
     // cleanup function will close the connection
     return () => {

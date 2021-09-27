@@ -63,7 +63,11 @@ describe("getChannel", () => {
       "channels",
       JSON.stringify({ [channelId]: data })
     );
-    expect(storage.getChannel(channelId)).toEqual(data);
+    try {
+      expect(storage.getChannel(channelId)).toEqual(data);
+    } catch (e) {
+      throw e;
+    }
   });
 
   it("should return {} if local storage doesn't have key 'channels'", () => {
@@ -94,10 +98,7 @@ describe("getChannel", () => {
     fakeLocalStorageAPI.setItem(
       "channels",
       JSON.stringify({
-        [channelId]: {
-          channel: { ...data, createdAt: "now" },
-          messages: { ...data.messages },
-        },
+        [channelId]: { ...data, createdAt: "now" },
       })
     );
     try {
@@ -126,20 +127,6 @@ describe("setChannel", () => {
     try {
       // set data with invalid format
       storage.setChannel(channelId, { ...data, id: "xxxx" });
-    } catch (e) {
-      if (e instanceof Error)
-        expect(e.message).toEqual('validation error: key "id" must be UUIDv4');
-    }
-  });
-
-  it("should throw an error if messages data has invalid format", () => {
-    expect.assertions(1);
-    try {
-      // set data with invalid format
-      storage.setChannel(channelId, {
-        ...data,
-        messages: [{ ...data.messages[0], id: "aaaa" }],
-      });
     } catch (e) {
       if (e instanceof Error)
         expect(e.message).toEqual('validation error: key "id" must be UUIDv4');

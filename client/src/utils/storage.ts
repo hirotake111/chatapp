@@ -1,4 +1,4 @@
-import { validateChannel, validateMessages } from "./utils";
+import { validateChannel } from "./utils";
 
 interface CustomStorage {
   getChannel(channelId: string): ChannelPayload | {};
@@ -16,15 +16,13 @@ export const storage: CustomStorage = {
   getChannel(this: CustomStorage, channelId: string): ChannelPayload | {} {
     // get channels data
     const allChannels = JSON.parse(localStorage.getItem("channels") || "{}");
+    // console.log("all channels:", allChannels);
     // if fetched data is empty object, then return it as default value
     if (Object.keys(allChannels).length === 0) return {};
-    const data: ValueInChannelsKey = allChannels[channelId];
+    const data = allChannels[channelId];
     // else, it's not empty. validate channel and messages
     if (!data) return {};
-    return {
-      channel: validateChannel(data.channel),
-      messages: validateMessages(data.messages),
-    };
+    return validateChannel(data);
   },
 
   /**

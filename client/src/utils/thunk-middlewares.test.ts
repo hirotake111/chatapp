@@ -16,7 +16,6 @@ import {
   thunkGetChannelDetail,
   thunkGetChannelMessages,
   thunkGetMyChannels,
-  thunkGetUserByQuery,
   thunkHideNewChannelModal,
   thunkHideSearchSuggestions,
   thunkHighlightChannel,
@@ -78,6 +77,18 @@ const mockMessage: Message = {
 const mockMessages = [mockMessage];
 
 let dispatch: any;
+
+const mockGetChannel = (channeId: string) => ({ id: channeId });
+const mockSetChannel = (channelId: string, payload: any) => {
+  console.log("mock");
+};
+
+beforeAll(() => {
+  jest.mock("./storage", () => ({
+    getChannel: mockGetChannel,
+    setChanne: mockSetChannel,
+  }));
+});
 
 beforeEach(() => {
   dispatch = jest.fn();
@@ -167,7 +178,7 @@ describe("thunkGetChannelMessages", () => {
     await thunkGetChannelMessages(uuid())(dispatch, store.getState, {});
     expect(dispatch).toHaveBeenCalledWith({
       type: "channel/getChannelMessages",
-      payload: { channel: mockChannel, messages: mockMessages },
+      payload: mockChannel,
     });
   });
 });
@@ -178,7 +189,7 @@ describe("thunkHighlightChannel", () => {
     await thunkHighlightChannel(mockChannel)(dispatch, store.getState, {});
     expect(dispatch).toHaveBeenCalledWith({
       type: "channel/highlightChannel",
-      payload: mockChannel,
+      payload: { channelId: mockChannel.id },
     });
   });
 });

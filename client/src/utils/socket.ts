@@ -6,7 +6,7 @@ const socket = url
   ? Client(url, { autoConnect: false })
   : Client({ autoConnect: false });
 
-console.log("registering onAny handler for debugging purpose");
+// console.log("registering onAny handler for debugging purpose");
 socket.onAny((event, data) =>
   console.log("socket.onAny - event: ", event, " data: ", data)
 );
