@@ -5,7 +5,6 @@ import {
   ClearCandidateFromExistingChannelAction,
   GetChannelMessagesAction,
   GetMyChannelsAction,
-  HighlightChannelAction,
   UpdateMemberButtonEnabledAction,
   UpdateMemberCandidateSearchStatusAction,
 } from "../actions/channelActions";
@@ -22,7 +21,7 @@ import { UserActionTypes } from "../actions/userActions";
 import { RootState } from "./store";
 import { getChannelMessages } from "./utils";
 
-type ActionTypes =
+export type ActionTypes =
   | ChannelActionTypes
   | UserActionTypes
   | MessageActionTypes
@@ -117,7 +116,6 @@ export const myMiddleware: Middleware =
           ],
         })
       );
-      console.warn("clear!!!");
       // clear channel name in the new channel dialog form
       storeApi.dispatch(UpdateChannelNameAction(""));
       // clear user list

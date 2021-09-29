@@ -16,6 +16,18 @@ let data: ChannelPayload;
 
 let fakeLocalStorage: { [key: string]: string };
 
+/**
+ * helper function that returns fake message
+ */
+const createMessage = (): Message => ({
+  id: uuid(),
+  channelId,
+  content: nanoid(),
+  createdAt: Date.now(),
+  updatedAt: Date.now(),
+  sender: { id: uuid(), username: nanoid(), displayName: nanoid() },
+});
+
 const fakeLocalStorageAPI = {
   getItem: (key: string) => {
     return fakeLocalStorage[key] || null;
@@ -32,16 +44,7 @@ beforeAll(() => {
 beforeEach(() => {
   fakeLocalStorage = {};
   channelId = uuid();
-  messages = [
-    {
-      id: uuid(),
-      channelId,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-      sender: { id: uuid(), username: nanoid(), displayName: nanoid() },
-      content: "hello world",
-    },
-  ];
+  messages = [createMessage(), createMessage()];
   data = {
     id: channelId,
     name: nanoid(),
@@ -131,5 +134,23 @@ describe("setChannel", () => {
       if (e instanceof Error)
         expect(e.message).toEqual('validation error: key "id" must be UUIDv4');
     }
+  });
+});
+
+describe("appendMessageToChannel", () => {
+  it("should append a new message to specified channel", () => {
+    expect.assertions(1);
+    // store mock data to local storage
+    fakeLocalStorageAPI.setItem(
+      "channels",
+      JSON.stringify({ [channelId]: data })
+    );
+    // create a new message and add it to local storage
+    const newMessage = createMessage();
+    storage.appendMessageToChannel(channelId, newMessage);
+    expect(
+      JSON.parse(fakeLocalStorageAPI.getItem("channels") || "{}")[channelId]
+        .messages
+    ).toContainEqual(newMessage);
   });
 });

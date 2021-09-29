@@ -8,13 +8,12 @@ import {
 } from "../../utils/thunk-middlewares";
 import { RootState } from "../../utils/store";
 import { ChatTextarea } from "../../components/Chat/ChatTextarea/ChatTextarea";
-// import { MessageContainerItem } from "../MessageContainer/MessageContainerItem";
 import { PaperPlaneIcon } from "../../components/Chat/PaperPlaneIcon/PaperPlaneIcon";
 import { ChatPane } from "../../components/Chat/ChatPane/ChatPane";
 import { Button } from "../../components/Common/Button/Button";
 
 import "./RightColumn.css";
-import { MouseEventHandler } from "react";
+import { MouseEventHandler, useEffect, useState } from "react";
 
 const RColumn = ({
   highlighted,
@@ -25,6 +24,21 @@ const RColumn = ({
   updateMemberModal,
   content,
 }: Props) => {
+  const [highlightedChannel, setHighlightedChannel] =
+    useState<ChannelPayload | null>(null);
+
+  useEffect(() => {
+    setHighlightedChannel(
+      channels.length === 0
+        ? null // display nothing if user joins no channels
+        : highlighted
+        ? // highlighted channel
+          channels.filter((ch) => ch.id === highlighted)[0]
+        : // otherwise, display the latest channel
+          channels.slice().sort((a, b) => b.updatedAt - a.updatedAt)[0]
+    );
+  }, [channels, highlighted]);
+
   const handleClickPaperPlane = (): void => {
     // check if user is authenticated
     if (!(sender && sender.userId && sender.username)) {
@@ -36,6 +50,7 @@ const RColumn = ({
       console.log("prop highlighted is undefined");
       return;
     }
+    // send message to the server
     const message: MessageWithNoId = {
       channelId: highlighted,
       content,
@@ -72,9 +87,7 @@ const RColumn = ({
     <div className="right-column">
       <div className="channel-title-container">
         <span className="channel-title">
-          {highlighted
-            ? channels.filter((ch) => ch.id === highlighted)[0].name
-            : ""}
+          {highlightedChannel ? highlightedChannel.name : ""}
         </span>
         <div className="add-member-button-container">
           {!!highlighted ? (
@@ -86,12 +99,8 @@ const RColumn = ({
           ) : null}
         </div>
       </div>
-      {highlighted && sender && sender.userId ? (
-        <ChatPane
-          highlighted={highlighted}
-          channels={channels}
-          senderId={sender.userId}
-        />
+      {highlightedChannel && sender && sender.userId ? (
+        <ChatPane channel={highlightedChannel} senderId={sender.userId} />
       ) : (
         ""
       )}

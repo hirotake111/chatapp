@@ -8,6 +8,7 @@ import {
   validateChannelsPayload,
   getUserSearchSuggestions,
   validateMessage,
+  validateChannel,
 } from "./utils";
 import { getData, postData } from "./network";
 import { userSignInAction } from "../actions/userActions";
@@ -56,9 +57,11 @@ export const thunkSignIn = (): AppThunk => async (dispatch) => {
     // thunkOnChatMessage({} as any)()
     registerWSEventHandlers({
       "chat message": (data: any) => {
-        // validate data
+        // validate data and dispatch action
         const message = validateMessage(data);
         dispatch(ReceiveMessageAction(message));
+        // add the message to local storage
+        storage.appendMessageToChannel(message.channelId, message);
       },
       // // on joined a new room
       "joined a new room": async (data: any) => {
@@ -125,26 +128,27 @@ export const thunkGetChannelMessages =
     // highlight channel in the first place
     dispatch(HighlightChannelAction({ channelId }));
     try {
-      // fetch data from local storage
-      // const dataInLocalStorage = storage.getChannel(channelId);
-      // // if data is found in local storage, then update channel message
-      // if (dataInLocalStorage && Object.keys(dataInLocalStorage).length !== 0) {
-      //   const data = dataInLocalStorage as ChannelPayload;
-      //   dispatch(GetChannelMessagesAction(data));
-      //   const tsIntervalMinutes = Math.floor(
-      //     (Date.now() - data.updatedAt) / 1000 / 60
-      //   );
-      //   // also, highlight channel
-      //   // dispatch(HighlightChannelAction({ channelId: data.channel.id }));
-      //   // if channel is updated within 2 minutes, then do nothing
-      //   if (tsIntervalMinutes <= 2) return;
-      // }
+      // fetch channels from local storage
+      const localCache = storage.getChannel(channelId);
+      // if data is found in local storage, then update channel message
+      if (localCache && Object.keys(localCache).length !== 0) {
+        const channel = validateChannel(localCache);
+        dispatch(GetChannelMessagesAction(channel));
+        const tsIntervalMinutes = Math.floor(
+          (Date.now() - channel.updatedAt) / 1000 / 60
+        );
+        // if channel is updated within 2 minutes, then do nothing
+        if (tsIntervalMinutes <= 240) {
+          console.log("skip update channel");
+          return;
+        }
+      }
       // otherwise, get channel messages from server
       const payload = await getChannelMessages(channelId);
       // dispatch action
       dispatch(GetChannelMessagesAction(payload));
       // store messages to local storage
-      // storage.setChannel(channelId, payload);
+      storage.setChannel(channelId, payload);
     } catch (e) {
       // console.error(e);
       throw e;

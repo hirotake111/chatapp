@@ -2,11 +2,8 @@ import { validateChannel } from "./utils";
 
 interface CustomStorage {
   getChannel(channelId: string): ChannelPayload | {};
-  setChannel(channelId: string, payload: ChannelPayload): void;
-}
-
-interface ValueInChannelsKey {
-  [key: string]: ChannelPayload;
+  setChannel(channelId: string, channel: ChannelPayload): void;
+  appendMessageToChannel(channelId: string, message: Message): void;
 }
 
 export const storage: CustomStorage = {
@@ -28,14 +25,30 @@ export const storage: CustomStorage = {
   /**
    * set data using channel ID to local storage
    */
-  setChannel(this: CustomStorage, channelId: string, payload: ChannelPayload) {
+  setChannel(this: CustomStorage, channelId: string, channel: ChannelPayload) {
     // validation
-    validateChannel(payload);
+    validateChannel(channel);
     // get current data in local storage
     const allChannels = JSON.parse(localStorage.getItem("channels") || "{}");
     localStorage.setItem(
       "channels",
-      JSON.stringify({ ...allChannels, [channelId]: payload })
+      JSON.stringify({ ...allChannels, [channelId]: channel })
     );
+  },
+
+  appendMessageToChannel(
+    this: CustomStorage,
+    channelId: string,
+    message: Message
+  ) {
+    // get channel data from local storage
+    const channel = validateChannel(this.getChannel(channelId));
+    // append a new message to the channel
+    const newChannel: ChannelPayload = {
+      ...channel,
+      messages: [...channel.messages, message],
+    };
+    // store all channel data to local storage
+    this.setChannel(channelId, newChannel);
   },
 };
