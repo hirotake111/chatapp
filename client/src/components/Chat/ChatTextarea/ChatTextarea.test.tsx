@@ -1,8 +1,8 @@
 import { render, screen, getByRole, fireEvent } from "@testing-library/react";
 import { ChatTextarea } from "./ChatTextarea";
 
-let mockOnChange = jest.fn();
-let mockOnKeyPress = jest.fn();
+const mockOnChange = jest.fn();
+const mockOnKeyPress = jest.fn();
 
 beforeEach(() => {
   mockOnChange.mockClear();

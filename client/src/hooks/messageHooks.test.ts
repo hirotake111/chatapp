@@ -38,20 +38,22 @@ const getMessage = (): MessageWithNoId => ({
   updatedAt: Date.now(),
 });
 
-it("shsould send message to server and empty form content", () => {
-  expect.assertions(2);
-  send(getMessage());
-  expect(mockEmit.mock.calls[0][0]).toEqual("chat message");
-  expect(mockDispatch).toHaveBeenCalledWith({
-    type: "message/changeFormContent",
-    payload: { content: "" },
+describe("useSendMessage", () => {
+  it("shsould send message to server and empty form content", () => {
+    expect.assertions(2);
+    send(getMessage());
+    expect(mockEmit.mock.calls[0][0]).toEqual("chat message");
+    expect(mockDispatch).toHaveBeenCalledWith({
+      type: "message/changeFormContent",
+      payload: { content: "" },
+    });
   });
-});
 
-it("should not send message if content is empty", () => {
-  expect.assertions(2);
-  console.warn = jest.fn();
-  send({ ...getMessage(), content: "" });
-  expect(console.warn).toHaveBeenCalledTimes(1);
-  expect(mockDispatch).toHaveBeenCalledTimes(0);
+  it("should not send message if content is empty", () => {
+    expect.assertions(2);
+    console.warn = jest.fn();
+    send({ ...getMessage(), content: "" });
+    expect(console.warn).toHaveBeenCalledTimes(1);
+    expect(mockDispatch).toHaveBeenCalledTimes(0);
+  });
 });

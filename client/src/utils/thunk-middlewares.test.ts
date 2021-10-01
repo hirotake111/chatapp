@@ -14,7 +14,6 @@ import {
   thunkOnChatMessage,
   thunkRemoveCandidateFromExistingChannel,
   thunkRemoveSuggestedUser,
-  thunkSendMessage,
   thunkShowNewChannelModal,
   thunkSignIn,
   thunkUpdateChannelName,
@@ -202,28 +201,6 @@ describe("thunkChangeFormContent", () => {
     expect(dispatch).toHaveBeenCalledWith({
       type: "message/changeFormContent",
       payload: { content: "message edited" },
-    });
-  });
-});
-
-describe("thunkSendMessage", () => {
-  it("should dispatch action payload", async () => {
-    expect.assertions(1);
-    const payload: MessageWithNoId = {
-      channelId: uuid(),
-      sender: {
-        id: uuid(),
-        username: "BOB",
-        displayName: "BOBBY",
-      },
-      content: "hello world",
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    };
-    await thunkSendMessage(payload)(dispatch, store.getState, {});
-    expect(dispatch).toHaveBeenCalledWith({
-      type: "message/changeFormContent",
-      payload: { content: "" },
     });
   });
 });

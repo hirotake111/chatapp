@@ -3,7 +3,6 @@ import { connect, ConnectedProps } from "react-redux";
 import {
   thunkChangeFormContent,
   thunkGetChannelMessages,
-  thunkSendMessage,
   thunkUpdateMemberModal,
 } from "../../utils/thunk-middlewares";
 import { RootState } from "../../utils/store";
@@ -14,18 +13,20 @@ import { Button } from "../../components/Common/Button/Button";
 
 import "./RightColumn.css";
 import { MouseEventHandler, useEffect, useState } from "react";
+import { useSendMessage } from "../../hooks/messageHooks";
 
 const RColumn = ({
   highlighted,
   channels,
   sender,
-  sendMessage,
   changeFormContent,
   updateMemberModal,
   content,
 }: Props) => {
   const [highlightedChannel, setHighlightedChannel] =
     useState<ChannelPayload | null>(null);
+
+  const send = useSendMessage();
 
   useEffect(() => {
     setHighlightedChannel(
@@ -62,7 +63,7 @@ const RColumn = ({
         displayName: sender.displayName,
       },
     };
-    sendMessage(message);
+    send(message);
   };
 
   const handleChange = (data: string) => {
@@ -126,7 +127,6 @@ const mapStateToProps = (state: RootState) => ({
 });
 
 const mapDispatchToProps = {
-  sendMessage: (props: MessageWithNoId) => thunkSendMessage(props),
   getChannelMessage: (channelId: string) => thunkGetChannelMessages(channelId),
   changeFormContent: (content: string) => thunkChangeFormContent(content),
   updateMemberModal: () => thunkUpdateMemberModal(true),

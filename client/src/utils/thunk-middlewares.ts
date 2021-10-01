@@ -1,4 +1,4 @@
-import { v4 as uuid, validate } from "uuid";
+import { validate } from "uuid";
 import { AppThunk } from "./store";
 
 import { registerWSEventHandlers, socket } from "./socket";
@@ -168,34 +168,34 @@ export const thunkChangeFormContent =
     dispatch(ChangeMessageBeenEditedAction({ content }));
   };
 
-export const thunkSendMessage =
-  ({ channelId, sender, content }: MessageWithNoId): AppThunk =>
-  async (dispatch) => {
-    // check socket connectivity
-    if (!socket.connected) {
-      console.error("WebSocket not connected - retrying");
-      socket.connect();
-      // return;
-    }
-    // exit if message content is empty
-    if (content.length === 0) {
-      console.warn("message is empty - aborted");
-      return;
-    }
-    // generate new message ID
-    const chatMessage: Message = {
-      id: uuid(),
-      sender,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-      channelId,
-      content,
-    };
-    // send message to server
-    socket.emit("chat message", chatMessage);
-    // empty form
-    dispatch(ChangeMessageBeenEditedAction({ content: "" }));
-  };
+// export const thunkSendMessage =
+//   ({ channelId, sender, content }: MessageWithNoId): AppThunk =>
+//   async (dispatch) => {
+//     // check socket connectivity
+//     if (!socket.connected) {
+//       console.error("WebSocket not connected - retrying");
+//       socket.connect();
+//       // return;
+//     }
+//     // exit if message content is empty
+//     if (content.length === 0) {
+//       console.warn("message is empty - aborted");
+//       return;
+//     }
+//     // generate new message ID
+//     const chatMessage: Message = {
+//       id: uuid(),
+//       sender,
+//       createdAt: Date.now(),
+//       updatedAt: Date.now(),
+//       channelId,
+//       content,
+//     };
+//     // send message to server
+//     socket.emit("chat message", chatMessage);
+//     // empty form
+//     dispatch(ChangeMessageBeenEditedAction({ content: "" }));
+//   };
 
 export const thunkOnChatMessage =
   (message: Message): AppThunk =>
