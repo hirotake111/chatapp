@@ -14,7 +14,6 @@ import {
   thunkRemoveCandidateFromExistingChannel,
   thunkRemoveSuggestedUser,
   thunkShowNewChannelModal,
-  thunkSignIn,
   thunkUpdateChannelName,
   thunkUpdateCreateButtonStatus,
   thunkUpdateMemberCandidateSearchStatus,
@@ -128,20 +127,6 @@ jest.mock("./socket", () => ({
     return;
   },
 }));
-
-// import { registerWSEventHandlers, socket } from "./socket";
-
-describe("thunkSignIn", () => {
-  it("should dispatch user info", async () => {
-    expect.assertions(1);
-    const signIn = thunkSignIn();
-    await signIn(dispatch, store.getState, {});
-    expect(dispatch).toHaveBeenCalledWith({
-      type: "user/signedIn",
-      payload: mockUserInfo,
-    });
-  });
-});
 
 describe("thunkGetChannelDetail", () => {
   it("should dispatch channel detail payload", async () => {

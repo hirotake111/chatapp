@@ -1,19 +1,13 @@
 import { validate } from "uuid";
 import { AppThunk } from "./store";
 
-import { registerWSEventHandlers, socket } from "./socket";
-import {
-  getChannelMessages,
-  fetchChannelDetailPayload,
-  getUserSearchSuggestions,
-} from "./utils";
-import { validateChannelsPayload, validateMessage } from "./validators";
-import { getData, getUserData, postData } from "./network";
-import { userSignInAction } from "../actions/userActions";
+import { socket } from "./socket";
+import { fetchChannelDetailPayload, getUserSearchSuggestions } from "./utils";
+import { validateChannelsPayload } from "./validators";
+import { getData, postData } from "./network";
 import {
   GetChannelDetailAction,
   GetMyChannelsAction,
-  GetChannelMessagesAction,
   HighlightChannelAction,
   ReceiveMessageAction,
   UpdateMemberModalAction,
@@ -38,29 +32,7 @@ import {
 } from "../actions/newChannelActions";
 import { ChangeMessageBeenEditedAction } from "../actions/messageActions";
 import { RefObject } from "react";
-import { validateData } from "./validators";
-import { UserInfoType } from "../reducers/userReducer";
-import { onChatMessage, onJoinedNewRoom } from "./ws/eventHandlers";
 // import { storage } from "./storage";
-
-export const thunkSignIn = (): AppThunk => async (dispatch) => {
-  try {
-    // get user info from server
-    const userInfo = await getUserData();
-    /**
-     * now we are sure the user is authenticated
-     * -> register event handlers for WS
-     */
-    registerWSEventHandlers({
-      "chat message": (data: any) => onChatMessage(dispatch, data),
-      "joined a new room": async (data: any) => onJoinedNewRoom(dispatch, data),
-    });
-    // dispatch sign in action
-    dispatch(userSignInAction(userInfo));
-  } catch (e) {
-    throw e;
-  }
-};
 
 export const thunkGetChannelDetail =
   (channelId: string): AppThunk =>
