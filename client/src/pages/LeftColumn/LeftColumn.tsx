@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import {
-  thunkGetChannelMessages,
   thunkGetMyChannels,
   thunkShowNewChannelModal,
 } from "../../utils/thunk-middlewares";
@@ -12,15 +11,17 @@ import { Button } from "../../components/Common/Button/Button";
 import { LoadingSpinner2 } from "../../components/Common/LoadingSpinner2/LoadingSpinner2";
 
 import "./LeftColumn.css";
+import { useGetMessagesByChannelId } from "../../hooks/messageHooks";
 
 const _LeftColumn = ({
   channels,
   highlighted,
   loading,
-  getMessages,
   showNewChannelModal,
   getMychannels,
 }: Props) => {
+  const getMessages = useGetMessagesByChannelId();
+
   // get channel list
   useEffect(() => {
     getMychannels();
@@ -66,7 +67,6 @@ const mapStateToProps = (state: RootState) => ({
 });
 
 const mapDispatchToProps = {
-  getMessages: (channelId: string) => thunkGetChannelMessages(channelId),
   showNewChannelModal: thunkShowNewChannelModal,
   getMychannels: thunkGetMyChannels,
 };

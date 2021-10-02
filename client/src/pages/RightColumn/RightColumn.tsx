@@ -2,7 +2,6 @@ import { connect, ConnectedProps } from "react-redux";
 
 import {
   thunkChangeFormContent,
-  thunkGetChannelMessages,
   thunkUpdateMemberModal,
 } from "../../utils/thunk-middlewares";
 import { RootState } from "../../utils/store";
@@ -127,7 +126,6 @@ const mapStateToProps = (state: RootState) => ({
 });
 
 const mapDispatchToProps = {
-  getChannelMessage: (channelId: string) => thunkGetChannelMessages(channelId),
   changeFormContent: (content: string) => thunkChangeFormContent(content),
   updateMemberModal: () => thunkUpdateMemberModal(true),
 };

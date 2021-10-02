@@ -8,11 +8,6 @@ import {
   getMemberSummary,
   getNumberWithTwoDigits,
   getUserSearchSuggestions,
-  validateChannel,
-  validateChannelsPayload,
-  validateMessage,
-  validateMessages,
-  validateSearchSuggestionUser,
 } from "./utils";
 
 // mocking partials
@@ -21,6 +16,8 @@ jest.mock("./validators", () => ({
     if (data) return data;
     throw new Error("error!!!!");
   },
+  validateChannel: (data: any) => data,
+  validateSearchSuggestionUser: (data: any) => data,
 }));
 
 // mock getData
@@ -60,94 +57,6 @@ describe("convertTimestampToDate", () => {
     expect(convertTimestampToDate(1631457621765)).toEqual(
       "2021-09-12 14:40:21 PM"
     );
-  });
-});
-
-describe("validateChannel", () => {
-  it("should return data", () => {
-    expect.assertions(1);
-    expect(validateChannel({})).toEqual({});
-  });
-
-  it("should throw an error if validateData() throw it", () => {
-    expect.assertions(1);
-    try {
-      validateChannel(false);
-    } catch (e) {
-      if (e instanceof Error) expect(e.message).toEqual("error!!!!");
-    }
-  });
-});
-
-describe("validateMessage", () => {
-  it("should return data", () => {
-    expect.assertions(1);
-    expect(validateMessage({})).toEqual({});
-  });
-
-  it("should throw an error if validateData() throw it", () => {
-    expect.assertions(1);
-    try {
-      validateMessage(false);
-    } catch (e) {
-      if (e instanceof Error) expect(e.message).toEqual("error!!!!");
-    }
-  });
-});
-
-describe("validateMessages", () => {
-  it("should return data", () => {
-    expect.assertions(1);
-    const data = [true, true, true];
-    expect(validateMessages(data)).toEqual(data);
-  });
-
-  it("should throw an error if it's not an array", () => {
-    expect.assertions(1);
-    try {
-      validateMessages(false);
-    } catch (e) {
-      if (e instanceof Error)
-        expect(e.message).toEqual(
-          "validateMessages: data is not an array - false"
-        );
-    }
-  });
-});
-
-describe("validateChannelsPayload", () => {
-  it("should return data", () => {
-    expect.assertions(1);
-    const data = { channels: [true, true, true] };
-    expect(validateChannelsPayload(data)).toEqual(data);
-  });
-
-  it("should throw an error if it's not an array", () => {
-    expect.assertions(1);
-    try {
-      validateChannelsPayload(false);
-    } catch (e) {
-      if (e instanceof Error)
-        expect(e.message).toEqual(
-          "validateChannelsPayload: invalid data.channels prop"
-        );
-    }
-  });
-});
-
-describe("validateSearchSuggestionUser", () => {
-  it("should return data", () => {
-    expect.assertions(1);
-    expect(validateSearchSuggestionUser({})).toEqual({});
-  });
-
-  it("should throw an error if validateData() throw it", () => {
-    expect.assertions(1);
-    try {
-      validateSearchSuggestionUser(false);
-    } catch (e) {
-      if (e instanceof Error) expect(e.message).toEqual("error!!!!");
-    }
   });
 });
 

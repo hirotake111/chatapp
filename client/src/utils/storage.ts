@@ -1,4 +1,4 @@
-import { validateChannel } from "./utils";
+import { validateChannel } from "./validators";
 
 interface CustomStorage {
   getChannel(channelId: string): ChannelPayload | {};

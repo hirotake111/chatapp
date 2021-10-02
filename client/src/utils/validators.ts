@@ -1,4 +1,5 @@
 import { validate } from "uuid";
+import { GetMyChannelsPayload } from "../actions/channelActions";
 
 type INumber = {
   type: "number";
@@ -83,4 +84,90 @@ export const validateData = <T>(data: any, type: TypeToBeValidated): T => {
   };
 
   return func(data, type);
+};
+
+/**
+ * validates channel data
+ */
+export const validateChannel = (data: any): ChannelPayload => {
+  const customType: TypeToBeValidated = {
+    id: { type: "string", isUUID: true },
+    name: { type: "string" },
+    createdAt: { type: "number" },
+    updatedAt: { type: "number" },
+    users: {
+      type: "parent",
+      isArray: true,
+      child: {
+        id: { type: "string", isUUID: true },
+        displayName: { type: "string" },
+      },
+    },
+  };
+  const payload = validateData<ChannelPayload>(data, customType);
+  return payload;
+};
+
+/**
+ * valivates message data
+ */
+export const validateMessage = (data: any): Message => {
+  const customType: TypeToBeValidated = {
+    id: { type: "string", isUUID: true },
+    channelId: { type: "string", isUUID: true },
+    content: { type: "string" },
+    createdAt: { type: "number" },
+    updatedAt: { type: "number" },
+    sender: {
+      type: "parent",
+      child: {
+        id: { type: "string", isUUID: true },
+        username: { type: "string" },
+        displayName: { type: "string" },
+      },
+    },
+  };
+  return validateData<Message>(data, customType);
+};
+
+/**
+ * validate an array of message data
+ */
+export const validateMessages = (data: any): Message[] => {
+  if (!Array.isArray(data))
+    throw new Error(
+      `validateMessages: data is not an array - ${JSON.stringify(data)}`
+    );
+  data.forEach((elm) => {
+    validateMessage(elm);
+  });
+  return data as Message[];
+};
+
+/**
+ * validate an array of channel data
+ */
+export const validateChannelsPayload = (data: any): GetMyChannelsPayload => {
+  if (!(data && data.channels && Array.isArray(data.channels)))
+    throw new Error("validateChannelsPayload: invalid data.channels prop");
+  // // validate  channels prop
+  // data.channels.forEach((elm: any) => validateChannel(elm));
+  // return data as GetMyChannelsPayload;
+  const payload: GetMyChannelsPayload = { channels: [] };
+  data.channels.forEach((ch: any) => {
+    payload.channels.push(validateChannel(ch));
+  });
+  return payload;
+};
+
+/**
+ * validates user data fetched from server
+ */
+export const validateSearchSuggestionUser = (data: any): SearchedUser => {
+  const customType: TypeToBeValidated = {
+    id: { type: "string", isUUID: true },
+    username: { type: "string" },
+    displayName: { type: "string" },
+  };
+  return validateData<SearchedUser>(data, customType);
 };

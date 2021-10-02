@@ -6,7 +6,6 @@ import {
   thunkChangeFormContent,
   thunkCreateChannel,
   thunkGetChannelDetail,
-  thunkGetChannelMessages,
   thunkGetMyChannels,
   thunkHideNewChannelModal,
   thunkHideSearchSuggestions,
@@ -164,17 +163,6 @@ describe("thunkGetMyChannels", () => {
       payload: {
         channels: [mockChannel],
       },
-    });
-  });
-});
-
-describe("thunkGetChannelMessages", () => {
-  it("should dispatch action payload", async () => {
-    expect.assertions(1);
-    await thunkGetChannelMessages(uuid())(dispatch, store.getState, {});
-    expect(dispatch).toHaveBeenCalledWith({
-      type: "channel/getChannelMessages",
-      payload: mockChannel,
     });
   });
 });

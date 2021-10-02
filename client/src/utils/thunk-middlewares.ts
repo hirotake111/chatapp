@@ -5,12 +5,10 @@ import { registerWSEventHandlers, socket } from "./socket";
 import {
   getChannelMessages,
   fetchChannelDetailPayload,
-  validateChannelsPayload,
   getUserSearchSuggestions,
-  validateMessage,
-  validateChannel,
 } from "./utils";
-import { getData, postData } from "./network";
+import { validateChannelsPayload, validateMessage } from "./validators";
+import { getData, getUserData, postData } from "./network";
 import { userSignInAction } from "../actions/userActions";
 import {
   GetChannelDetailAction,
@@ -42,43 +40,20 @@ import { ChangeMessageBeenEditedAction } from "../actions/messageActions";
 import { RefObject } from "react";
 import { validateData } from "./validators";
 import { UserInfoType } from "../reducers/userReducer";
-import { storage } from "./storage";
+import { onChatMessage, onJoinedNewRoom } from "./ws/eventHandlers";
+// import { storage } from "./storage";
 
 export const thunkSignIn = (): AppThunk => async (dispatch) => {
   try {
     // get user info from server
-    const body = await getData("/api/user/me");
-    const userInfo = validateData<UserInfoType>(body, {
-      userId: { type: "string", isUUID: true },
-      username: { type: "string" },
-      displayName: { type: "string" },
-    });
-    // now we are sure the user is authenticated -> register event handlers for WS
-    // thunkOnChatMessage({} as any)()
+    const userInfo = await getUserData();
+    /**
+     * now we are sure the user is authenticated
+     * -> register event handlers for WS
+     */
     registerWSEventHandlers({
-      "chat message": (data: any) => {
-        // validate data and dispatch action
-        const message = validateMessage(data);
-        dispatch(ReceiveMessageAction(message));
-        // add the message to local storage
-        storage.appendMessageToChannel(message.channelId, message);
-      },
-      // // on joined a new room
-      "joined a new room": async (data: any) => {
-        // validate channel ID
-        const { channelId } = data;
-        if (!(channelId && validate(channelId))) {
-          console.error(
-            `invalid channelId was given on "joined a new room" event"`
-          );
-          console.error(channelId);
-          return;
-        }
-        // get channel info and messages from server
-        const payload = await getChannelMessages(channelId);
-        // dispatch action
-        dispatch(GetChannelMessagesAction(payload));
-      },
+      "chat message": (data: any) => onChatMessage(dispatch, data),
+      "joined a new room": async (data: any) => onJoinedNewRoom(dispatch, data),
     });
     // dispatch sign in action
     dispatch(userSignInAction(userInfo));
@@ -117,44 +92,6 @@ export const thunkGetMyChannels = (): AppThunk => async (dispatch) => {
   }
 };
 
-/**
- * Get messages in a specific channel, and then update state
- * @param channelId ${string}
- * @returns ${void}
- */
-export const thunkGetChannelMessages =
-  (channelId: string): AppThunk =>
-  async (dispatch) => {
-    // highlight channel in the first place
-    dispatch(HighlightChannelAction({ channelId }));
-    try {
-      // fetch channels from local storage
-      const localCache = storage.getChannel(channelId);
-      // if data is found in local storage, then update channel message
-      if (localCache && Object.keys(localCache).length !== 0) {
-        const channel = validateChannel(localCache);
-        dispatch(GetChannelMessagesAction(channel));
-        const tsIntervalMinutes = Math.floor(
-          (Date.now() - channel.updatedAt) / 1000 / 60
-        );
-        // if channel is updated within 2 minutes, then do nothing
-        if (tsIntervalMinutes <= 240) {
-          console.log("skip update channel");
-          return;
-        }
-      }
-      // otherwise, get channel messages from server
-      const payload = await getChannelMessages(channelId);
-      // dispatch action
-      dispatch(GetChannelMessagesAction(payload));
-      // store messages to local storage
-      storage.setChannel(channelId, payload);
-    } catch (e) {
-      // console.error(e);
-      throw e;
-    }
-  };
-
 export const thunkHighlightChannel =
   (channel: ChannelPayload): AppThunk =>
   async (dispatch) => {
@@ -167,35 +104,6 @@ export const thunkChangeFormContent =
     // this just dispatch payload to reducer
     dispatch(ChangeMessageBeenEditedAction({ content }));
   };
-
-// export const thunkSendMessage =
-//   ({ channelId, sender, content }: MessageWithNoId): AppThunk =>
-//   async (dispatch) => {
-//     // check socket connectivity
-//     if (!socket.connected) {
-//       console.error("WebSocket not connected - retrying");
-//       socket.connect();
-//       // return;
-//     }
-//     // exit if message content is empty
-//     if (content.length === 0) {
-//       console.warn("message is empty - aborted");
-//       return;
-//     }
-//     // generate new message ID
-//     const chatMessage: Message = {
-//       id: uuid(),
-//       sender,
-//       createdAt: Date.now(),
-//       updatedAt: Date.now(),
-//       channelId,
-//       content,
-//     };
-//     // send message to server
-//     socket.emit("chat message", chatMessage);
-//     // empty form
-//     dispatch(ChangeMessageBeenEditedAction({ content: "" }));
-//   };
 
 export const thunkOnChatMessage =
   (message: Message): AppThunk =>
