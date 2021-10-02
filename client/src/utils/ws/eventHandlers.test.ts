@@ -1,3 +1,6 @@
+import { createServer } from "http";
+import { Server, Socket as ServerSocket } from "socket.io";
+import Client, { Socket } from "socket.io-client";
 import { v4 as uuid } from "uuid";
 import {
   GetChannelMessagesAction,
@@ -8,13 +11,18 @@ import {
   getFakeMessage,
   getFakeMessageWithNoId,
 } from "../testHelpers";
-import { onChatMessage, onJoinedNewRoom } from "./eventHandlers";
+
+import {
+  onChatMessage,
+  onJoinedNewRoom,
+  registerWebSocketEventHandlers,
+} from "./eventHandlers";
 
 const mockDispatch = jest.fn();
 const mockFetch = jest.fn();
 
 jest.mock("../utils", () => ({
-  getChannelMessages: () => mockFetch(),
+  getChannelMessages: () => Promise.resolve(mockFetch()),
 }));
 
 beforeEach(() => {
@@ -73,5 +81,57 @@ describe("onJoinedNewRoom", () => {
     });
     await onJoinedNewRoom(mockDispatch, uuid());
     expect(console.error).toHaveBeenCalledWith(err);
+  });
+});
+
+describe("registerWebSocketEventHandlers", () => {
+  let io: Server;
+  let client: Socket;
+  let server: ServerSocket;
+
+  beforeAll((done) => {
+    const http = createServer();
+    io = new Server(http);
+    http.listen(3333, () => {
+      client = Client("http://localhost:3333");
+      io.on("connection", (socket) => {
+        server = socket;
+      });
+      client.on("connect", done);
+    });
+  });
+
+  afterAll(() => {
+    // close WebSocket and HTTP server
+    io.close();
+    client.close();
+  });
+
+  it("should register onChatmessage callback", (done) => {
+    expect.assertions(1);
+    const message = getFakeMessage();
+    mockDispatch.mockImplementation((data) => {
+      expect(data).toEqual(ReceiveMessageAction(message));
+      done();
+    });
+    // register event handler
+    registerWebSocketEventHandlers(client, mockDispatch);
+    // emit chat message event
+    server.emit("chat message", message);
+  });
+
+  it("should register onJoinedNewRoom callback", (done) => {
+    expect.assertions(2);
+    const channel = getFakeChannel();
+    mockFetch.mockReturnValue(channel);
+    mockDispatch.mockImplementation((data) => {
+      // console.log("data:", data);
+      expect(data).toEqual(GetChannelMessagesAction(channel));
+      done();
+    });
+    // register event handler
+    registerWebSocketEventHandlers(client, mockDispatch);
+    // emit chat message event
+    server.emit("joined a new room", channel.id);
   });
 });

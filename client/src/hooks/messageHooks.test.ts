@@ -13,7 +13,7 @@ jest.mock("./reduxHooks", () => ({
 }));
 
 // mock socket instance
-jest.mock("../utils/socket", () => ({
+jest.mock("../utils/ws/socket", () => ({
   socket: {
     connect: () => mockConnect(),
     emit: (eventName: string, message: any) => mockEmit(eventName, message),

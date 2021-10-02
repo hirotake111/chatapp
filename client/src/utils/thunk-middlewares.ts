@@ -1,7 +1,7 @@
 import { validate } from "uuid";
 import { AppThunk } from "./store";
 
-import { socket } from "./socket";
+import { socket } from "./ws/socket";
 import { fetchChannelDetailPayload, getUserSearchSuggestions } from "./utils";
 import { validateChannelsPayload } from "./validators";
 import { getData, postData } from "./network";

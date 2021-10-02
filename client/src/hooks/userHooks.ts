@@ -1,7 +1,7 @@
 import { userSignInAction } from "../actions/userActions";
 import { getUserData } from "../utils/network";
-import { registerWSEventHandlers } from "../utils/socket";
-import { onChatMessage, onJoinedNewRoom } from "../utils/ws/eventHandlers";
+import { socket } from "../utils/ws/socket";
+import { registerWebSocketEventHandlers } from "../utils/ws/eventHandlers";
 import { useAppDispatch, useAppSelector } from "./reduxHooks";
 
 /**
@@ -20,14 +20,7 @@ export const useSignIn = () => {
        * now we are sure the user is authenticated
        * -> register event handlers for WS
        */
-      registerWSEventHandlers({
-        "chat message": (data: any) => {
-          onChatMessage(dispatch, data);
-        },
-        "joined a new room": async (data: any) => {
-          onJoinedNewRoom(dispatch, data);
-        },
-      });
+      registerWebSocketEventHandlers(socket, dispatch);
       // dispatch sign in action
       dispatch(userSignInAction(userInfo));
     } catch (e) {

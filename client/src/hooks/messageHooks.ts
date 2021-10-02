@@ -1,7 +1,7 @@
 import { v4 as uuid } from "uuid";
 
 import { useAppDispatch } from "./reduxHooks";
-import { socket } from "../utils/socket";
+import { socket } from "../utils/ws/socket";
 import { ChangeMessageBeenEditedAction } from "../actions/messageActions";
 import {
   GetChannelMessagesAction,

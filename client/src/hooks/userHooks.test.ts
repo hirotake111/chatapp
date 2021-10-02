@@ -4,7 +4,7 @@ import { useSignIn } from "./userHooks";
 const mockDispatch = jest.fn();
 const mockSelector = jest.fn();
 const mockGetUserData = jest.fn();
-const mockRegisterWSEventHandlers = jest.fn();
+const mockRegisterWebSocketEventHandlers = jest.fn();
 
 // mock useAppDispatch
 jest.mock("./reduxHooks", () => ({
@@ -18,8 +18,9 @@ jest.mock("../utils/network", () => ({
 }));
 
 // mock registerWSEventHandlers
-jest.mock("../utils/socket", () => ({
-  registerWSEventHandlers: (data: any) => mockRegisterWSEventHandlers(data),
+jest.mock("../utils/ws/eventHandlers", () => ({
+  registerWebSocketEventHandlers: (data: any) =>
+    mockRegisterWebSocketEventHandlers(data),
 }));
 
 describe("useSignIn", () => {
@@ -43,15 +44,6 @@ describe("useSignIn", () => {
     const [user, signIn] = useSignIn();
     await signIn();
     expect(mockDispatch).toHaveBeenCalledWith(userSignInAction(userInfo));
-  });
-
-  it("should register event handlers", async () => {
-    expect.assertions(2);
-    const [user, signIn] = useSignIn();
-    await signIn();
-    const parameter = mockRegisterWSEventHandlers.mock.calls[0][0];
-    expect(typeof parameter["chat message"]).toEqual("function");
-    expect(typeof parameter["joined a new room"]).toEqual("function");
   });
 
   it("should console.error if network call failed", async () => {

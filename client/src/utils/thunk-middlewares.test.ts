@@ -116,15 +116,12 @@ jest.mock("./network", () => ({
   },
 }));
 
-jest.mock("./socket", () => ({
+jest.mock("./ws/socket", () => ({
   socket: {
     connected: true,
     emit: (eventName: string, msg: Message) => {
       return null;
     },
-  },
-  registerWSEventHandlers: (data: any) => {
-    return;
   },
 }));
 
