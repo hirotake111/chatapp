@@ -6,6 +6,7 @@ import { DisplayWrapper } from "./components/Common/DisplayWrapper/DisplayWrappe
 import { useSignIn } from "./hooks/userHooks";
 
 export default function App() {
+  // const [{ isAuthenticated: result }, b] = useSignIn();
   const [{ isAuthenticated }, signin] = useSignIn();
   const [isMobile, setIsMobile] = useState(true);
 
