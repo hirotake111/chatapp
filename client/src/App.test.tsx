@@ -52,7 +52,7 @@ test('renders string "LOADING NOW..." if user is no authenticated', () => {
 it("should display not device supported message if window size is less than 400px", () => {
   expect.assertions(1);
   global.innerWidth = 300;
-  mockUseSingIn.mockReturnValue([{}, () => {}]);
+  mockUseSingIn.mockReturnValue([{}, jest.fn()]);
   const { container } = render(
     <Provider store={store}>
       <App />
