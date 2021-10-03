@@ -6,7 +6,6 @@ import {
   thunkChangeFormContent,
   thunkCreateChannel,
   thunkGetChannelDetail,
-  thunkGetMyChannels,
   thunkHideNewChannelModal,
   thunkHideSearchSuggestions,
   thunkHighlightChannel,
@@ -21,13 +20,8 @@ import {
   thunkUpdateSearchStatus,
 } from "./thunk-middlewares";
 import { store } from "./store";
-import { UserInfoType } from "../reducers/userReducer";
-
-const mockUserInfo: UserInfoType = {
-  userId: "33a2b38b-b1bf-46f1-83da-76aaee617e5c",
-  username: "alice",
-  displayName: "ALICE",
-};
+import { getFakeChannel } from "./testHelpers";
+import { GetMyChannelsAction } from "../actions/channelActions";
 
 const mockSuggestedUser: SearchedUser = {
   id: uuid(),
@@ -68,19 +62,18 @@ const mockMessages = [mockMessage];
 let dispatch: any;
 
 const mockGetChannel = (channeId: string) => ({ id: channeId });
-const mockSetChannel = (channelId: string, payload: any) => {
-  console.log("mock");
-};
+
+const mockFetchMyChannel = jest.fn();
 
 beforeAll(() => {
   jest.mock("./storage", () => ({
     getChannel: mockGetChannel,
-    setChanne: mockSetChannel,
   }));
 });
 
 beforeEach(() => {
   dispatch = jest.fn();
+  mockFetchMyChannel.mockClear();
 });
 
 // mock getData
@@ -114,6 +107,7 @@ jest.mock("./network", () => ({
         channelId: "xx-xx-xx-xx",
       };
   },
+  fetchMyChannels: () => mockFetchMyChannel(),
 }));
 
 jest.mock("./ws/socket", () => ({
@@ -132,19 +126,6 @@ describe("thunkGetChannelDetail", () => {
     expect(dispatch).toHaveBeenCalledWith({
       type: "channel/fetchOneChannel",
       payload: mockChannel,
-    });
-  });
-});
-
-describe("thunkGetMyChannels", () => {
-  it("should dispatch GetMyChannelsAction", async () => {
-    expect.assertions(1);
-    await thunkGetMyChannels()(dispatch, store.getState, {});
-    expect(dispatch).toHaveBeenCalledWith({
-      type: "channel/fetchChannels",
-      payload: {
-        channels: [mockChannel],
-      },
     });
   });
 });

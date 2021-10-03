@@ -23,10 +23,6 @@ export interface GetChannelDetailPayload {
   channel: ChannelPayload;
 }
 
-export interface GetMyChannelsPayload {
-  channels: ChannelPayload[];
-}
-
 export interface UpdateMemberModalPayload {
   enabled: boolean;
 }
@@ -61,9 +57,9 @@ interface GetChannelDetailActionType
 }
 
 interface GetMyChannelsActionType
-  extends PayloadAction<GetMyChannelsPayload, GetMyChannelsType> {
+  extends PayloadAction<ChannelPayload[], GetMyChannelsType> {
   type: GetMyChannelsType;
-  payload: GetMyChannelsPayload;
+  payload: ChannelPayload[];
 }
 
 interface GetChannelMessagesActionType
@@ -157,7 +153,7 @@ export const GetChannelDetailAction = (
 ): ChannelActionTypes => ({ type: "channel/fetchOneChannel", payload });
 
 export const GetMyChannelsAction = (
-  payload: GetMyChannelsPayload
+  payload: ChannelPayload[]
 ): ChannelActionTypes => ({ type: "channel/fetchChannels", payload });
 
 export const GetChannelMessagesAction = (

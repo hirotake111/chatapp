@@ -1,5 +1,11 @@
-import { asyncWait, getData, postData, getUserData } from "./network";
-import { getFakeUser } from "./testHelpers";
+import {
+  asyncWait,
+  getData,
+  postData,
+  getUserData,
+  fetchMyChannels,
+} from "./network";
+import { getFakeChannel, getFakeUser } from "./testHelpers";
 import { validateData } from "./validators";
 
 const mockRes = jest.fn();
@@ -35,6 +41,7 @@ Object.defineProperty(window, "location", {
 // mock validators
 jest.mock("./validators", () => ({
   validateData: (data: any) => data,
+  validateChannelsPayload: (data: any) => data,
 }));
 
 beforeEach(() => {
@@ -164,5 +171,43 @@ describe("getUserData", () => {
       json: () => Promise.resolve(userInfo),
     }));
     expect(await getUserData()).toEqual(userInfo);
+  });
+
+  it("should throw an error if network call faield", async () => {
+    expect.assertions(1);
+    const err = new Error("network error!");
+    mockRes.mockImplementation(() => {
+      throw err;
+    });
+    try {
+      await getUserData();
+    } catch (e) {
+      expect(e).toEqual(err);
+    }
+  });
+});
+
+describe("fetchMychannels", () => {
+  it("should fetch channels payload from server", async () => {
+    expect.assertions(1);
+    const channels = [getFakeChannel(), getFakeChannel(), getFakeChannel()];
+    mockRes.mockImplementation(() => ({
+      status: 200,
+      json: () => Promise.resolve({ channels }),
+    }));
+    expect(await fetchMyChannels()).toEqual(channels);
+  });
+
+  it("should raise an error if network call faield", async () => {
+    expect.assertions(1);
+    const err = new Error("network error!");
+    mockRes.mockImplementation(() => {
+      throw err;
+    });
+    try {
+      await fetchMyChannels();
+    } catch (e) {
+      expect(e).toEqual(err);
+    }
   });
 });

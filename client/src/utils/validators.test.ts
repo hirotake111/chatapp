@@ -249,10 +249,8 @@ describe("validateMessages", () => {
 describe("validateChannelsPayload", () => {
   it("should return data if passed data is valid one", () => {
     expect.assertions(1);
-    const data = {
-      channels: [getFakeChannel(), getFakeChannel(), getFakeChannel()],
-    };
-    expect(validateChannelsPayload(data)).toEqual(data);
+    const channels = [getFakeChannel(), getFakeChannel(), getFakeChannel()];
+    expect(validateChannelsPayload(channels)).toEqual(channels);
   });
 
   it("should throw an error if it's not an array", () => {

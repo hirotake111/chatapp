@@ -51,9 +51,9 @@ export const myMiddleware: Middleware =
       // As "channel/fetchChannels" will be invoke at initial page load,
       // now highlighted channel is undefined,
       // so we will fetch all messages for the latest channel
-      const latestChannel = action.payload.channels.reduce(
+      const latestChannel = action.payload.reduce(
         (a, c) => (c.updatedAt > a.updatedAt ? c : a),
-        action.payload.channels[0]
+        action.payload[0]
       );
       if (latestChannel) {
         try {
@@ -109,12 +109,10 @@ export const myMiddleware: Middleware =
     if (action.type === "newChannel/createChannel") {
       // then add the channel to channel state
       storeApi.dispatch(
-        GetMyChannelsAction({
-          channels: [
-            action.payload.newChannel,
-            ...storeApi.getState().channel.channels,
-          ],
-        })
+        GetMyChannelsAction([
+          action.payload.newChannel,
+          ...storeApi.getState().channel.channels,
+        ])
       );
       // clear channel name in the new channel dialog form
       storeApi.dispatch(UpdateChannelNameAction(""));

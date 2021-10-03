@@ -1,9 +1,6 @@
 import { useEffect } from "react";
 import { connect, ConnectedProps } from "react-redux";
-import {
-  thunkGetMyChannels,
-  thunkShowNewChannelModal,
-} from "../../utils/thunk-middlewares";
+import { thunkShowNewChannelModal } from "../../utils/thunk-middlewares";
 
 import { RootState } from "../../utils/store";
 import { ChannelList } from "../../components/Channel/ChannelItem/ChannelList";
@@ -12,20 +9,16 @@ import { LoadingSpinner2 } from "../../components/Common/LoadingSpinner2/Loading
 
 import "./LeftColumn.css";
 import { useGetMessagesByChannelId } from "../../hooks/messageHooks";
+import { useGetMyChannels } from "../../hooks/channelHooks";
 
-const _LeftColumn = ({
-  channels,
-  highlighted,
-  loading,
-  showNewChannelModal,
-  getMychannels,
-}: Props) => {
+const _LeftColumn = ({ highlighted, loading, showNewChannelModal }: Props) => {
   const getMessages = useGetMessagesByChannelId();
+  const [channels, getMyChannels] = useGetMyChannels();
 
   // get channel list
   useEffect(() => {
-    getMychannels();
-  }, [getMychannels]);
+    getMyChannels();
+  }, []);
 
   // onClick handler for new channel button
   const handleNewChannelButtonClick = () => {
@@ -68,7 +61,6 @@ const mapStateToProps = (state: RootState) => ({
 
 const mapDispatchToProps = {
   showNewChannelModal: thunkShowNewChannelModal,
-  getMychannels: thunkGetMyChannels,
 };
 
 const connector = connect(mapStateToProps, mapDispatchToProps);

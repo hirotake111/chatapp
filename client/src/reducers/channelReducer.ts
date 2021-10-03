@@ -39,7 +39,7 @@ export const channelReducer: Reducer<ChannelState, ChannelActionTypes> = (
     case "channel/fetchChannels":
       return {
         ...state,
-        channels: [...action.payload.channels],
+        channels: [...action.payload],
       };
 
     case "channel/getChannelMessages": {
