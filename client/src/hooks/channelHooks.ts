@@ -1,5 +1,6 @@
 import {
   GetMyChannelsAction,
+  HighlightChannelAction,
   ToggleChannelLoadingAction,
 } from "../actions/channelActions";
 import { fetchMyChannels } from "../utils/network";
@@ -20,6 +21,11 @@ export const useGetMyChannels = () => {
       dispatch(GetMyChannelsAction(channels));
       // update loading state
       dispatch(ToggleChannelLoadingAction());
+      // if user has no channel joined, then exit
+      if (channels.length === 0) return;
+      // update highlighted channel
+      const sortedChannels = channels.sort((a, b) => b.updatedAt - a.updatedAt);
+      dispatch(HighlightChannelAction({ channelId: sortedChannels[0].id }));
     } catch (e) {
       console.error(e);
     }
