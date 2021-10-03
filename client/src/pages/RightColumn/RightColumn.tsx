@@ -11,34 +11,19 @@ import { ChatPane } from "../../components/Chat/ChatPane/ChatPane";
 import { Button } from "../../components/Common/Button/Button";
 
 import "./RightColumn.css";
-import { MouseEventHandler, useEffect, useState } from "react";
+import { MouseEventHandler } from "react";
 import { useSendMessage } from "../../hooks/messageHooks";
+import { useAppSelector } from "../../hooks/reduxHooks";
 
-const RColumn = ({
-  highlighted,
-  channels,
-  sender,
-  changeFormContent,
-  updateMemberModal,
-  content,
-}: Props) => {
-  const [highlightedChannel, setHighlightedChannel] =
-    useState<ChannelPayload | null>(null);
-
+const RColumn = ({ changeFormContent, updateMemberModal }: Props) => {
   const send = useSendMessage();
+  const {
+    user: { userInfo },
+    channel: { highlighted, channels },
+    message: { content },
+  } = useAppSelector((state) => state);
 
-  useEffect(() => {
-    setHighlightedChannel(
-      channels.length === 0
-        ? null // display nothing if user joins no channels
-        : highlighted
-        ? // highlighted channel
-          channels.filter((ch) => ch.id === highlighted)[0]
-        : // otherwise, display the latest channel
-          channels.slice().sort((a, b) => b.updatedAt - a.updatedAt)[0]
-    );
-  }, [channels, highlighted]);
-
+  const highlightedChannel = channels.filter((ch) => ch.id === highlighted)[0];
   const handleChange = (data: string) => {
     // This avoids a new line without any words
     if (data !== "\n") changeFormContent(data);
@@ -73,8 +58,8 @@ const RColumn = ({
           ) : null}
         </div>
       </div>
-      {highlightedChannel && sender && sender.userId ? (
-        <ChatPane channel={highlightedChannel} senderId={sender.userId} />
+      {highlightedChannel && userInfo && userInfo.userId ? (
+        <ChatPane channel={highlightedChannel} senderId={userInfo.userId} />
       ) : (
         ""
       )}
@@ -92,12 +77,7 @@ const RColumn = ({
   );
 };
 
-const mapStateToProps = (state: RootState) => ({
-  highlighted: state.channel.highlighted,
-  channels: state.channel.channels,
-  sender: state.user.userInfo,
-  content: state.message.content,
-});
+const mapStateToProps = (state: RootState) => ({});
 
 const mapDispatchToProps = {
   changeFormContent: (content: string) => thunkChangeFormContent(content),
