@@ -52,22 +52,6 @@ export const getUserSearchSuggestions = async (
 };
 
 /**
- * get channel data and validate it, then return it
- */
-export const fetchChannelDetailPayload = async (
-  channelId: string
-): Promise<ChannelPayload> => {
-  try {
-    const body = await getData(`/api/channel/${channelId}`);
-    // validate payload
-    const payload = validateChannel(body.channel);
-    return payload;
-  } catch (e) {
-    throw e;
-  }
-};
-
-/**
  * returns channel name, member names, or membernames with number
  */
 export const getMemberSummary = (

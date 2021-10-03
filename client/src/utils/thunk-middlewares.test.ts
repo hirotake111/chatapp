@@ -5,10 +5,8 @@ import {
   thunkAddSuggestedUser,
   thunkChangeFormContent,
   thunkCreateChannel,
-  thunkGetChannelDetail,
   thunkHideNewChannelModal,
   thunkHideSearchSuggestions,
-  thunkHighlightChannel,
   thunkOnChatMessage,
   thunkRemoveCandidateFromExistingChannel,
   thunkRemoveSuggestedUser,
@@ -21,7 +19,6 @@ import {
 } from "./thunk-middlewares";
 import { store } from "./store";
 import { getFakeChannel } from "./testHelpers";
-import { GetMyChannelsAction } from "../actions/channelActions";
 
 const mockSuggestedUser: SearchedUser = {
   id: uuid(),
@@ -64,6 +61,7 @@ let dispatch: any;
 const mockGetChannel = (channeId: string) => ({ id: channeId });
 
 const mockFetchMyChannel = jest.fn();
+const mockFetchChannelDetailPayload = jest.fn();
 
 beforeAll(() => {
   jest.mock("./storage", () => ({
@@ -74,6 +72,7 @@ beforeAll(() => {
 beforeEach(() => {
   dispatch = jest.fn();
   mockFetchMyChannel.mockClear();
+  mockFetchChannelDetailPayload.mockClear();
 });
 
 // mock getData
@@ -108,6 +107,7 @@ jest.mock("./network", () => ({
       };
   },
   fetchMyChannels: () => mockFetchMyChannel(),
+  fetchChannelDetailPayload: () => mockFetchChannelDetailPayload(),
 }));
 
 jest.mock("./ws/socket", () => ({
@@ -118,28 +118,6 @@ jest.mock("./ws/socket", () => ({
     },
   },
 }));
-
-describe("thunkGetChannelDetail", () => {
-  it("should dispatch channel detail payload", async () => {
-    expect.assertions(1);
-    await thunkGetChannelDetail("xx-xx-xx-xx")(dispatch, () => ({} as any), {});
-    expect(dispatch).toHaveBeenCalledWith({
-      type: "channel/fetchOneChannel",
-      payload: mockChannel,
-    });
-  });
-});
-
-describe("thunkHighlightChannel", () => {
-  it("should dispatch action payload", async () => {
-    expect.assertions(1);
-    await thunkHighlightChannel(mockChannel)(dispatch, store.getState, {});
-    expect(dispatch).toHaveBeenCalledWith({
-      type: "channel/highlightChannel",
-      payload: { channelId: mockChannel.id },
-    });
-  });
-});
 
 describe("thunkChangeFormContent", () => {
   it("should dispatch action payload", async () => {
@@ -278,6 +256,8 @@ describe("thunkUpdateCreateButtonStatus", () => {
 describe("thunkCreateChannel", () => {
   it("should dispatch action payload", async () => {
     expect.assertions(1);
+    const channel = getFakeChannel();
+    mockFetchChannelDetailPayload.mockReturnValue(channel);
     jest.useFakeTimers();
     await thunkCreateChannel("my channel abcd", [mockSuggestedUser])(
       dispatch,

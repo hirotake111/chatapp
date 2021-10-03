@@ -4,6 +4,7 @@ import {
   postData,
   getUserData,
   fetchMyChannels,
+  fetchChannelDetailPayload,
 } from "./network";
 import { getFakeChannel, getFakeUser } from "./testHelpers";
 import { validateData } from "./validators";
@@ -42,6 +43,7 @@ Object.defineProperty(window, "location", {
 jest.mock("./validators", () => ({
   validateData: (data: any) => data,
   validateChannelsPayload: (data: any) => data,
+  validateChannel: (data: any) => data,
 }));
 
 beforeEach(() => {
@@ -206,6 +208,31 @@ describe("fetchMychannels", () => {
     });
     try {
       await fetchMyChannels();
+    } catch (e) {
+      expect(e).toEqual(err);
+    }
+  });
+});
+
+describe("fetchChannelDetailPayload", () => {
+  it("should return channel data", async () => {
+    expect.assertions(1);
+    const channel = getFakeChannel();
+    mockRes.mockImplementation(() => ({
+      status: 200,
+      json: () => Promise.resolve({ channel }),
+    }));
+    expect(await fetchChannelDetailPayload(channel.id)).toEqual(channel);
+  });
+
+  it("should throw an error if it gets invalid response from server", async () => {
+    expect.assertions(1);
+    const err = new Error("xxxx");
+    mockRes.mockImplementation(() => {
+      throw err;
+    });
+    try {
+      await fetchChannelDetailPayload("abcd");
     } catch (e) {
       expect(e).toEqual(err);
     }

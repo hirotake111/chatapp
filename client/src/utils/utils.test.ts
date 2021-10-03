@@ -3,7 +3,6 @@ import { nanoid } from "@reduxjs/toolkit";
 import { v4 as uuid } from "uuid";
 import {
   convertTimestampToDate,
-  fetchChannelDetailPayload,
   getChannelMessages,
   getMemberSummary,
   getNumberWithTwoDigits,
@@ -96,24 +95,6 @@ describe("getUserSearchSuggestions", () => {
         expect(e.message).toEqual(
           "getUserSearchSuggestions: invalid response from server. detail: failed"
         );
-    }
-  });
-});
-
-describe("fetchChannelDetailPayload", () => {
-  it("should return channel data", async () => {
-    expect.assertions(1);
-    expect(await fetchChannelDetailPayload("id01")).toEqual({
-      id: "xx-xx-xx-xx",
-    });
-  });
-
-  it("should throw an error if it gets invalid response from server", async () => {
-    expect.assertions(1);
-    try {
-      await fetchChannelDetailPayload("id02");
-    } catch (e) {
-      if (e instanceof Error) expect(e.message).toEqual("Error from server");
     }
   });
 });

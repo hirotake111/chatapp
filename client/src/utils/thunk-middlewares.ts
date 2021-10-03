@@ -2,11 +2,10 @@ import { validate } from "uuid";
 import { AppThunk } from "./store";
 
 import { socket } from "./ws/socket";
-import { fetchChannelDetailPayload, getUserSearchSuggestions } from "./utils";
-import { postData } from "./network";
+import { getUserSearchSuggestions } from "./utils";
+import { fetchChannelDetailPayload, postData } from "./network";
 import {
   GetChannelDetailAction,
-  HighlightChannelAction,
   ReceiveMessageAction,
   UpdateMemberModalAction,
   UpdateMemberCandidateSearchStatusAction,
@@ -30,24 +29,6 @@ import {
 import { ChangeMessageBeenEditedAction } from "../actions/messageActions";
 import { RefObject } from "react";
 // import { storage } from "./storage";
-
-export const thunkGetChannelDetail =
-  (channelId: string): AppThunk =>
-  async (dispatch) => {
-    try {
-      const payload = await fetchChannelDetailPayload(channelId);
-      // dispatch action
-      dispatch(GetChannelDetailAction(payload));
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-export const thunkHighlightChannel =
-  (channel: ChannelPayload): AppThunk =>
-  async (dispatch) => {
-    dispatch(HighlightChannelAction({ channelId: channel.id }));
-  };
 
 export const thunkChangeFormContent =
   (content: string): AppThunk =>

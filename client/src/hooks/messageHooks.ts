@@ -1,6 +1,6 @@
 import { v4 as uuid } from "uuid";
 
-import { useAppDispatch } from "./reduxHooks";
+import { useAppDispatch, useAppSelector } from "./reduxHooks";
 import { socket } from "../utils/ws/socket";
 import { ChangeMessageBeenEditedAction } from "../actions/messageActions";
 import {
@@ -15,18 +15,41 @@ import { getChannelMessages } from "../utils/utils";
  * then dispatch an action to update store
  */
 export const useSendMessage = () => {
+  const {
+    user: { isAuthenticated, userInfo },
+    channel: { highlighted },
+  } = useAppSelector((state) => state);
   const dispatch = useAppDispatch();
 
-  const send = (message: MessageWithNoId): void => {
+  const send = (content: string): void => {
     // exit if message content is empty
-    if (message.content.length === 0) {
+    if (content.length === 0) {
       console.warn("message is empty - aborted");
       return;
     }
-    // generate new message ID
-    const chatMessage: Message = { ...message, id: uuid() };
+
+    // check to see if user is authenticated
+    if (!(isAuthenticated && userInfo))
+      return console.warn("you are probably not signed in");
+
+    // if highlighted channel ID is falsy value, do nothing
+    if (!highlighted) return console.warn(`prop highlighted is ${highlighted}`);
+
+    // generate new message
+    const message: Message = {
+      id: uuid(),
+      channelId: highlighted,
+      content,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      sender: {
+        id: userInfo.userId,
+        username: userInfo.username,
+        displayName: userInfo.displayName,
+      },
+    };
     // send message to server
-    socket.emit("chat message", chatMessage);
+    socket.emit("chat message", message);
     // empty content
     dispatch(ChangeMessageBeenEditedAction({ content: "" }));
   };

@@ -39,32 +39,6 @@ const RColumn = ({
     );
   }, [channels, highlighted]);
 
-  const handleClickPaperPlane = (): void => {
-    // check if user is authenticated
-    if (!(sender && sender.userId && sender.username)) {
-      console.log("prop sender is undefined - you are probably not signed in");
-      return;
-    }
-    // if highlighted does not have any data, then do nothing
-    if (!highlighted) {
-      console.log("prop highlighted is undefined");
-      return;
-    }
-    // send message to the server
-    const message: MessageWithNoId = {
-      channelId: highlighted,
-      content,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-      sender: {
-        id: sender.userId,
-        username: sender.username,
-        displayName: sender.displayName,
-      },
-    };
-    send(message);
-  };
-
   const handleChange = (data: string) => {
     // This avoids a new line without any words
     if (data !== "\n") changeFormContent(data);
@@ -74,7 +48,7 @@ const RColumn = ({
     // if Enter + Shift key are pressed, then add a new line.
     // if Enter + any other keys are pressed, then send a message
     if (e.key === "Enter" && !e.shiftKey && content.length > 0) {
-      handleClickPaperPlane();
+      send(content);
       return;
     }
   };
@@ -111,7 +85,7 @@ const RColumn = ({
           onKeyPress={handleKeyPress}
         />
         <div className="chat-form-button-container">
-          <PaperPlaneIcon onClick={() => handleClickPaperPlane()} />
+          <PaperPlaneIcon onClick={() => send(content)} />
         </div>
       </div>
     </div>

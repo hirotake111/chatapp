@@ -54,7 +54,6 @@ const _LeftColumn = ({ highlighted, loading, showNewChannelModal }: Props) => {
 };
 
 const mapStateToProps = (state: RootState) => ({
-  channels: state.channel.channels,
   highlighted: state.channel.highlighted,
   loading: state.channel.loading,
 });

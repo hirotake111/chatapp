@@ -1,16 +1,17 @@
 import {
+  GetChannelDetailAction,
   GetMyChannelsAction,
   HighlightChannelAction,
   ToggleChannelLoadingAction,
 } from "../actions/channelActions";
-import { fetchMyChannels } from "../utils/network";
+import { fetchChannelDetailPayload, fetchMyChannels } from "../utils/network";
 import { useAppDispatch, useAppSelector } from "./reduxHooks";
 
 /**
  * returns current hilighted channel and disspatch function that will updates channels
  */
 export const useGetMyChannels = () => {
-  const channels = useAppSelector((state) => state.channel.channels);
+  const storedChannels = useAppSelector((state) => state.channel.channels);
   const dispatch = useAppDispatch();
 
   const getMyChannels = async () => {
@@ -31,5 +32,24 @@ export const useGetMyChannels = () => {
     }
   };
 
-  return [channels, getMyChannels] as const;
+  return [storedChannels, getMyChannels] as const;
+};
+
+/**
+ * returns function that fetches channel, then dispatch an action to update channels
+ */
+export const useFetchChannelDetail = (): ((
+  chanelId: string
+) => Promise<void>) => {
+  const dispatch = useAppDispatch();
+
+  return async (channelId: string): Promise<void> => {
+    try {
+      const channel = await fetchChannelDetailPayload(channelId);
+      // dispatch action
+      dispatch(GetChannelDetailAction(channel));
+    } catch (e) {
+      console.error(e);
+    }
+  };
 };

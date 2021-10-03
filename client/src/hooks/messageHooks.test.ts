@@ -1,8 +1,26 @@
+import { nanoid } from "@reduxjs/toolkit";
+import { v4 as uuid } from "uuid";
+import { ChangeMessageBeenEditedAction } from "../actions/messageActions";
 import { getFakeChannel, getFakeMessageWithNoId } from "../utils/testHelpers";
 
 import { useGetMessagesByChannelId, useSendMessage } from "./messageHooks";
 
+// heloper function to generate returned state
+const getFakeState = () => ({
+  user: {
+    isAuthenticated: true,
+    userInfo: {
+      userId: uuid(),
+      username: nanoid(),
+    },
+  },
+  channel: {
+    highlighted: uuid(),
+  },
+});
+
 const mockDispatch = jest.fn();
+const mockUseAppSelector = jest.fn();
 const mockEmit = jest.fn();
 const mockConnect = jest.fn();
 const mockGetChannemMessages = jest.fn();
@@ -10,6 +28,7 @@ const mockGetChannemMessages = jest.fn();
 // mock useAppDispatch
 jest.mock("./reduxHooks", () => ({
   useAppDispatch: () => mockDispatch,
+  useAppSelector: (data: any) => mockUseAppSelector(data),
 }));
 
 // mock socket instance
@@ -26,29 +45,56 @@ jest.mock("../utils/utils", () => ({
 }));
 
 describe("useSendMessage", () => {
-  let send: (message: MessageWithNoId) => void;
-
   beforeEach(() => {
     mockDispatch.mockClear();
     mockEmit.mockClear();
-    send = useSendMessage();
   });
 
   it("shsould send message to server and empty form content", () => {
-    expect.assertions(2);
-    send(getFakeMessageWithNoId());
+    expect.assertions(3);
+    mockUseAppSelector.mockReturnValue(getFakeState());
+    const send = useSendMessage();
+    send("hello world");
     expect(mockEmit.mock.calls[0][0]).toEqual("chat message");
-    expect(mockDispatch).toHaveBeenCalledWith({
-      type: "message/changeFormContent",
-      payload: { content: "" },
-    });
+    expect(mockEmit.mock.calls[0][1].content).toEqual("hello world");
+    expect(mockDispatch).toHaveBeenCalledWith(
+      ChangeMessageBeenEditedAction({ content: "" })
+    );
   });
 
   it("should not send message if content is empty", () => {
     expect.assertions(2);
+    mockUseAppSelector.mockReturnValue(getFakeState());
     console.warn = jest.fn();
-    send({ ...getFakeMessageWithNoId(), content: "" });
-    expect(console.warn).toHaveBeenCalledTimes(1);
+    const send = useSendMessage();
+    send("");
+    expect(console.warn).toHaveBeenCalledWith("message is empty - aborted");
+    expect(mockDispatch).toHaveBeenCalledTimes(0);
+  });
+
+  it("should not send message if user is not authenticated", () => {
+    expect.assertions(2);
+    mockUseAppSelector.mockReturnValue({
+      ...getFakeState(),
+      user: { isAuthenticated: false },
+    });
+    console.warn = jest.fn();
+    const send = useSendMessage();
+    send("hey");
+    expect(console.warn).toHaveBeenCalledWith("you are probably not signed in");
+    expect(mockDispatch).toHaveBeenCalledTimes(0);
+  });
+
+  it("should not send message if highlighted is falsy value", () => {
+    expect.assertions(2);
+    mockUseAppSelector.mockReturnValue({
+      ...getFakeState(),
+      channel: { highlighted: undefined },
+    });
+    console.warn = jest.fn();
+    const send = useSendMessage();
+    send("hey");
+    expect(console.warn).toHaveBeenCalledWith("prop highlighted is undefined");
     expect(mockDispatch).toHaveBeenCalledTimes(0);
   });
 });

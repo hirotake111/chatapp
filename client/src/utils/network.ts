@@ -1,5 +1,9 @@
 import { UserInfoType } from "../reducers/userReducer";
-import { validateChannelsPayload, validateData } from "./validators";
+import {
+  validateChannel,
+  validateChannelsPayload,
+  validateData,
+} from "./validators";
 
 /**
  * wait for given milliseconds asynchronously, then return it
@@ -80,6 +84,22 @@ export const fetchMyChannels = async (): Promise<ChannelPayload[]> => {
   try {
     const body = await getData("/api/channel/");
     return validateChannelsPayload(body.channels);
+  } catch (e) {
+    throw e;
+  }
+};
+
+/**
+ * get channel data and validate it, then return it
+ */
+export const fetchChannelDetailPayload = async (
+  channelId: string
+): Promise<ChannelPayload> => {
+  try {
+    const body = await getData(`/api/channel/${channelId}`);
+    // validate payload
+    const payload = validateChannel(body.channel);
+    return payload;
   } catch (e) {
     throw e;
   }
