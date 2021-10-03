@@ -3,14 +3,10 @@ import { useEffect, useState } from "react";
 import Home from "./pages/Home/Home";
 import { LoadingSpinner } from "./components/Common/LoadingSpinner/LoadingSpinner";
 import { DisplayWrapper } from "./components/Common/DisplayWrapper/DisplayWrapper";
+import { useSignIn } from "./hooks/userHooks";
 
-export default function App({
-  user: { isAuthenticated },
-  signin,
-}: {
-  user: { isAuthenticated: boolean };
-  signin: () => void;
-}) {
+export default function App() {
+  const [{ isAuthenticated }, signin] = useSignIn();
   const [isMobile, setIsMobile] = useState(true);
 
   /**
