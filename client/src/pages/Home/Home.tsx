@@ -1,12 +1,12 @@
-import { connect, ConnectedProps } from "react-redux";
 import { Header } from "../../components/Common/Header/Header";
 import { MainContainer } from "../MainContainer/MainContainer";
 import { NewChannelModal } from "../NewChannelModal/NewChannelModal";
-
-import { RootState } from "../../utils/store";
 import { MemberModal } from "../../components/Member/MemberModal/MemberModal";
 
-const Home = ({ user: { userInfo } }: Props) => {
+import { useAppSelector } from "../../hooks/reduxHooks";
+
+const Home = () => {
+  const { userInfo } = useAppSelector((state) => state.user);
   return userInfo && userInfo.username && userInfo.userId ? (
     <>
       <Header userId={userInfo.userId} username={userInfo.username} />
@@ -21,15 +21,4 @@ const Home = ({ user: { userInfo } }: Props) => {
   );
 };
 
-const mapStateToProps = (state: RootState) => ({
-  user: state.user,
-});
-
-const mapDispatchToProps = {};
-
-const connector = connect(mapStateToProps, mapDispatchToProps);
-
-type PropsFromRedux = ConnectedProps<typeof connector>;
-type Props = PropsFromRedux & {};
-
-export default connector(Home);
+export default Home;
