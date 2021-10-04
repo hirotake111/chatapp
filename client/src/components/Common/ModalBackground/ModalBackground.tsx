@@ -13,11 +13,8 @@ export const ModalBackground: FC<Props> = ({
   onClick,
   children,
 }) => {
-  const handleClickBackgrond: MouseEventHandler = (e) => {
-    const element = e.target as HTMLElement;
-    if (element.id === id) {
-      onClick(!enabled);
-    }
+  const handleClickBackgrond: MouseEventHandler = () => {
+    onClick(!enabled);
   };
 
   return (
