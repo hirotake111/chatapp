@@ -15,36 +15,25 @@ import { SearchboxForMemberModal } from "../../Search/SearchboxForMemberModal/Se
 import "./MemberModal.css";
 import { CandidateList } from "../../Search/CandidateList/CandidateList";
 import { SuggestedCardList } from "../../Search/SuggestedCardList/SuggestedCardList";
+import { useAppSelector } from "../../../hooks/reduxHooks";
 
 const Component = ({
-  enabled,
-  candidates,
-  buttonEnabled,
-  highlighted,
-  searchStatus,
   updateMemberModal,
   addMember,
   addCandidate,
   removeCandidate,
 }: Props) => {
-  const handleClick = async () => {
-    const memberIds = candidates.map((c) => c.id);
-    if (!highlighted) {
-      console.log("highlighted ID is null -> skip adding user to the channel");
-      return;
-    }
-
-    try {
-      addMember(memberIds, highlighted);
-    } catch (e) {
-      console.error(e);
-    }
-  };
+  const {
+    memberModalEnabled,
+    candidates,
+    addMemberButtonEnabled,
+    searchStatus,
+  } = useAppSelector((state) => state.channel);
 
   return (
     <ModalBackground
       id="member-modal"
-      enabled={enabled}
+      enabled={memberModalEnabled}
       onClick={updateMemberModal}
     >
       <ModalForm
@@ -63,8 +52,8 @@ const Component = ({
           <div className="modal-forms-bottom">
             <Button
               value="save"
-              enabled={buttonEnabled}
-              onClick={handleClick}
+              enabled={addMemberButtonEnabled}
+              onClick={() => addMember(candidates.map((c) => c.id))}
             />
           </div>
         </div>
@@ -73,13 +62,7 @@ const Component = ({
   );
 };
 
-const mapStateToProps = (state: RootState) => ({
-  enabled: state.channel.memberModalEnabled,
-  candidates: state.channel.candidates,
-  buttonEnabled: state.channel.addMemberButtonEnabled,
-  highlighted: state.channel.highlighted,
-  searchStatus: state.channel.searchStatus,
-});
+const mapStateToProps = (state: RootState) => ({});
 
 const mapDispatchToProps = {
   updateMemberModal: thunkUpdateMemberModal,

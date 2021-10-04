@@ -34,7 +34,7 @@ export const ChatPane = ({
   );
 };
 
-const MessageContainerItem = ({
+export const MessageContainerItem = ({
   timestamp,
   content,
   isMyMessage,

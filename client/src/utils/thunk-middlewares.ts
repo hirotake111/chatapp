@@ -243,19 +243,21 @@ export const thunkGetUserByQuery =
   };
 
 export const thunkAddMemberToChannel =
-  (memberIds: string[], channelId: string | undefined): AppThunk =>
-  async (dispatch) => {
+  (memberIds: string[]): AppThunk =>
+  async (dispatch, getState) => {
+    // get highted channel ID
+    const { highlighted } = getState().channel;
+    if (!highlighted)
+      return console.error(
+        "failed to add memmber - highlighted channnel ID is undefined"
+      );
     // if no candidate, return
     if (memberIds.length === 0) return;
-    // if no channel ID, return
-    if (!channelId) throw new Error("channel is undefined");
-    // const { id: channelId } = channel;
-    if (!channelId) throw new Error("invalid channel ID");
     try {
       // disable button
       dispatch(UpdateMemberButtonEnabledAction(false));
       // post data to channel endpoint
-      const body = await postData(`/api/channel/${channelId}/member`, {
+      const body = await postData(`/api/channel/${highlighted}/member`, {
         userIds: memberIds,
       });
       // validate detail
@@ -279,7 +281,7 @@ export const thunkAddMemberToChannel =
           }
           // get/validate channel detail.
           // This will throw an error if response code !== 200
-          const payload = await fetchChannelDetailPayload(channelId);
+          const payload = await fetchChannelDetailPayload(highlighted);
           // if succeeded, clear timeout function
           clearTimeout(timeout);
           dispatch(GetChannelDetailAction(payload));
@@ -290,7 +292,6 @@ export const thunkAddMemberToChannel =
         throw e;
       }
     } catch (e) {
-      if (e instanceof Error) return console.error(e.message);
-      throw e;
+      console.error(e);
     }
   };

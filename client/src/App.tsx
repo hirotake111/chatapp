@@ -9,7 +9,6 @@ export default function App() {
   // const [{ isAuthenticated: result }, b] = useSignIn();
   const [{ isAuthenticated }, signin] = useSignIn();
   const [isMobile, setIsMobile] = useState(true);
-
   /**
    * Determine user's device based on window.innerWidth.
    * if it's not a mobile device then set the value as false

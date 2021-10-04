@@ -4,6 +4,9 @@ import { store } from "./utils/store";
 import App from "./App";
 import { Provider } from "react-redux";
 
+jest.mock("./pages/Home/Home");
+jest.mock("./components/Common/LoadingSpinner/LoadingSpinner");
+
 const mockUseSingIn = jest.fn();
 
 jest.mock("./hooks/userHooks", () => ({
@@ -14,22 +17,18 @@ beforeEach(() => {
   mockUseSingIn.mockClear();
 });
 
-test('renders string "No username or user ID"', () => {
+it("should render Home component if user is authenticated", () => {
   expect.assertions(1);
-  const signin = () => Promise.resolve(true);
-  const user = {
-    isAuthenticated: true,
-    userInfo: { userId: "123", username: "alice" },
-  };
-  const returnValue = [user, signin] as const;
-  mockUseSingIn.mockReturnValue(returnValue);
-
+  mockUseSingIn.mockReturnValue([
+    { isAuthenticated: true },
+    () => Promise.resolve(),
+  ]);
   const { container } = render(
     <Provider store={store}>
       <App />
     </Provider>
   );
-  expect(container.firstChild?.textContent).toEqual("No username or user ID");
+  expect(container.textContent).toEqual("Home");
 });
 
 test('renders string "LOADING NOW..." if user is no authenticated', () => {
