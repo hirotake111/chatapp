@@ -1,16 +1,23 @@
 import { Header } from "../../components/Common/Header/Header";
-import { MainContainer } from "../MainContainer/MainContainer";
 import { NewChannelModal } from "../NewChannelModal/NewChannelModal";
 import { MemberModal } from "../../components/Member/MemberModal/MemberModal";
 
 import { useAppSelector } from "../../hooks/reduxHooks";
 
+import "./Home.css";
+import { LeftColumn } from "../LeftColumn/LeftColumn";
+import { RightColumn } from "../RightColumn/RightColumn";
+
 const Home = () => {
   const { userInfo } = useAppSelector((state) => state.user);
+
   return userInfo && userInfo.username && userInfo.userId ? (
     <>
       <Header userId={userInfo.userId} username={userInfo.username} />
-      <MainContainer />
+      <div className="main">
+        <LeftColumn />
+        <RightColumn />
+      </div>
       <NewChannelModal />
       <MemberModal />
     </>

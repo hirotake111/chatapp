@@ -5,10 +5,10 @@ import { store } from "../../utils/store";
 import Home from "./Home";
 
 jest.mock("../../components/Common/Header/Header");
-jest.mock("../MainContainer/MainContainer");
 jest.mock("../NewChannelModal/NewChannelModal");
 jest.mock("../../components/Member/MemberModal/MemberModal");
-
+jest.mock("../LeftColumn/LeftColumn");
+jest.mock("../RightColumn/RightColumn");
 const mockUseAppSelector = jest.fn();
 
 jest.mock("../../hooks/reduxHooks", () => ({
@@ -16,7 +16,7 @@ jest.mock("../../hooks/reduxHooks", () => ({
 }));
 
 it("should render child components", () => {
-  expect.assertions(5);
+  expect.assertions(6);
   mockUseAppSelector.mockReturnValue({
     userInfo: { userId: "xxxx", username: "alice" },
   });
@@ -29,7 +29,8 @@ it("should render child components", () => {
   );
   expect(childNodes.length).toEqual(4);
   expect(childNodes[0].textContent).toEqual("mock Header component");
-  expect(childNodes[1].textContent).toEqual("mock MainContainer component");
+  expect(childNodes[1].childNodes[0].textContent).toEqual("mock LeftColumn");
+  expect(childNodes[1].childNodes[1].textContent).toEqual("mock RightColumn");
   expect(childNodes[2].textContent).toEqual("mock NewChannelModal component");
   expect(childNodes[3].textContent).toEqual("mock MemberModal component");
 });
