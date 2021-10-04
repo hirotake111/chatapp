@@ -2,16 +2,20 @@ import { useEffect } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import { thunkShowNewChannelModal } from "../../utils/thunk-middlewares";
 
-import { RootState } from "../../utils/store";
 import { ChannelList } from "../../components/Channel/ChannelItem/ChannelList";
 import { Button } from "../../components/Common/Button/Button";
 import { LoadingSpinner2 } from "../../components/Common/LoadingSpinner2/LoadingSpinner2";
 
-import "./LeftColumn.css";
+import { RootState } from "../../utils/store";
+import { useAppSelector } from "../../hooks/reduxHooks";
 import { useGetMessagesByChannelId } from "../../hooks/messageHooks";
 import { useGetMyChannels } from "../../hooks/channelHooks";
 
-const _LeftColumn = ({ highlighted, loading, showNewChannelModal }: Props) => {
+import "./LeftColumn.css";
+
+const _LeftColumn = ({ showNewChannelModal }: Props) => {
+  const { loading, highlighted } = useAppSelector((state) => state.channel);
+
   const getMessages = useGetMessagesByChannelId();
   const [channels, getMyChannels] = useGetMyChannels();
 
@@ -19,11 +23,6 @@ const _LeftColumn = ({ highlighted, loading, showNewChannelModal }: Props) => {
   useEffect(() => {
     getMyChannels();
   }, []);
-
-  // onClick handler for new channel button
-  const handleNewChannelButtonClick = () => {
-    showNewChannelModal();
-  };
 
   return (
     <div className="left-column">
@@ -46,17 +45,14 @@ const _LeftColumn = ({ highlighted, loading, showNewChannelModal }: Props) => {
         <Button
           enabled={true}
           value="NEW CHANNEL"
-          onClick={handleNewChannelButtonClick}
+          onClick={showNewChannelModal}
         />
       </div>
     </div>
   );
 };
 
-const mapStateToProps = (state: RootState) => ({
-  highlighted: state.channel.highlighted,
-  loading: state.channel.loading,
-});
+const mapStateToProps = (state: RootState) => ({});
 
 const mapDispatchToProps = {
   showNewChannelModal: thunkShowNewChannelModal,
