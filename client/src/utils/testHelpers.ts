@@ -1,5 +1,6 @@
 import { nanoid } from "@reduxjs/toolkit";
 import { v4 as uuid } from "uuid";
+import { RootState } from "./store";
 
 /**
  * helper function to create fake user
@@ -43,4 +44,34 @@ export const getFakeChannel = (): ChannelPayload => ({
   updatedAt: Date.now(),
   users: [getFakeUser(), getFakeUser(), getFakeUser()],
   messages: [getFakeMessage(), getFakeMessage(), getFakeMessage()],
+});
+
+/**
+ * helper function to create fake state
+ */
+export const getFakeState = (): RootState => ({
+  user: {
+    isAuthenticated: true,
+    userInfo: { userId: uuid(), username: nanoid(), displayName: nanoid() },
+  },
+  channel: {
+    channels: [getFakeChannel(), getFakeChannel(), getFakeChannel()],
+    memberModalEnabled: false,
+    candidates: [getFakeUser(), getFakeUser()],
+    suggestions: [getFakeUser()],
+    addMemberButtonEnabled: false,
+    searchStatus: { type: "notInitiated" },
+    loading: true,
+  },
+  newChannel: {
+    modal: true,
+    selectedUsers: [getFakeUser(), getFakeUser()],
+    channelName: "channel123",
+    searchStatus: { type: "notInitiated" },
+    buttonDisabled: true,
+    createChannelStatusMessage: "xxx",
+  },
+  message: {
+    content: "",
+  },
 });

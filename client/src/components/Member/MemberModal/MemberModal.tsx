@@ -1,21 +1,23 @@
 import { connect, ConnectedProps } from "react-redux";
-import { RootState } from "../../../utils/store";
 
+import { RootState } from "../../../utils/store";
 import {
   thunkAddCandidateToExistingChannel,
   thunkAddMemberToChannel,
   thunkRemoveCandidateFromExistingChannel,
   thunkUpdateMemberModal,
 } from "../../../utils/thunk-middlewares";
+
 import { Button } from "../../Common/Button/Button";
 import { ModalForm } from "../../Common/ModalForm/ModalForm";
 import { ModalBackground } from "../../Common/ModalBackground/ModalBackground";
 import { SearchboxForMemberModal } from "../../Search/SearchboxForMemberModal/SearchboxForMemberModal";
-
-import "./MemberModal.css";
 import { CandidateList } from "../../Search/CandidateList/CandidateList";
 import { SuggestedCardList } from "../../Search/SuggestedCardList/SuggestedCardList";
+
 import { useAppSelector } from "../../../hooks/reduxHooks";
+
+import "./MemberModal.css";
 
 const Component = ({
   updateMemberModal,

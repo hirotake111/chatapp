@@ -1,7 +1,8 @@
 import { Action, PayloadAction } from "@reduxjs/toolkit";
 
-type ShowNewChannelModalType = "newChannel/showNewChannelModal";
-type HideNewChannelModalType = "newChannel/hideNewChannelModal";
+// type ShowNewChannelModalType = "newChannel/showNewChannelModal";
+// type HideNewChannelModalType = "newChannel/hideNewChannelModal";
+type UpdateNewChannelModalType = "newChannel/updateNewChannelModal";
 
 type AddSuggestedUserType = "newChannel/addSuggestedUser";
 type RemoveSuggestedUserType = "newChannel/removeSuggestedUser";
@@ -11,8 +12,9 @@ type UpdateSearchStatusType = "newChannel/updateSearchStatus";
 type CreateChannelType = "newChannel/createChannel";
 
 type DeleteChannelType = "newChannel/deleteChannel";
-type EnableCreateButtonType = "newChannel/enableCreateButton";
-type DisableCreateButtonType = "newChannel/disableCreateButton";
+// type EnableCreateButtonType = "newChannel/enableCreateButton";
+// type DisableCreateButtonType = "newChannel/disableCreateButton";
+type UpdateCreateButtonType = "newChannel/updateCreateButton";
 
 type UpdateChannelNameType = "newChannel/updateChannelName";
 
@@ -41,17 +43,27 @@ export interface UpdateCreateChannelStatusPayload {
   message: string;
 }
 
+interface UpdateCreateButtonPayload {
+  disable: boolean;
+}
+
 /**
  * Action Types
  */
-interface ShowNewChannelModalActionType
-  extends Action<ShowNewChannelModalType> {
-  type: ShowNewChannelModalType;
-}
+// interface ShowNewChannelModalActionType
+//   extends Action<ShowNewChannelModalType> {
+//   type: ShowNewChannelModalType;
+// }
 
-interface HideNewChannelModalActionType
-  extends Action<HideNewChannelModalType> {
-  type: HideNewChannelModalType;
+// interface HideNewChannelModalActionType
+//   extends Action<HideNewChannelModalType> {
+//   type: HideNewChannelModalType;
+// }
+
+interface UpdateNewChannelModalActionType
+  extends PayloadAction<boolean, UpdateNewChannelModalType> {
+  type: UpdateNewChannelModalType;
+  payload: boolean;
 }
 
 interface AddSuggestedUserActionType
@@ -84,12 +96,17 @@ interface DeleteChannelActionType
   payload: DeleteChannelPayload;
 }
 
-interface EnableCreateButtonActionType extends Action<EnableCreateButtonType> {
-  type: EnableCreateButtonType;
-}
-interface DisableCreateButtonActionType
-  extends Action<DisableCreateButtonType> {
-  type: DisableCreateButtonType;
+// interface EnableCreateButtonActionType extends Action<EnableCreateButtonType> {
+//   type: EnableCreateButtonType;
+// }
+// interface DisableCreateButtonActionType
+//   extends Action<DisableCreateButtonType> {
+//   type: DisableCreateButtonType;
+// }
+interface UpdateCreateButtonActionType
+  extends PayloadAction<UpdateCreateButtonPayload, UpdateCreateButtonType> {
+  type: UpdateCreateButtonType;
+  payload: UpdateCreateButtonPayload;
 }
 
 interface UpdateChannelNameActionType
@@ -108,27 +125,35 @@ interface UpdateCreateChannelStatusActionType
 }
 
 export type NewChannelActionTypes =
-  | ShowNewChannelModalActionType
-  | HideNewChannelModalActionType
+  // | ShowNewChannelModalActionType
+  // | HideNewChannelModalActionType
+  | UpdateNewChannelModalActionType
   | AddSuggestedUserActionType
   | RemoveSuggestedUserActionType
   | UpdateSearchStatusActionType
   | CreateChannelActionType
   | DeleteChannelActionType
-  | EnableCreateButtonActionType
-  | DisableCreateButtonActionType
+  // | EnableCreateButtonActionType
+  // | DisableCreateButtonActionType
+  | UpdateCreateButtonActionType
   | UpdateChannelNameActionType
   | UpdateCreateChannelStatusActionType;
 
 /**
  * Actions
  */
-export const ShowNewChannelModalAction = (): ShowNewChannelModalActionType => ({
-  type: "newChannel/showNewChannelModal",
-});
+// export const ShowNewChannelModalAction = (): ShowNewChannelModalActionType => ({
+//   type: "newChannel/showNewChannelModal",
+// });
 
-export const hideNewChannelModalAction = (): HideNewChannelModalActionType => ({
-  type: "newChannel/hideNewChannelModal",
+// export const hideNewChannelModalAction = (): HideNewChannelModalActionType => ({
+//   type: "newChannel/hideNewChannelModal",
+// });
+export const updateNewChannelModalAction = (
+  show: boolean
+): UpdateNewChannelModalActionType => ({
+  type: "newChannel/updateNewChannelModal",
+  payload: show,
 });
 
 export const AddSuggestedUserAction = (
@@ -172,12 +197,18 @@ export const DeleteChannelAction = (
   payload: { channelId },
 });
 
-export const EnableCreateButtonAction = (): EnableCreateButtonActionType => ({
-  type: "newChannel/enableCreateButton",
-});
+// export const EnableCreateButtonAction = (): EnableCreateButtonActionType => ({
+//   type: "newChannel/enableCreateButton",
+// });
 
-export const DisableCreateButtonAction = (): DisableCreateButtonActionType => ({
-  type: "newChannel/disableCreateButton",
+// export const DisableCreateButtonAction = (): DisableCreateButtonActionType => ({
+//   type: "newChannel/disableCreateButton",
+// });
+export const updateCreateButtonAction = (
+  payload: UpdateCreateButtonPayload
+): UpdateCreateButtonActionType => ({
+  type: "newChannel/updateCreateButton",
+  payload,
 });
 
 export const UpdateChannelNameAction = (

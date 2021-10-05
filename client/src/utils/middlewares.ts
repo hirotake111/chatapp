@@ -10,8 +10,7 @@ import {
 } from "../actions/channelActions";
 import { MessageActionTypes } from "../actions/messageActions";
 import {
-  DisableCreateButtonAction,
-  EnableCreateButtonAction,
+  updateCreateButtonAction,
   NewChannelActionTypes,
   RemoveAllSuggestedUsersAction,
   UpdateChannelNameAction,
@@ -89,20 +88,23 @@ export const myMiddleware: Middleware =
      */
     if (action.type === "newChannel/addSuggestedUser") {
       const { buttonDisabled, channelName } = storeApi.getState().newChannel;
-      if (buttonDisabled && channelName.length > 4)
-        return storeApi.dispatch(EnableCreateButtonAction());
+      if (buttonDisabled && channelName.length > 4) {
+        // enable button
+        return storeApi.dispatch(updateCreateButtonAction({ disable: false }));
+      }
     }
 
     // if user is removed from new channel dialog with a certain condition,
-    // update button status
+    // disable create button
     if (action.type === "newChannel/removeSuggestedUser") {
       const { buttonDisabled, channelName, selectedUsers } =
         storeApi.getState().newChannel;
       if (
         !buttonDisabled &&
         (channelName.length <= 4 || selectedUsers.length === 0)
-      )
-        return storeApi.dispatch(DisableCreateButtonAction());
+      ) {
+        return storeApi.dispatch(updateCreateButtonAction({ disable: true }));
+      }
     }
 
     // if type is newChannel/createChannel

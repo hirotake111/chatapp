@@ -3,6 +3,7 @@ import {
   getFakeMessage,
   getFakeUser,
   getFakeMessageWithNoId,
+  getFakeState,
 } from "./testHelpers";
 
 describe("getFakeUser", () => {
@@ -48,5 +49,16 @@ describe("getFakeChannel", () => {
     expect(typeof ch.updatedAt).toEqual("number");
     expect(ch.users.length).toEqual(3);
     expect(ch.messages.length).toEqual(3);
+  });
+});
+
+describe("getFakeState", () => {
+  it("should return a fake state object", () => {
+    expect.assertions(4);
+    const state = getFakeState();
+    expect(state.user).toBeTruthy();
+    expect(state.channel).toBeTruthy();
+    expect(state.newChannel).toBeTruthy();
+    expect(state.message).toBeTruthy();
   });
 });

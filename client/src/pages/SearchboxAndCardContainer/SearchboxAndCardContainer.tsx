@@ -7,7 +7,7 @@ import {
   thunkUpdateSearchStatus,
 } from "../../utils/thunk-middlewares";
 
-import "./SearchBoxAndCardContainer.css";
+import "./SearchboxAndCardContainer.css";
 
 const _SearchboxAndCardContainer = ({
   selectedUsers,

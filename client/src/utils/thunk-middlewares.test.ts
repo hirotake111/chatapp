@@ -5,13 +5,13 @@ import {
   thunkAddSuggestedUser,
   thunkChangeFormContent,
   thunkCreateChannel,
-  thunkHideNewChannelModal,
-  thunkHideSearchSuggestions,
+  // thunkHideNewChannelModal,
+  // thunkHideSearchSuggestions,
   thunkOnChatMessage,
   thunkRemoveCandidateFromExistingChannel,
-  thunkRemoveSuggestedUser,
-  thunkShowNewChannelModal,
-  thunkUpdateChannelName,
+  // thunkRemoveSuggestedUser,
+  // thunkShowNewChannelModal,
+  // thunkUpdateChannelName,
   thunkUpdateCreateButtonStatus,
   thunkUpdateMemberCandidateSearchStatus,
   thunkUpdateMemberModal,
@@ -145,26 +145,6 @@ describe("thunkOnChatMessage", () => {
   });
 });
 
-describe("thunkShowNewChannelModal", () => {
-  it("should dispatch action payload", async () => {
-    expect.assertions(1);
-    await thunkShowNewChannelModal()(dispatch, store.getState, {});
-    expect(dispatch).toHaveBeenCalledWith({
-      type: "newChannel/showNewChannelModal",
-    });
-  });
-});
-
-describe("thunkHideNewChannelModal", () => {
-  it("should dispatch action payload ", async () => {
-    expect.assertions(1);
-    await thunkHideNewChannelModal()(dispatch, store.getState, {});
-    expect(dispatch).toHaveBeenCalledWith({
-      type: "newChannel/hideNewChannelModal",
-    });
-  });
-});
-
 describe("thunkAddSuggestedUser", () => {
   it("should dispatch action payload", async () => {
     expect.assertions(1);
@@ -176,29 +156,6 @@ describe("thunkAddSuggestedUser", () => {
     expect(dispatch).toHaveBeenCalledWith({
       type: "newChannel/updateSearchStatus",
       payload: { type: "searchDone" },
-    });
-  });
-});
-
-describe("thunkRemoveSuggestedUser", () => {
-  it("should dispatch action payload", async () => {
-    expect.assertions(1);
-    const userId = uuid();
-    await thunkRemoveSuggestedUser(userId)(dispatch, store.getState, {});
-    expect(dispatch).toHaveBeenCalledWith({
-      type: "newChannel/removeSuggestedUser",
-      payload: { userId },
-    });
-  });
-});
-
-describe("thunkHideSearchSuggestions", () => {
-  it("should dispatch action payload", async () => {
-    expect.assertions(1);
-    await thunkHideSearchSuggestions()(dispatch, store.getState, {});
-    expect(dispatch).toHaveBeenCalledWith({
-      type: "newChannel/updateSearchStatus",
-      payload: { type: "notInitiated" },
     });
   });
 });
@@ -225,34 +182,6 @@ describe("thunkUpdateSearchStatus", () => {
   });
 });
 
-describe("thunkUpdateCreateButtonStatus", () => {
-  it("should dispatch action payload", async () => {
-    expect.assertions(1);
-    const name = "mychannelxxxx";
-    await thunkUpdateCreateButtonStatus(name, [mockSuggestedUser], true)(
-      dispatch,
-      store.getState,
-      {}
-    );
-    expect(dispatch).toHaveBeenCalledWith({
-      type: "newChannel/enableCreateButton",
-    });
-  });
-
-  it("should dispatch action payload to disable button", async () => {
-    expect.assertions(1);
-    const name = "mychannelxxxx";
-    await thunkUpdateCreateButtonStatus(name, [], false)(
-      dispatch,
-      store.getState,
-      {}
-    );
-    expect(dispatch).toHaveBeenCalledWith({
-      type: "newChannel/disableCreateButton",
-    });
-  });
-});
-
 describe("thunkCreateChannel", () => {
   it("should dispatch action payload", async () => {
     expect.assertions(1);
@@ -272,23 +201,6 @@ describe("thunkCreateChannel", () => {
       },
     });
     jest.useRealTimers();
-  });
-});
-
-describe("thunkUpdateChannelName", () => {
-  it("should dispatch action payload", async () => {
-    expect.assertions(1);
-    await thunkUpdateChannelName("new channel name")(
-      dispatch,
-      store.getState,
-      {}
-    );
-    expect(dispatch).toHaveBeenCalledWith({
-      type: "newChannel/updateChannelName",
-      payload: {
-        channelName: "new channel name",
-      },
-    });
   });
 });
 

@@ -15,16 +15,16 @@ import {
 } from "../actions/channelActions";
 
 import {
-  ShowNewChannelModalAction,
-  hideNewChannelModalAction,
+  updateNewChannelModalAction,
   AddSuggestedUserAction,
   RemoveSuggestedUserAction,
   UpdateSearchStatusAction,
   CreateChannelAction,
-  EnableCreateButtonAction,
-  DisableCreateButtonAction,
+  // EnableCreateButtonAction,
+  // DisableCreateButtonAction,
   UpdateChannelNameAction,
   UpdateCreateChannelStatusAction,
+  updateCreateButtonAction,
 } from "../actions/newChannelActions";
 import { ChangeMessageBeenEditedAction } from "../actions/messageActions";
 import { RefObject } from "react";
@@ -44,13 +44,13 @@ export const thunkOnChatMessage =
     //
   };
 
-export const thunkShowNewChannelModal = (): AppThunk => async (dispatch) => {
-  dispatch(ShowNewChannelModalAction());
-};
+// export const thunkShowNewChannelModal = (): AppThunk => async (dispatch) => {
+//   dispatch(updateNewChannelModalAction());
+// };
 
-export const thunkHideNewChannelModal = (): AppThunk => async (dispatch) => {
-  dispatch(hideNewChannelModalAction());
-};
+// export const thunkHideNewChannelModal = (): AppThunk => async (dispatch) => {
+//   dispatch(hideNewChannelModalAction());
+// };
 
 export const thunkAddSuggestedUser =
   (user: SearchedUser): AppThunk =>
@@ -58,16 +58,6 @@ export const thunkAddSuggestedUser =
     dispatch(AddSuggestedUserAction(user));
     dispatch(UpdateSearchStatusAction({ type: "searchDone" }));
   };
-
-export const thunkRemoveSuggestedUser =
-  (userId: string): AppThunk =>
-  async (dispatch) => {
-    dispatch(RemoveSuggestedUserAction(userId));
-  };
-
-export const thunkHideSearchSuggestions = (): AppThunk => async (dispatch) => {
-  dispatch(UpdateSearchStatusAction({ type: "notInitiated" }));
-};
 
 export const thunkUpdateSearchStatus =
   (
@@ -114,9 +104,9 @@ export const thunkUpdateCreateButtonStatus =
   (channelName: string, members: SearchedUser[], disabled: boolean): AppThunk =>
   async (dispatch) => {
     if (channelName.length > 4 && members.length > 0 && disabled)
-      return dispatch(EnableCreateButtonAction());
+      return dispatch(updateCreateButtonAction({ disable: false }));
     if (!disabled && (channelName.length <= 4 || members.length === 0))
-      return dispatch(DisableCreateButtonAction());
+      return dispatch(updateCreateButtonAction({ disable: true }));
   };
 
 /**
@@ -129,7 +119,7 @@ export const thunkCreateChannel =
     const memberIds = members.map((member) => member.id);
     try {
       // disable create button
-      dispatch(DisableCreateButtonAction());
+      dispatch(updateCreateButtonAction({ disable: true }));
       // post data to channel endpoint
       const body = await postData("/api/channel", { channelName, memberIds });
       // validate body
@@ -157,7 +147,7 @@ export const thunkCreateChannel =
           // stop network call
           clearTimeout(timeout);
           // hide modal
-          dispatch(hideNewChannelModalAction());
+          dispatch(updateNewChannelModalAction(false));
           // update channel state
           dispatch(CreateChannelAction(channel));
           // join the channel (room)
@@ -169,12 +159,6 @@ export const thunkCreateChannel =
     } catch (e) {
       console.error(e);
     }
-  };
-
-export const thunkUpdateChannelName =
-  (channelName: string): AppThunk =>
-  async (dispatch) => {
-    dispatch(UpdateChannelNameAction(channelName));
   };
 
 export const thunkUpdateMemberModal =

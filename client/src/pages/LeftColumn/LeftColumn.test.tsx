@@ -9,8 +9,6 @@ const mockUseGetMyChannels = jest.fn();
 const mockUserAppSelector = jest.fn();
 
 jest.mock("../../components/Channel/ChannelItem/ChannelList");
-// jest.mock("../../components/Common/Button/Button");
-// jest.mock("../../components/Common/LoadingSpinner2/LoadingSpinner2");
 
 jest.mock("../../hooks/messageHooks", () => ({
   useGetMessagesByChannelId: (params: any) =>
@@ -23,6 +21,7 @@ jest.mock("../../hooks/channelHooks", () => ({
 
 jest.mock("../../hooks/reduxHooks", () => ({
   useAppSelector: (params: any) => mockUserAppSelector(params),
+  useAppDispatch: () => null,
 }));
 
 it("should render LeftColumn component", () => {
