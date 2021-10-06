@@ -1,4 +1,4 @@
-import { ChangeEventHandler, MouseEvent } from "react";
+import { MouseEvent } from "react";
 import { connect, ConnectedProps } from "react-redux";
 
 import { RootState } from "../../utils/store";
@@ -14,26 +14,23 @@ import "./NewChannelModal.css";
 import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 import {
   RemoveSuggestedUserAction,
-  UpdateChannelNameAction,
   updateNewChannelModalAction,
   UpdateSearchStatusAction,
 } from "../../actions/newChannelActions";
+import { useUpdateCreateButtonStatus } from "../../hooks/newChannelHooks";
 
-export const _NewChannelModal = ({
-  updateCreateButtonStatus,
-  createChannel,
-}: Props) => {
+export const _NewChannelModal = ({ createChannel }: Props) => {
   const id = "channel-modal-background";
   // const channelNameObject = useRef<HTMLInputElement>(null);
   const {
     modal,
-    channelName,
     selectedUsers,
     searchStatus,
     buttonDisabled,
     createChannelStatusMessage,
   } = useAppSelector((state) => state.newChannel);
   const dispatch = useAppDispatch();
+  const [channelName, update] = useUpdateCreateButtonStatus();
 
   const handleClickBackgrond = (e: MouseEvent) => {
     const element = e.target as HTMLElement;
@@ -56,13 +53,7 @@ export const _NewChannelModal = ({
       // now we are sure user clicked background
       // hide channel modal
       dispatch(updateNewChannelModalAction(false));
-      // hideNewChannelModal();
     }
-  };
-
-  const handleChannelNameChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    dispatch(UpdateChannelNameAction(e.target.value));
-    updateCreateButtonStatus(e.target.value, selectedUsers, buttonDisabled);
   };
 
   const handleClickCreateButton = (e: MouseEvent) => {
@@ -91,8 +82,7 @@ export const _NewChannelModal = ({
                   name="channelName"
                   id="channelName"
                   value={channelName}
-                  // ref={channelNameObject}
-                  onChange={handleChannelNameChange}
+                  onChange={(e) => update(e.target.value)}
                 />
               </div>
               <SearchboxAndCardContainer />
@@ -129,7 +119,6 @@ export const _NewChannelModal = ({
 
 const mapStateToProps = (state: RootState) => ({});
 const mapDispatchToProps = {
-  updateCreateButtonStatus: thunkUpdateCreateButtonStatus,
   createChannel: thunkCreateChannel,
 };
 

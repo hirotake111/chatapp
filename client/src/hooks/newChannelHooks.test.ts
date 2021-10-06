@@ -1,4 +1,7 @@
-import { updateCreateButtonAction } from "../actions/newChannelActions";
+import {
+  UpdateChannelNameAction,
+  updateCreateButtonAction,
+} from "../actions/newChannelActions";
 import { getFakeState, getFakeUser } from "../utils/testHelpers";
 import { useUpdateCreateButtonStatus } from "./newChannelHooks";
 
@@ -7,7 +10,7 @@ const mockUseAppSelector = jest.fn();
 const mockDispatch = jest.fn();
 jest.mock("./reduxHooks", () => ({
   useAppSelector: (params: any) => mockUseAppSelector(params),
-  useAppDispatch: (params: any) => mockDispatch,
+  useAppDispatch: () => mockDispatch,
 }));
 
 beforeEach(() => {
@@ -17,52 +20,60 @@ beforeEach(() => {
 
 describe("useUpdateCreateButtonStatus", () => {
   it("should dispatch updateCreateButtonAction with value true if condition mathes", () => {
-    expect.assertions(2);
+    expect.assertions(3);
     mockUseAppSelector.mockReturnValue(getFakeState().newChannel);
-    const update = useUpdateCreateButtonStatus();
-    update();
-    expect(mockDispatch).toHaveBeenCalledTimes(1);
+    const [channelName, update] = useUpdateCreateButtonStatus();
+    update("my team");
+    expect(mockDispatch).toHaveBeenCalledWith(
+      UpdateChannelNameAction("my team")
+    );
     expect(mockDispatch).toHaveBeenCalledWith(
       updateCreateButtonAction({ disable: false })
     );
+    expect(mockDispatch).toHaveBeenCalledTimes(2);
   });
 
   it("should dispatch updateCreateButtonAction with value false if condion matches", () => {
-    expect.assertions(2);
+    expect.assertions(3);
     mockUseAppSelector.mockReturnValue({
       ...getFakeState().newChannel,
       buttonDisabled: false,
-      channelName: "abc",
+      channelName: "my channel",
     });
-    const update = useUpdateCreateButtonStatus();
-    update();
-    expect(mockDispatch).toHaveBeenCalledTimes(1);
+    const [name, update] = useUpdateCreateButtonStatus();
+    update("abc");
+    expect(mockDispatch).toHaveBeenCalledWith(UpdateChannelNameAction("abc"));
     expect(mockDispatch).toHaveBeenCalledWith(
       updateCreateButtonAction({ disable: true })
     );
+    expect(mockDispatch).toHaveBeenCalledTimes(2);
   });
 
-  it("should not dispatch if button is initially disabled and channelName changes empty", () => {
-    expect.assertions(1);
+  it("should not dispatch updateCreateButtonAction if button is initially disabled and channelName changes empty", () => {
+    expect.assertions(2);
     mockUseAppSelector.mockReturnValue({
       ...getFakeState().newChannel,
       buttonDisabled: true,
-      channelName: "",
+      channelName: "asfjeek",
     });
-    const update = useUpdateCreateButtonStatus();
-    update();
-    expect(mockDispatch).toHaveBeenCalledTimes(0);
+    const [name, update] = useUpdateCreateButtonStatus();
+    update("");
+    expect(mockDispatch).toHaveBeenCalledWith(UpdateChannelNameAction(""));
+    expect(mockDispatch).toHaveBeenCalledTimes(1);
   });
 
   it("should not dispatch if button is initially enabled and selectedUsers has at leat 1 user", () => {
-    expect.assertions(1);
+    expect.assertions(2);
     mockUseAppSelector.mockReturnValue({
       ...getFakeState().newChannel,
       buttonDisabled: false,
       selecteUsers: [getFakeUser()],
     });
-    const update = useUpdateCreateButtonStatus();
-    update();
-    expect(mockDispatch).toHaveBeenCalledTimes(0);
+    const [name, update] = useUpdateCreateButtonStatus();
+    update("test channel");
+    expect(mockDispatch).toHaveBeenCalledTimes(1);
+    expect(mockDispatch).toHaveBeenCalledWith(
+      UpdateChannelNameAction("test channel")
+    );
   });
 });
