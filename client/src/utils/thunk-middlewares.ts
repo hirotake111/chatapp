@@ -100,15 +100,6 @@ export const thunkUpdateSearchStatus =
     }
   };
 
-export const thunkUpdateCreateButtonStatus =
-  (channelName: string, members: SearchedUser[], disabled: boolean): AppThunk =>
-  async (dispatch) => {
-    if (channelName.length > 4 && members.length > 0 && disabled)
-      return dispatch(updateCreateButtonAction({ disable: false }));
-    if (!disabled && (channelName.length <= 4 || members.length === 0))
-      return dispatch(updateCreateButtonAction({ disable: true }));
-  };
-
 /**
  * create a new channel, then get the information, upate channel state
  */

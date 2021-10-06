@@ -2,10 +2,7 @@ import { MouseEvent } from "react";
 import { connect, ConnectedProps } from "react-redux";
 
 import { RootState } from "../../utils/store";
-import {
-  thunkCreateChannel,
-  thunkUpdateCreateButtonStatus,
-} from "../../utils/thunk-middlewares";
+import { thunkCreateChannel } from "../../utils/thunk-middlewares";
 
 import { SuggestedUser } from "../../components/Search/SuggestedUser/SuggestedUser";
 import { SearchboxAndCardContainer } from "../SearchboxAndCardContainer/SearchboxAndCardContainer";
@@ -17,11 +14,12 @@ import {
   updateNewChannelModalAction,
   UpdateSearchStatusAction,
 } from "../../actions/newChannelActions";
+
 import { useUpdateCreateButtonStatus } from "../../hooks/newChannelHooks";
 
 export const _NewChannelModal = ({ createChannel }: Props) => {
   const id = "channel-modal-background";
-  // const channelNameObject = useRef<HTMLInputElement>(null);
+
   const {
     modal,
     selectedUsers,
@@ -50,8 +48,7 @@ export const _NewChannelModal = ({ createChannel }: Props) => {
       dispatch(UpdateSearchStatusAction({ type: "hidden" }));
     }
     if (element.id && element.id === id) {
-      // now we are sure user clicked background
-      // hide channel modal
+      // now we are sure user clicked background -> hide channel modal
       dispatch(updateNewChannelModalAction(false));
     }
   };
