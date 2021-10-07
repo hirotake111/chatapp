@@ -8,7 +8,6 @@ export const getIssuer = async (issuerUrl: string): Promise<Issuer<Client>> => {
     console.log("successfully got Issuer");
     return client;
   } catch (e) {
-    console.log("debug - e:", e);
     throw e;
   }
 };

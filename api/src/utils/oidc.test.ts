@@ -24,6 +24,8 @@ const clientMock = issuerInstance.Client as jest.Mock;
 describe("getIssuer()", () => {
   it("should return Issuer", async () => {
     expect.assertions(3);
+    const tmp = console.log;
+    console.log = jest.fn();
     try {
       const discoverMock = Issuer.discover as jest.Mock;
       const issuer = await getIssuer(issuerUrl);
@@ -32,11 +34,15 @@ describe("getIssuer()", () => {
       expect(discoverMock).toHaveBeenCalledTimes(1);
     } catch (e) {
       throw e;
+    } finally {
+      console.log = tmp;
     }
   });
 
   it("should raise an error", async () => {
     expect.assertions(1);
+    const tmp = console.log;
+    console.log = jest.fn();
     const msg = "FAILED TO DISCOVER ISSUER!";
     try {
       const url = `https://${nanoid()}.com`;
@@ -45,7 +51,9 @@ describe("getIssuer()", () => {
       });
       await getIssuer(issuerUrl);
     } catch (e) {
-      expect(e.message).toEqual(msg);
+      if (e instanceof Error) expect(e.message).toEqual(msg);
+    } finally {
+      console.log = tmp;
     }
   });
 });
@@ -74,7 +82,7 @@ describe("getOIDCClient()", () => {
     try {
       await getOIDCClient(issuerFail, metadata);
     } catch (e) {
-      expect(e.message).toEqual(msg);
+      if (e instanceof Error) expect(e.message).toEqual(msg);
     }
   });
 });

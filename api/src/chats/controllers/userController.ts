@@ -34,11 +34,12 @@ export const getUserController = (
         res.redirect(authzUrl);
         return;
       } catch (e) {
-        // console.error(e);
-        res
-          .status(500)
-          .send({ error: "INTERNAL SERVER ERROR", detail: e.message });
-        return;
+        if (e instanceof Error)
+          return res
+            .status(500)
+            .send({ error: "INTERNAL SERVER ERROR", detail: e.message });
+        console.error("UNEXPECTED ERROR:", e);
+        return res.status(500).send({ error: "INTERNAL SERVER ERROR" });
       }
     },
 
@@ -96,10 +97,12 @@ export const getUserController = (
         res.redirect("/");
         return;
       } catch (e) {
-        res
-          .status(500)
-          .send({ error: "INTERNAL SERVER ERROR", detail: e.message });
-        return;
+        if (e instanceof Error)
+          return res
+            .status(500)
+            .send({ error: "INTERNAL SERVER ERROR", detail: e.message });
+        console.error("UNEXPECTED ERROR:", e);
+        return res.status(500).send({ error: "INTERNAL SERVER ERROR" });
       }
     },
 
@@ -130,10 +133,12 @@ export const getUserController = (
         });
         return;
       } catch (e) {
-        res
-          .status(500)
-          .send({ error: "INTERNAL SERVER ERROR", detail: e.message });
-        return;
+        if (e instanceof Error)
+          return res
+            .status(500)
+            .send({ error: "INTERNAL SERVER ERROR", detail: e.message });
+        console.error("UNEXPECTED ERROR:", e);
+        return res.status(500).send({ error: "INTERNAL SERVER ERROR" });
       }
     },
 
@@ -159,10 +164,12 @@ export const getUserController = (
           lastName,
         });
       } catch (e) {
-        res
-          .status(500)
-          .send({ error: "INTERNAL SERVER ERROR", detail: e.message });
-        return;
+        if (e instanceof Error)
+          return res
+            .status(500)
+            .send({ error: "INTERNAL SERVER ERROR", detail: e.message });
+        console.error("UNEXPECTED ERROR:", e);
+        return res.status(500).send({ error: "INTERNAL SERVER ERROR" });
       }
     },
   };
