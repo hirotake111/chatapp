@@ -9,10 +9,12 @@ export const getFakeUser = (): {
   id: string;
   username: string;
   displayName: string;
+  profilePhotoURL: string;
 } => ({
   id: uuid(),
   username: nanoid(),
   displayName: nanoid(),
+  profilePhotoURL: `https://example.com/api/${nanoid()}`,
 });
 
 /**

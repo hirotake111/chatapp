@@ -21,6 +21,7 @@ export const ChatPane = ({
                 key={msg.id}
                 timestamp={msg.updatedAt}
                 content={msg.content}
+                profilePhotoURL={msg.sender.profilePhotoURL}
                 isMyMessage={msg.sender.id === senderId}
               />
             ))}
@@ -38,26 +39,34 @@ export const MessageContainerItem = ({
   timestamp,
   content,
   isMyMessage,
+  profilePhotoURL,
 }: {
   timestamp: number;
   content: string;
   isMyMessage: boolean;
-}) => (
-  <div className={"message-image-container" + (isMyMessage ? "" : " reverse")}>
-    <div className={"message-container" + (isMyMessage ? "" : " white")}>
-      <span className="message-timestamp">
-        {convertTimestampToDate(timestamp)}
-      </span>
-      <p className="message">{content}</p>
+  profilePhotoURL?: string;
+}) => {
+  return (
+    <div
+      className={"message-image-container" + (isMyMessage ? "" : " reverse")}
+    >
+      <div className={"message-container" + (isMyMessage ? "" : " white")}>
+        <span className="message-timestamp">
+          {convertTimestampToDate(timestamp)}
+        </span>
+        <p className="message">{content}</p>
+      </div>
+      <img
+        className="profile-image"
+        src={
+          profilePhotoURL
+            ? profilePhotoURL
+            : isMyMessage
+            ? "https://randomuser.me/api/portraits/men/28.jpg"
+            : "https://randomuser.me/api/portraits/women/3.jpg"
+        }
+        alt="profile"
+      />
     </div>
-    <img
-      className="profile-image"
-      src={
-        isMyMessage
-          ? "https://randomuser.me/api/portraits/men/28.jpg"
-          : "https://randomuser.me/api/portraits/women/3.jpg"
-      }
-      alt="profile"
-    />
-  </div>
-);
+  );
+};

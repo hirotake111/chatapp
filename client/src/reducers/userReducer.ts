@@ -10,6 +10,7 @@ export interface UserInfoType {
   userId: string;
   username: string;
   displayName: string;
+  profilePhotoURL?: string;
   firstName?: string;
   lastName?: string;
 }

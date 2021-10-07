@@ -70,6 +70,7 @@ export const getUserData = async (): Promise<UserInfoType> => {
       userId: { type: "string", isUUID: true },
       username: { type: "string" },
       displayName: { type: "string" },
+      profilePhotoURL: { type: "string" },
     });
     return userInfo;
   } catch (e) {

@@ -57,13 +57,7 @@ export const getMessageController = (
           content: m.content,
           createdAt: m.createdAt.getTime(),
           updatedAt: m.updatedAt.getTime(),
-          sender: {
-            id: m.sender.id,
-            username: m.sender.username,
-            displayName: m.sender.displayName,
-            firstName: m.sender.firstName,
-            lastName: m.sender.lastName,
-          },
+          sender: m.sender,
         }));
 
         return res.status(200).send({
@@ -129,13 +123,7 @@ export const getMessageController = (
             content,
             createdAt: createdAt.getTime(),
             updatedAt: updatedAt.getTime(),
-            sender: {
-              id: sender.id,
-              username: sender.username,
-              displayName: sender.displayName,
-              firstname: sender.firstName,
-              lastName: sender.lastName,
-            },
+            sender: sender,
           },
         });
       } catch (e) {
