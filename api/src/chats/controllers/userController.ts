@@ -129,6 +129,7 @@ export const getUserController = (
             displayName: user.displayName,
             firstname: user.firstName,
             lastName: user.lastName,
+            profilePhotoURL: user.profilePhotoURL,
           })),
         });
         return;
@@ -154,7 +155,8 @@ export const getUserController = (
           return res
             .status(400)
             .send({ detail: "couldn't retrieve user info with your ID" });
-        const { username, displayName, firstName, lastName } = userInfo;
+        const { username, displayName, firstName, lastName, profilePhotoURL } =
+          userInfo;
         return res.status(200).send({
           detail: "success",
           userId: requesterId,
@@ -162,6 +164,7 @@ export const getUserController = (
           displayName,
           firstName,
           lastName,
+          profilePhotoURL,
         });
       } catch (e) {
         if (e instanceof Error)
