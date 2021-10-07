@@ -25,6 +25,12 @@ const getUser = (): CreateUserProps => ({
   lastName: nanoid(),
 });
 
+// mock axios
+const mockGet = jest.fn();
+jest.mock("axios", () => ({
+  get: (params: any) => mockGet(params),
+}));
+
 describe("userQuery", () => {
   beforeEach(() => {
     ChannelModel = {
@@ -87,7 +93,7 @@ describe("userQuery", () => {
         });
         await userQuery.getUserById(id);
       } catch (e) {
-        expect(e.message).toEqual(msg);
+        if (e instanceof Error) expect(e.message).toEqual(msg);
       }
     });
   });
@@ -123,7 +129,7 @@ describe("userQuery", () => {
         });
         await userQuery.getUserByUsername(nanoid());
       } catch (e) {
-        expect(e.message).toEqual(msg);
+        if (e instanceof Error) expect(e.message).toEqual(msg);
       }
     });
   });
@@ -135,6 +141,12 @@ describe("userQuery", () => {
         const user = getUser();
         UserModel.findOne = jest.fn();
         UserModel.create = jest.fn().mockReturnValue({ id: user.id });
+        mockGet.mockResolvedValue({
+          status: 200,
+          data: {
+            results: [{ picture: { medium: "https://example.com" } }],
+          },
+        });
         const createMock = UserModel.create as jest.Mock;
         const newUser = await userQuery.createUser({ ...user });
         expect(UserModel.findOne).toHaveBeenCalledTimes(1);
@@ -173,7 +185,7 @@ describe("userQuery", () => {
         });
         await userQuery.createUser({} as any);
       } catch (e) {
-        expect(e.message).toEqual(msg);
+        if (e instanceof Error) expect(e.message).toEqual(msg);
       }
     });
   });
@@ -199,7 +211,7 @@ describe("userQuery", () => {
         });
         await userQuery.deleteUserById(nanoid());
       } catch (e) {
-        expect(e.message).toEqual(msg);
+        if (e instanceof Error) expect(e.message).toEqual(msg);
       }
     });
   });
@@ -229,7 +241,7 @@ describe("userQuery", () => {
       try {
         await userQuery.getOtherUsers(uuid());
       } catch (e) {
-        expect(e.message).toEqual(msg);
+        if (e instanceof Error) expect(e.message).toEqual(msg);
       }
     });
   });
@@ -275,7 +287,7 @@ describe("userQuery", () => {
       try {
         await userQuery.getUsersByChannelId(nanoid());
       } catch (e) {
-        expect(e.message).toEqual("invalid input");
+        if (e instanceof Error) expect(e.message).toEqual("invalid input");
       }
     });
 
@@ -286,7 +298,8 @@ describe("userQuery", () => {
       try {
         await userQuery.getUsersByChannelId(channelId);
       } catch (e) {
-        expect(e.message).toEqual(`channel ID ${channelId} doesn't exist`);
+        if (e instanceof Error)
+          expect(e.message).toEqual(`channel ID ${channelId} doesn't exist`);
       }
     });
 
@@ -300,7 +313,7 @@ describe("userQuery", () => {
       try {
         await userQuery.getUsersByChannelId(uuid());
       } catch (e) {
-        expect(e.message).toEqual(msg);
+        if (e instanceof Error) expect(e.message).toEqual(msg);
       }
     });
   });

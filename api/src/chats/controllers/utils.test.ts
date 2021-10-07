@@ -36,7 +36,7 @@ describe("checkMember", () => {
     try {
       await checkMember("ch", "user");
     } catch (e) {
-      expect(e.message).toEqual("err");
+      if (e instanceof Error) expect(e.message).toEqual("err");
     }
   });
 });
