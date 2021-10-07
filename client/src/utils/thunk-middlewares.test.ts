@@ -4,7 +4,6 @@ import {
   thunkAddCandidateToExistingChannel,
   thunkAddSuggestedUser,
   thunkChangeFormContent,
-  thunkCreateChannel,
   thunkOnChatMessage,
   thunkRemoveCandidateFromExistingChannel,
   thunkUpdateMemberCandidateSearchStatus,
@@ -172,28 +171,6 @@ describe("thunkUpdateSearchStatus", () => {
       },
     });
     jest.runAllTimers();
-    jest.useRealTimers();
-  });
-});
-
-describe("thunkCreateChannel", () => {
-  it("should dispatch action payload", async () => {
-    expect.assertions(1);
-    const channel = getFakeChannel();
-    mockFetchChannelDetailPayload.mockReturnValue(channel);
-    jest.useFakeTimers();
-    await thunkCreateChannel("my channel abcd", [mockSuggestedUser])(
-      dispatch,
-      store.getState,
-      {}
-    );
-    jest.runOnlyPendingTimers();
-    expect(dispatch).toHaveBeenCalledWith({
-      type: "newChannel/updateCreateChannelStatus",
-      payload: {
-        message: "Creating new channel...",
-      },
-    });
     jest.useRealTimers();
   });
 });

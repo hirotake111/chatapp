@@ -20,15 +20,17 @@ export const onChatMessage = (dispatch: AppDispatch, data: any): void => {
 /**
  * vlaidate channel ID, get messages, then dispatch action to update messages
  */
-export const onJoinedNewRoom = async (
-  dispatch: AppDispatch,
-  channelId: any
-) => {
+export const onJoinedNewRoom = async (dispatch: AppDispatch, data: any) => {
   try {
+    if (!data)
+      throw new Error(
+        `invalid channelId was given on "joined a new room" event - data is ${data}`
+      );
+    const { channelId } = data;
     // validate channel ID (as it could be any data)
     if (!(channelId && validate(channelId)))
       throw new Error(
-        `invalid channelId was given on "joined a new room" event - ${channelId}`
+        `invalid channelId was given on "joined a new room" event - channelId is ${channelId}`
       );
     // get channel info and messages from server
     const payload = await getChannelMessages(channelId);

@@ -1,7 +1,5 @@
-import { Action, PayloadAction } from "@reduxjs/toolkit";
+import { PayloadAction } from "@reduxjs/toolkit";
 
-// type ShowNewChannelModalType = "newChannel/showNewChannelModal";
-// type HideNewChannelModalType = "newChannel/hideNewChannelModal";
 type UpdateNewChannelModalType = "newChannel/updateNewChannelModal";
 
 type AddSuggestedUserType = "newChannel/addSuggestedUser";
@@ -12,8 +10,7 @@ type UpdateSearchStatusType = "newChannel/updateSearchStatus";
 type CreateChannelType = "newChannel/createChannel";
 
 type DeleteChannelType = "newChannel/deleteChannel";
-// type EnableCreateButtonType = "newChannel/enableCreateButton";
-// type DisableCreateButtonType = "newChannel/disableCreateButton";
+
 type UpdateCreateButtonType = "newChannel/updateCreateButton";
 
 type UpdateChannelNameType = "newChannel/updateChannelName";
@@ -50,16 +47,6 @@ interface UpdateCreateButtonPayload {
 /**
  * Action Types
  */
-// interface ShowNewChannelModalActionType
-//   extends Action<ShowNewChannelModalType> {
-//   type: ShowNewChannelModalType;
-// }
-
-// interface HideNewChannelModalActionType
-//   extends Action<HideNewChannelModalType> {
-//   type: HideNewChannelModalType;
-// }
-
 interface UpdateNewChannelModalActionType
   extends PayloadAction<boolean, UpdateNewChannelModalType> {
   type: UpdateNewChannelModalType;
@@ -96,13 +83,6 @@ interface DeleteChannelActionType
   payload: DeleteChannelPayload;
 }
 
-// interface EnableCreateButtonActionType extends Action<EnableCreateButtonType> {
-//   type: EnableCreateButtonType;
-// }
-// interface DisableCreateButtonActionType
-//   extends Action<DisableCreateButtonType> {
-//   type: DisableCreateButtonType;
-// }
 interface UpdateCreateButtonActionType
   extends PayloadAction<UpdateCreateButtonPayload, UpdateCreateButtonType> {
   type: UpdateCreateButtonType;
@@ -125,16 +105,12 @@ interface UpdateCreateChannelStatusActionType
 }
 
 export type NewChannelActionTypes =
-  // | ShowNewChannelModalActionType
-  // | HideNewChannelModalActionType
   | UpdateNewChannelModalActionType
   | AddSuggestedUserActionType
   | RemoveSuggestedUserActionType
   | UpdateSearchStatusActionType
   | CreateChannelActionType
   | DeleteChannelActionType
-  // | EnableCreateButtonActionType
-  // | DisableCreateButtonActionType
   | UpdateCreateButtonActionType
   | UpdateChannelNameActionType
   | UpdateCreateChannelStatusActionType;
@@ -142,13 +118,6 @@ export type NewChannelActionTypes =
 /**
  * Actions
  */
-// export const ShowNewChannelModalAction = (): ShowNewChannelModalActionType => ({
-//   type: "newChannel/showNewChannelModal",
-// });
-
-// export const hideNewChannelModalAction = (): HideNewChannelModalActionType => ({
-//   type: "newChannel/hideNewChannelModal",
-// });
 export const updateNewChannelModalAction = (
   show: boolean
 ): UpdateNewChannelModalActionType => ({
@@ -197,13 +166,6 @@ export const DeleteChannelAction = (
   payload: { channelId },
 });
 
-// export const EnableCreateButtonAction = (): EnableCreateButtonActionType => ({
-//   type: "newChannel/enableCreateButton",
-// });
-
-// export const DisableCreateButtonAction = (): DisableCreateButtonActionType => ({
-//   type: "newChannel/disableCreateButton",
-// });
 export const updateCreateButtonAction = (
   payload: UpdateCreateButtonPayload
 ): UpdateCreateButtonActionType => ({

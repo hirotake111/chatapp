@@ -55,19 +55,27 @@ describe("onJoinedNewRoom", () => {
     expect.assertions(1);
     const channel = getFakeChannel();
     mockFetch.mockReturnValue(channel);
-    await onJoinedNewRoom(mockDispatch, channel.id);
+    await onJoinedNewRoom(mockDispatch, { channelId: channel.id });
     expect(mockDispatch).toHaveBeenCalledWith(
       GetChannelMessagesAction(channel)
     );
   });
 
-  it("should console.error if passed data (channelId is invalid", async () => {
-    expect.assertions(1);
+  it("should console.error if passed data is invalid", async () => {
+    expect.assertions(2);
     console.error = jest.fn();
+    // data cannot be string
     await onJoinedNewRoom(mockDispatch, "abc");
     expect(console.error).toHaveBeenCalledWith(
       new Error(
-        'invalid channelId was given on "joined a new room" event - abc'
+        'invalid channelId was given on "joined a new room" event - channelId is undefined'
+      )
+    );
+    // data cannot be falsy value
+    await onJoinedNewRoom(mockDispatch, null);
+    expect(console.error).toHaveBeenCalledWith(
+      new Error(
+        'invalid channelId was given on "joined a new room" event - data is null'
       )
     );
   });
@@ -79,7 +87,7 @@ describe("onJoinedNewRoom", () => {
     mockFetch.mockImplementation(() => {
       throw err;
     });
-    await onJoinedNewRoom(mockDispatch, uuid());
+    await onJoinedNewRoom(mockDispatch, { channelId: uuid() });
     expect(console.error).toHaveBeenCalledWith(err);
   });
 });
@@ -132,6 +140,6 @@ describe("registerWebSocketEventHandlers", () => {
     // register event handler
     registerWebSocketEventHandlers(client, mockDispatch);
     // emit chat message event
-    server.emit("joined a new room", channel.id);
+    server.emit("joined a new room", { channelId: channel.id });
   });
 });

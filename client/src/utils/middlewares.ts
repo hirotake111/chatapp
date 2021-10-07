@@ -48,7 +48,7 @@ export const myMiddleware: Middleware =
      */
     if (action.type === "channel/fetchChannels") {
       // As "channel/fetchChannels" will be invoke at initial page load,
-      // now highlighted channel is undefined,
+      // highlighted channel is undefined,
       // so we will fetch all messages for the latest channel
       const latestChannel = action.payload.reduce(
         (a, c) => (c.updatedAt > a.updatedAt ? c : a),
@@ -64,12 +64,6 @@ export const myMiddleware: Middleware =
           console.error(e);
         }
       }
-    }
-    if (action.type === "channel/getChannelMessages") {
-      // also highlight channel
-      // storeApi.dispatch(
-      //   HighlightChannelAction({ channelId: action.payload.channel.id })
-      // );
     }
     if (
       action.type === "channel/highlightChannel" ||

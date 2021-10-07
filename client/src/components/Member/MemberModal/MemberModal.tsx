@@ -18,6 +18,7 @@ import { SuggestedCardList } from "../../Search/SuggestedCardList/SuggestedCardL
 import { useAppSelector } from "../../../hooks/reduxHooks";
 
 import "./MemberModal.css";
+import { MouseEventHandler } from "react";
 
 const Component = ({
   updateMemberModal,
@@ -32,11 +33,16 @@ const Component = ({
     searchStatus,
   } = useAppSelector((state) => state.channel);
 
+  const handleClickBackgrond: MouseEventHandler = (e) => {
+    const element = e.target as HTMLElement;
+    if (element.id && element.id === "member-modal") updateMemberModal(false);
+  };
+
   return (
     <ModalBackground
       id="member-modal"
       enabled={memberModalEnabled}
-      onClick={updateMemberModal}
+      onClick={handleClickBackgrond}
     >
       <ModalForm
         title="Add new member to this channel"

@@ -1,7 +1,6 @@
 import { validate } from "uuid";
 import { AppThunk } from "./store";
 
-import { socket } from "./ws/socket";
 import { getUserSearchSuggestions } from "./utils";
 import { fetchChannelDetailPayload, postData } from "./network";
 import {
@@ -15,16 +14,8 @@ import {
 } from "../actions/channelActions";
 
 import {
-  updateNewChannelModalAction,
   AddSuggestedUserAction,
-  RemoveSuggestedUserAction,
   UpdateSearchStatusAction,
-  CreateChannelAction,
-  // EnableCreateButtonAction,
-  // DisableCreateButtonAction,
-  UpdateChannelNameAction,
-  UpdateCreateChannelStatusAction,
-  updateCreateButtonAction,
 } from "../actions/newChannelActions";
 import { ChangeMessageBeenEditedAction } from "../actions/messageActions";
 import { RefObject } from "react";
@@ -95,58 +86,6 @@ export const thunkUpdateSearchStatus =
           return;
         }
       }, 1000);
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-/**
- * create a new channel, then get the information, upate channel state
- */
-export const thunkCreateChannel =
-  (channelName: string, members: SearchedUser[]): AppThunk =>
-  async (dispatch) => {
-    // convert an array of users into an array of user ID
-    const memberIds = members.map((member) => member.id);
-    try {
-      // disable create button
-      dispatch(updateCreateButtonAction({ disable: true }));
-      // post data to channel endpoint
-      const body = await postData("/api/channel", { channelName, memberIds });
-      // validate body
-      const { channelId } = body;
-      // if the network call failed - stop processing
-      if (!channelId)
-        return console.error("couldn't get new channel ID from server");
-      // display message
-      dispatch(UpdateCreateChannelStatusAction("Creating new channel..."));
-      // wait for the channel to be created
-      let count = 0;
-      const timeout = setInterval(async () => {
-        count++;
-        if (count > 3) {
-          // stop the network call
-          clearTimeout(timeout);
-          return dispatch(
-            UpdateCreateChannelStatusAction("Error: failed to create channel")
-          );
-        }
-        try {
-          // get channel detail. This will throw an error if response code !== 200
-          const channel = await fetchChannelDetailPayload(channelId);
-          // if succeeded, proceed
-          // stop network call
-          clearTimeout(timeout);
-          // hide modal
-          dispatch(updateNewChannelModalAction(false));
-          // update channel state
-          dispatch(CreateChannelAction(channel));
-          // join the channel (room)
-          socket.emit("join new room", { channelId: channel.id });
-        } catch (e) {
-          console.error(e);
-        }
-      }, 2000);
     } catch (e) {
       console.error(e);
     }

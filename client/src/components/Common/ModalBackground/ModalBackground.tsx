@@ -4,7 +4,7 @@ import "./ModalBackground.css";
 interface Props {
   id: string;
   enabled: boolean;
-  onClick: (enabled: boolean) => void;
+  onClick: MouseEventHandler;
 }
 
 export const ModalBackground: FC<Props> = ({
@@ -13,16 +13,12 @@ export const ModalBackground: FC<Props> = ({
   onClick,
   children,
 }) => {
-  const handleClickBackgrond: MouseEventHandler = () => {
-    onClick(!enabled);
-  };
-
   return (
     <div
       id={id}
       className="modal-background"
       style={{ display: enabled ? "flex" : "none" }}
-      onClick={handleClickBackgrond}
+      onClick={onClick}
     >
       {children}
     </div>

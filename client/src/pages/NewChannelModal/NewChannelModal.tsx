@@ -1,8 +1,4 @@
 import { MouseEvent } from "react";
-import { connect, ConnectedProps } from "react-redux";
-
-import { RootState } from "../../utils/store";
-import { thunkCreateChannel } from "../../utils/thunk-middlewares";
 
 import { SuggestedUser } from "../../components/Search/SuggestedUser/SuggestedUser";
 import { SearchboxAndCardContainer } from "../SearchboxAndCardContainer/SearchboxAndCardContainer";
@@ -15,11 +11,12 @@ import {
   UpdateSearchStatusAction,
 } from "../../actions/newChannelActions";
 
-import { useUpdateCreateButtonStatus } from "../../hooks/newChannelHooks";
+import {
+  useCreateChannel,
+  useUpdateCreateButtonStatus,
+} from "../../hooks/newChannelHooks";
 
-export const _NewChannelModal = ({ createChannel }: Props) => {
-  const id = "channel-modal-background";
-
+export const NewChannelModal = () => {
   const {
     modal,
     selectedUsers,
@@ -29,9 +26,14 @@ export const _NewChannelModal = ({ createChannel }: Props) => {
   } = useAppSelector((state) => state.newChannel);
   const dispatch = useAppDispatch();
   const [channelName, update] = useUpdateCreateButtonStatus();
+  const createChannel = useCreateChannel();
 
   const handleClickBackgrond = (e: MouseEvent) => {
     const element = e.target as HTMLElement;
+    if (element.id && element.id === "channel-modal-background") {
+      // hide channel modal
+      dispatch(updateNewChannelModalAction(false));
+    }
     // if element other than searchbox and card list is clicked,
     // and the card is not hidden, then hide card list
     if (
@@ -47,20 +49,12 @@ export const _NewChannelModal = ({ createChannel }: Props) => {
     ) {
       dispatch(UpdateSearchStatusAction({ type: "hidden" }));
     }
-    if (element.id && element.id === id) {
-      // now we are sure user clicked background -> hide channel modal
-      dispatch(updateNewChannelModalAction(false));
-    }
-  };
-
-  const handleClickCreateButton = (e: MouseEvent) => {
-    createChannel(channelName, selectedUsers);
   };
 
   return (
     <>
       <div
-        id={id}
+        id="channel-modal-background"
         className="channel-modal-background"
         onClick={handleClickBackgrond}
         style={{ display: modal ? "flex" : "none" }}
@@ -98,7 +92,7 @@ export const _NewChannelModal = ({ createChannel }: Props) => {
               <button
                 id="submit"
                 className="channel-button"
-                onClick={handleClickCreateButton}
+                onClick={createChannel}
                 disabled={buttonDisabled ? true : false}
               >
                 CREATE CHANNEL
@@ -113,17 +107,3 @@ export const _NewChannelModal = ({ createChannel }: Props) => {
     </>
   );
 };
-
-const mapStateToProps = (state: RootState) => ({});
-const mapDispatchToProps = {
-  createChannel: thunkCreateChannel,
-};
-
-const connector = connect(mapStateToProps, mapDispatchToProps);
-type PropsFromRedux = ConnectedProps<typeof connector>;
-type Props = PropsFromRedux & {};
-
-export const NewChannelModal = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(_NewChannelModal);
