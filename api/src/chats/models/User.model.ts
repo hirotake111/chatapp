@@ -43,6 +43,9 @@ class User extends Model {
   @Column
   hash!: string;
 
+  @Column
+  profilePhotoURL!: string;
+
   @CreatedAt
   @Column({
     defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),

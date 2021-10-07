@@ -3,6 +3,15 @@ import { validate } from "uuid";
 
 import User from "../models/User.model";
 import Channel from "../models/Channel.model";
+import axios from "axios";
+
+interface IResponse {
+  results: {
+    picture?: {
+      medium?: string;
+    };
+  }[];
+}
 
 export interface UserQuery {
   getUserById: (id: string) => Promise<User | null>;
@@ -61,12 +70,23 @@ export const getUserQuery = ({
           return null;
         }
 
+        // get profile picture URL
+        const res = await axios.get<IResponse>("https://randomuser.me/api/");
+        if (res.status !== 200)
+          throw new Error(
+            `failed to get data from API. Status code: ${res.status}`
+          );
+        if (!res.data?.results[0].picture?.medium) {
+          throw new Error(`invalid payload: ${res.data.toString()}`);
+        }
+        const profilePhotoURL = res.data.results[0].picture.medium;
         return await UserModel.create({
           id,
           username,
           displayName,
           firstName,
           lastName,
+          profilePhotoURL,
         });
       } catch (e) {
         throw e;

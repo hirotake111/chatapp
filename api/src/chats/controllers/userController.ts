@@ -34,11 +34,12 @@ export const getUserController = (
         res.redirect(authzUrl);
         return;
       } catch (e) {
-        // console.error(e);
-        res
-          .status(500)
-          .send({ error: "INTERNAL SERVER ERROR", detail: e.message });
-        return;
+        if (e instanceof Error)
+          return res
+            .status(500)
+            .send({ error: "INTERNAL SERVER ERROR", detail: e.message });
+        console.error("UNEXPECTED ERROR:", e);
+        return res.status(500).send({ error: "INTERNAL SERVER ERROR" });
       }
     },
 
@@ -96,10 +97,12 @@ export const getUserController = (
         res.redirect("/");
         return;
       } catch (e) {
-        res
-          .status(500)
-          .send({ error: "INTERNAL SERVER ERROR", detail: e.message });
-        return;
+        if (e instanceof Error)
+          return res
+            .status(500)
+            .send({ error: "INTERNAL SERVER ERROR", detail: e.message });
+        console.error("UNEXPECTED ERROR:", e);
+        return res.status(500).send({ error: "INTERNAL SERVER ERROR" });
       }
     },
 
@@ -126,14 +129,17 @@ export const getUserController = (
             displayName: user.displayName,
             firstname: user.firstName,
             lastName: user.lastName,
+            profilePhotoURL: user.profilePhotoURL,
           })),
         });
         return;
       } catch (e) {
-        res
-          .status(500)
-          .send({ error: "INTERNAL SERVER ERROR", detail: e.message });
-        return;
+        if (e instanceof Error)
+          return res
+            .status(500)
+            .send({ error: "INTERNAL SERVER ERROR", detail: e.message });
+        console.error("UNEXPECTED ERROR:", e);
+        return res.status(500).send({ error: "INTERNAL SERVER ERROR" });
       }
     },
 
@@ -149,7 +155,8 @@ export const getUserController = (
           return res
             .status(400)
             .send({ detail: "couldn't retrieve user info with your ID" });
-        const { username, displayName, firstName, lastName } = userInfo;
+        const { username, displayName, firstName, lastName, profilePhotoURL } =
+          userInfo;
         return res.status(200).send({
           detail: "success",
           userId: requesterId,
@@ -157,12 +164,15 @@ export const getUserController = (
           displayName,
           firstName,
           lastName,
+          profilePhotoURL,
         });
       } catch (e) {
-        res
-          .status(500)
-          .send({ error: "INTERNAL SERVER ERROR", detail: e.message });
-        return;
+        if (e instanceof Error)
+          return res
+            .status(500)
+            .send({ error: "INTERNAL SERVER ERROR", detail: e.message });
+        console.error("UNEXPECTED ERROR:", e);
+        return res.status(500).send({ error: "INTERNAL SERVER ERROR" });
       }
     },
   };
