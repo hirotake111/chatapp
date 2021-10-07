@@ -5,33 +5,15 @@ import {
   getUserData,
   fetchMyChannels,
   fetchChannelDetailPayload,
+  asyncTimeInterval,
 } from "./network";
 import { getFakeChannel, getFakeUser } from "./testHelpers";
-import { validateData } from "./validators";
 
 const mockRes = jest.fn();
 // mock fetch API
 global.fetch = (url: any, options: any) => {
   return Promise.resolve(mockRes());
 };
-// global.fetch = (url: any, options: any) => {
-//   return Promise.resolve({
-//     json: () => {
-//       return new Promise((resolve, reject) => {
-//         if (url === "/api/user/me") {
-//           return resolve(mockJson());
-//         }
-//         return url ? resolve({ detail: "success" }) : reject("network error");
-//       });
-//     },
-//     status:
-//       url === "server" || url === "/api/user/me"
-//         ? 200
-//         : url === "redirect"
-//         ? 401
-//         : 400,
-//   }) as any;
-// };
 
 // mock window.location.replace method
 window = Object.create(window);
@@ -53,7 +35,11 @@ beforeEach(() => {
 describe("asyncWait", () => {
   it("should return passed value", async () => {
     expect.assertions(1);
-    expect(await asyncWait(1000)).toEqual(true);
+    jest.useFakeTimers();
+    const result = asyncWait(5000);
+    jest.runOnlyPendingTimers();
+    expect(await result).toEqual(true);
+    jest.useRealTimers();
   });
 });
 
@@ -236,5 +222,82 @@ describe("fetchChannelDetailPayload", () => {
     } catch (e) {
       expect(e).toEqual(err);
     }
+  });
+});
+
+// describe("fetchChannelDetailPayloadWith", () => {
+//   it("should stop loop and return channel", async () => {
+//     expect.assertions(1);
+//     const channel = getFakeChannel();
+//     mockRes.mockReturnValue(channel);
+//     const result = await fetchChannelDetailPayloadWith(3);
+//     expect(mockRes).toHaveBeenCalledTimes(1);
+//     expect(result).toEqual(channel);
+//   });
+// });
+
+describe("asyncTimeInterval", () => {
+  it("should call passed function one time and return data", async () => {
+    expect.assertions(2);
+    jest.useFakeTimers();
+    const func1 = jest.fn();
+    func1.mockResolvedValue(123);
+    const func2 = asyncTimeInterval<number>(func1);
+    const result = func2(3, 1000, 123);
+    jest.runOnlyPendingTimers();
+    expect(await result).toEqual(123);
+    expect(func1).toHaveBeenCalledTimes(1);
+    jest.useRealTimers();
+  });
+
+  it("should return data if the function return even if it failed for 1st attempt", async () => {
+    expect.assertions(3);
+    jest.useFakeTimers();
+    const func1 = jest.fn();
+    const tmp = console.error;
+    console.error = jest.fn();
+    func1
+      .mockRejectedValueOnce("ERROR") // 1st time -> throw an error
+      .mockRejectedValueOnce("ERROR") // 2nd time -> throw an error
+      .mockResolvedValue(123); // 3rd time -> return value
+    const func2 = asyncTimeInterval<number>(func1);
+    const result = func2(3, 1000, 123);
+    jest.runOnlyPendingTimers();
+    jest.runOnlyPendingTimers();
+    jest.runOnlyPendingTimers();
+    expect(await result).toEqual(123);
+    expect(func1).toHaveBeenCalledTimes(3);
+    expect(console.error).toHaveBeenCalledTimes(2);
+    jest.useRealTimers();
+    console.error = tmp;
+  });
+
+  it("should throw an error if function call exceeds maxCount times", async () => {
+    expect.assertions(1);
+    const tmp = console.error;
+    console.error = jest.fn();
+    jest.useFakeTimers();
+    const func1 = jest.fn();
+    func1
+      .mockRejectedValueOnce("eeee")
+      .mockRejectedValueOnce("eeee")
+      .mockRejectedValueOnce("eeee")
+      .mockRejectedValueOnce("eeee")
+      .mockResolvedValue(1000);
+    const func2 = asyncTimeInterval<number>(func1);
+    try {
+      const result = func2(3, 1000, {});
+      jest.runOnlyPendingTimers();
+      jest.runOnlyPendingTimers();
+      jest.runOnlyPendingTimers();
+      await result;
+    } catch (e) {
+      if (e instanceof Error)
+        expect(e.message).toEqual(
+          "function call exceeded the number of maxCount: 3"
+        );
+    }
+    jest.useRealTimers();
+    console.error = tmp;
   });
 });
