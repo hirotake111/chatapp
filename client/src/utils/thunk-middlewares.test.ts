@@ -1,45 +1,17 @@
 import { v4 as uuid } from "uuid";
-import {
-  describe,
-  it,
-  expect,
-  beforeEach,
-  beforeAll,
-  jest,
-} from "@jest/globals";
 
 import {
   thunkAddCandidateToExistingChannel,
   thunkAddSuggestedUser,
   thunkChangeFormContent,
-  thunkCreateChannel,
-  thunkGetChannelDetail,
-  thunkGetChannelMessages,
-  thunkGetMyChannels,
-  thunkGetUserByQuery,
-  thunkHideNewChannelModal,
-  thunkHideSearchSuggestions,
-  thunkHighlightChannel,
   thunkOnChatMessage,
   thunkRemoveCandidateFromExistingChannel,
-  thunkRemoveSuggestedUser,
-  thunkSendMessage,
-  thunkShowNewChannelModal,
-  thunkSignIn,
-  thunkUpdateChannelName,
-  thunkUpdateCreateButtonStatus,
   thunkUpdateMemberCandidateSearchStatus,
   thunkUpdateMemberModal,
   thunkUpdateSearchStatus,
 } from "./thunk-middlewares";
 import { store } from "./store";
-import { UserInfoType } from "../reducers/userReducer";
-
-const mockUserInfo: UserInfoType = {
-  userId: "33a2b38b-b1bf-46f1-83da-76aaee617e5c",
-  username: "alice",
-  displayName: "ALICE",
-};
+import { getFakeChannel } from "./testHelpers";
 
 const mockSuggestedUser: SearchedUser = {
   id: uuid(),
@@ -79,8 +51,21 @@ const mockMessages = [mockMessage];
 
 let dispatch: any;
 
+const mockGetChannel = (channeId: string) => ({ id: channeId });
+
+const mockFetchMyChannel = jest.fn();
+const mockFetchChannelDetailPayload = jest.fn();
+
+beforeAll(() => {
+  jest.mock("./storage", () => ({
+    getChannel: mockGetChannel,
+  }));
+});
+
 beforeEach(() => {
   dispatch = jest.fn();
+  mockFetchMyChannel.mockClear();
+  mockFetchChannelDetailPayload.mockClear();
 });
 
 // mock getData
@@ -114,9 +99,11 @@ jest.mock("./network", () => ({
         channelId: "xx-xx-xx-xx",
       };
   },
+  fetchMyChannels: () => mockFetchMyChannel(),
+  fetchChannelDetailPayload: () => mockFetchChannelDetailPayload(),
 }));
 
-jest.mock("./socket", () => ({
+jest.mock("./ws/socket", () => ({
   socket: {
     connected: true,
     emit: (eventName: string, msg: Message) => {
@@ -124,64 +111,6 @@ jest.mock("./socket", () => ({
     },
   },
 }));
-
-describe("thunkSignIn", () => {
-  it("should dispatch user info", async () => {
-    expect.assertions(1);
-    const signIn = thunkSignIn();
-    await signIn(dispatch, store.getState, {});
-    expect(dispatch).toHaveBeenCalledWith({
-      type: "user/signedIn",
-      payload: mockUserInfo,
-    });
-  });
-});
-
-describe("thunkGetChannelDetail", () => {
-  it("should dispatch channel detail payload", async () => {
-    expect.assertions(1);
-    await thunkGetChannelDetail("xx-xx-xx-xx")(dispatch, () => ({} as any), {});
-    expect(dispatch).toHaveBeenCalledWith({
-      type: "channel/fetchOneChannel",
-      payload: mockChannel,
-    });
-  });
-});
-
-describe("thunkGetMyChannels", () => {
-  it("should dispatch GetMyChannelsAction", async () => {
-    expect.assertions(1);
-    await thunkGetMyChannels()(dispatch, store.getState, {});
-    expect(dispatch).toHaveBeenCalledWith({
-      type: "channel/fetchChannels",
-      payload: {
-        channels: [mockChannel],
-      },
-    });
-  });
-});
-
-describe("thunkGetChannelMessages", () => {
-  it("should dispatch action payload", async () => {
-    expect.assertions(1);
-    await thunkGetChannelMessages(uuid())(dispatch, store.getState, {});
-    expect(dispatch).toHaveBeenCalledWith({
-      type: "channel/getChannelMessages",
-      payload: { channel: mockChannel, messages: mockMessages },
-    });
-  });
-});
-
-describe("thunkHighlightChannel", () => {
-  it("should dispatch action payload", async () => {
-    expect.assertions(1);
-    await thunkHighlightChannel(mockChannel)(dispatch, store.getState, {});
-    expect(dispatch).toHaveBeenCalledWith({
-      type: "channel/highlightChannel",
-      payload: mockChannel,
-    });
-  });
-});
 
 describe("thunkChangeFormContent", () => {
   it("should dispatch action payload", async () => {
@@ -198,27 +127,6 @@ describe("thunkChangeFormContent", () => {
   });
 });
 
-describe("thunkSendMessage", () => {
-  it("should dispatch action payload", async () => {
-    expect.assertions(1);
-    const payload: MessageWithNoId = {
-      channelId: uuid(),
-      sender: {
-        id: uuid(),
-        username: "BOB",
-      },
-      content: "hello world",
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    };
-    await thunkSendMessage(payload)(dispatch, store.getState, {});
-    expect(dispatch).toHaveBeenCalledWith({
-      type: "message/changeFormContent",
-      payload: { content: "" },
-    });
-  });
-});
-
 describe("thunkOnChatMessage", () => {
   it("should dispatch action payload", async () => {
     expect.assertions(1);
@@ -226,26 +134,6 @@ describe("thunkOnChatMessage", () => {
     expect(dispatch).toHaveBeenCalledWith({
       type: "channel/receiveMessage",
       payload: mockMessage,
-    });
-  });
-});
-
-describe("thunkShowNewChannelModal", () => {
-  it("should dispatch action payload", async () => {
-    expect.assertions(1);
-    await thunkShowNewChannelModal()(dispatch, store.getState, {});
-    expect(dispatch).toHaveBeenCalledWith({
-      type: "newChannel/showNewChannelModal",
-    });
-  });
-});
-
-describe("thunkHideNewChannelModal", () => {
-  it("should dispatch action payload ", async () => {
-    expect.assertions(1);
-    await thunkHideNewChannelModal()(dispatch, store.getState, {});
-    expect(dispatch).toHaveBeenCalledWith({
-      type: "newChannel/hideNewChannelModal",
     });
   });
 });
@@ -261,29 +149,6 @@ describe("thunkAddSuggestedUser", () => {
     expect(dispatch).toHaveBeenCalledWith({
       type: "newChannel/updateSearchStatus",
       payload: { type: "searchDone" },
-    });
-  });
-});
-
-describe("thunkRemoveSuggestedUser", () => {
-  it("should dispatch action payload", async () => {
-    expect.assertions(1);
-    const userId = uuid();
-    await thunkRemoveSuggestedUser(userId)(dispatch, store.getState, {});
-    expect(dispatch).toHaveBeenCalledWith({
-      type: "newChannel/removeSuggestedUser",
-      payload: { userId },
-    });
-  });
-});
-
-describe("thunkHideSearchSuggestions", () => {
-  it("should dispatch action payload", async () => {
-    expect.assertions(1);
-    await thunkHideSearchSuggestions()(dispatch, store.getState, {});
-    expect(dispatch).toHaveBeenCalledWith({
-      type: "newChannel/updateSearchStatus",
-      payload: { type: "notInitiated" },
     });
   });
 });
@@ -307,71 +172,6 @@ describe("thunkUpdateSearchStatus", () => {
     });
     jest.runAllTimers();
     jest.useRealTimers();
-  });
-});
-
-describe("thunkUpdateCreateButtonStatus", () => {
-  it("should dispatch action payload", async () => {
-    expect.assertions(1);
-    const name = "mychannelxxxx";
-    await thunkUpdateCreateButtonStatus(name, [mockSuggestedUser], true)(
-      dispatch,
-      store.getState,
-      {}
-    );
-    expect(dispatch).toHaveBeenCalledWith({
-      type: "newChannel/enableCreateButton",
-    });
-  });
-
-  it("should dispatch action payload to disable button", async () => {
-    expect.assertions(1);
-    const name = "mychannelxxxx";
-    await thunkUpdateCreateButtonStatus(name, [], false)(
-      dispatch,
-      store.getState,
-      {}
-    );
-    expect(dispatch).toHaveBeenCalledWith({
-      type: "newChannel/disableCreateButton",
-    });
-  });
-});
-
-describe("thunkCreateChannel", () => {
-  it("should dispatch action payload", async () => {
-    expect.assertions(1);
-    jest.useFakeTimers();
-    await thunkCreateChannel("my channel abcd", [mockSuggestedUser])(
-      dispatch,
-      store.getState,
-      {}
-    );
-    jest.runOnlyPendingTimers();
-    expect(dispatch).toHaveBeenCalledWith({
-      type: "newChannel/updateCreateChannelStatus",
-      payload: {
-        message: "Creating new channel...",
-      },
-    });
-    jest.useRealTimers();
-  });
-});
-
-describe("thunkUpdateChannelName", () => {
-  it("should dispatch action payload", async () => {
-    expect.assertions(1);
-    await thunkUpdateChannelName("new channel name")(
-      dispatch,
-      store.getState,
-      {}
-    );
-    expect(dispatch).toHaveBeenCalledWith({
-      type: "newChannel/updateChannelName",
-      payload: {
-        channelName: "new channel name",
-      },
-    });
   });
 });
 

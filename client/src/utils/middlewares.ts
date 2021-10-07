@@ -5,14 +5,12 @@ import {
   ClearCandidateFromExistingChannelAction,
   GetChannelMessagesAction,
   GetMyChannelsAction,
-  HighlightChannelAction,
   UpdateMemberButtonEnabledAction,
   UpdateMemberCandidateSearchStatusAction,
 } from "../actions/channelActions";
 import { MessageActionTypes } from "../actions/messageActions";
 import {
-  DisableCreateButtonAction,
-  EnableCreateButtonAction,
+  updateCreateButtonAction,
   NewChannelActionTypes,
   RemoveAllSuggestedUsersAction,
   UpdateChannelNameAction,
@@ -22,7 +20,7 @@ import { UserActionTypes } from "../actions/userActions";
 import { RootState } from "./store";
 import { getChannelMessages } from "./utils";
 
-type ActionTypes =
+export type ActionTypes =
   | ChannelActionTypes
   | UserActionTypes
   | MessageActionTypes
@@ -50,11 +48,11 @@ export const myMiddleware: Middleware =
      */
     if (action.type === "channel/fetchChannels") {
       // As "channel/fetchChannels" will be invoke at initial page load,
-      // now highlighted channel is undefined,
+      // highlighted channel is undefined,
       // so we will fetch all messages for the latest channel
-      const latestChannel = action.payload.channels.reduce(
+      const latestChannel = action.payload.reduce(
         (a, c) => (c.updatedAt > a.updatedAt ? c : a),
-        action.payload.channels[0]
+        action.payload[0]
       );
       if (latestChannel) {
         try {
@@ -66,12 +64,6 @@ export const myMiddleware: Middleware =
           console.error(e);
         }
       }
-    }
-    if (action.type === "channel/getChannelMessages") {
-      // also highlight channel
-      // storeApi.dispatch(
-      //   HighlightChannelAction({ channelId: action.payload.channel.id })
-      // );
     }
     if (
       action.type === "channel/highlightChannel" ||
@@ -90,34 +82,34 @@ export const myMiddleware: Middleware =
      */
     if (action.type === "newChannel/addSuggestedUser") {
       const { buttonDisabled, channelName } = storeApi.getState().newChannel;
-      if (buttonDisabled && channelName.length > 4)
-        return storeApi.dispatch(EnableCreateButtonAction());
+      if (buttonDisabled && channelName.length > 4) {
+        // enable button
+        return storeApi.dispatch(updateCreateButtonAction({ disable: false }));
+      }
     }
 
     // if user is removed from new channel dialog with a certain condition,
-    // update button status
+    // disable create button
     if (action.type === "newChannel/removeSuggestedUser") {
       const { buttonDisabled, channelName, selectedUsers } =
         storeApi.getState().newChannel;
       if (
         !buttonDisabled &&
         (channelName.length <= 4 || selectedUsers.length === 0)
-      )
-        return storeApi.dispatch(DisableCreateButtonAction());
+      ) {
+        return storeApi.dispatch(updateCreateButtonAction({ disable: true }));
+      }
     }
 
     // if type is newChannel/createChannel
     if (action.type === "newChannel/createChannel") {
       // then add the channel to channel state
       storeApi.dispatch(
-        GetMyChannelsAction({
-          channels: [
-            action.payload.newChannel,
-            ...storeApi.getState().channel.channels,
-          ],
-        })
+        GetMyChannelsAction([
+          action.payload.newChannel,
+          ...storeApi.getState().channel.channels,
+        ])
       );
-      console.warn("clear!!!");
       // clear channel name in the new channel dialog form
       storeApi.dispatch(UpdateChannelNameAction(""));
       // clear user list

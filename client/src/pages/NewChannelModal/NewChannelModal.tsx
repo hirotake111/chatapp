@@ -1,39 +1,39 @@
-import { ChangeEventHandler, MouseEvent } from "react";
-import { connect, ConnectedProps } from "react-redux";
-import { SuggestedUser } from "../../components/Search/SuggestedUser/SuggestedUser";
+import { MouseEvent } from "react";
 
-import { RootState } from "../../utils/store";
-import {
-  thunkCreateChannel,
-  thunkHideNewChannelModal,
-  thunkHideSearchSuggestions,
-  thunkRemoveSuggestedUser,
-  thunkUpdateChannelName,
-  thunkUpdateCreateButtonStatus,
-} from "../../utils/thunk-middlewares";
-import { SearchboxAndCardContainer } from "../SearchBoxAndCardContainer/SearchBoxAndCardContainer";
+import { SuggestedUser } from "../../components/Search/SuggestedUser/SuggestedUser";
+import { SearchboxAndCardContainer } from "../SearchboxAndCardContainer/SearchboxAndCardContainer";
 
 import "./NewChannelModal.css";
+import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
+import {
+  RemoveSuggestedUserAction,
+  updateNewChannelModalAction,
+  UpdateSearchStatusAction,
+} from "../../actions/newChannelActions";
 
-export const _NewChannelModal = ({
-  modal,
-  channelName,
-  selectedUsers,
-  status,
-  buttonDisabled,
-  createChannelStatusMessage,
-  hideNewChannelModal,
-  hideSearchSuggestions,
-  removeUserFromCandidateList,
-  updateCreateButtonStatus,
-  updateChannelName,
-  createChannel,
-}: Props) => {
-  const id = "channel-modal-background";
-  // const channelNameObject = useRef<HTMLInputElement>(null);
+import {
+  useCreateChannel,
+  useUpdateCreateButtonStatus,
+} from "../../hooks/newChannelHooks";
+
+export const NewChannelModal = () => {
+  const {
+    modal,
+    selectedUsers,
+    searchStatus,
+    buttonDisabled,
+    createChannelStatusMessage,
+  } = useAppSelector((state) => state.newChannel);
+  const dispatch = useAppDispatch();
+  const [channelName, update] = useUpdateCreateButtonStatus();
+  const createChannel = useCreateChannel();
 
   const handleClickBackgrond = (e: MouseEvent) => {
     const element = e.target as HTMLElement;
+    if (element.id && element.id === "channel-modal-background") {
+      // hide channel modal
+      dispatch(updateNewChannelModalAction(false));
+    }
     // if element other than searchbox and card list is clicked,
     // and the card is not hidden, then hide card list
     if (
@@ -42,33 +42,19 @@ export const _NewChannelModal = ({
         element.className === "candidate-card-container"
       ) &&
       !(
-        status.type === "hidden" ||
-        status.type === "notInitiated" ||
-        status.type === "searchDone"
+        searchStatus.type === "hidden" ||
+        searchStatus.type === "notInitiated" ||
+        searchStatus.type === "searchDone"
       )
     ) {
-      hideSearchSuggestions();
+      dispatch(UpdateSearchStatusAction({ type: "hidden" }));
     }
-    if (element.id && element.id === id) {
-      // now we are sure user clicked background
-      // hide channel modal
-      hideNewChannelModal();
-    }
-  };
-
-  const handleChannelNameChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    updateChannelName(e.target.value);
-    updateCreateButtonStatus(e.target.value, selectedUsers, buttonDisabled);
-  };
-
-  const handleClickCreateButton = (e: MouseEvent) => {
-    createChannel(channelName, selectedUsers);
   };
 
   return (
     <>
       <div
-        id={id}
+        id="channel-modal-background"
         className="channel-modal-background"
         onClick={handleClickBackgrond}
         style={{ display: modal ? "flex" : "none" }}
@@ -87,8 +73,7 @@ export const _NewChannelModal = ({
                   name="channelName"
                   id="channelName"
                   value={channelName}
-                  // ref={channelNameObject}
-                  onChange={handleChannelNameChange}
+                  onChange={(e) => update(e.target.value)}
                 />
               </div>
               <SearchboxAndCardContainer />
@@ -98,7 +83,7 @@ export const _NewChannelModal = ({
                     key={user.id}
                     id={user.id}
                     displayName={user.displayName}
-                    onClick={() => removeUserFromCandidateList(user.id)}
+                    onClick={() => dispatch(RemoveSuggestedUserAction(user.id))}
                   />
                 ))}
               </div>
@@ -107,7 +92,7 @@ export const _NewChannelModal = ({
               <button
                 id="submit"
                 className="channel-button"
-                onClick={handleClickCreateButton}
+                onClick={createChannel}
                 disabled={buttonDisabled ? true : false}
               >
                 CREATE CHANNEL
@@ -122,29 +107,3 @@ export const _NewChannelModal = ({
     </>
   );
 };
-
-const mapStateToProps = (state: RootState) => ({
-  modal: state.newChannel.modal,
-  channelName: state.newChannel.channelName,
-  selectedUsers: state.newChannel.selectedUsers,
-  status: state.newChannel.searchStatus,
-  buttonDisabled: state.newChannel.buttonDisabled,
-  createChannelStatusMessage: state.newChannel.createChannelStatusMessage,
-});
-const mapDispatchToProps = {
-  hideNewChannelModal: thunkHideNewChannelModal,
-  hideSearchSuggestions: thunkHideSearchSuggestions,
-  removeUserFromCandidateList: thunkRemoveSuggestedUser,
-  updateCreateButtonStatus: thunkUpdateCreateButtonStatus,
-  createChannel: thunkCreateChannel,
-  updateChannelName: thunkUpdateChannelName,
-};
-
-const connector = connect(mapStateToProps, mapDispatchToProps);
-type PropsFromRedux = ConnectedProps<typeof connector>;
-type Props = PropsFromRedux & {};
-
-export const NewChannelModal = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(_NewChannelModal);

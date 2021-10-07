@@ -2,12 +2,9 @@ import { ChangeEventHandler, useRef } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import { CandidateCardList } from "../../components/Search/CandidateCardList/CandidateCardList";
 import { RootState } from "../../utils/store";
-import {
-  thunkUpdateCreateButtonStatus,
-  thunkUpdateSearchStatus,
-} from "../../utils/thunk-middlewares";
+import { thunkUpdateSearchStatus } from "../../utils/thunk-middlewares";
 
-import "./SearchBoxAndCardContainer.css";
+import "./SearchboxAndCardContainer.css";
 
 const _SearchboxAndCardContainer = ({
   selectedUsers,
@@ -17,7 +14,6 @@ const _SearchboxAndCardContainer = ({
 
   const handleSearchBoxChange: ChangeEventHandler = async (e) => {
     updateSearchStatus(searchbox, selectedUsers);
-    // updateCreateButtonStatus( selectedUsers, buttonDisabled);
   };
 
   return (
@@ -44,7 +40,6 @@ const mapStateToProps = (state: RootState) => ({
 
 const mapDispatchToProps = {
   updateSearchStatus: thunkUpdateSearchStatus,
-  updateCreateButtonStatus: thunkUpdateCreateButtonStatus,
 };
 
 const connector = connect(mapStateToProps, mapDispatchToProps);

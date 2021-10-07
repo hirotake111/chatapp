@@ -1,51 +1,48 @@
 import { connect, ConnectedProps } from "react-redux";
-import { RootState } from "../../../utils/store";
 
+import { RootState } from "../../../utils/store";
 import {
   thunkAddCandidateToExistingChannel,
   thunkAddMemberToChannel,
   thunkRemoveCandidateFromExistingChannel,
   thunkUpdateMemberModal,
 } from "../../../utils/thunk-middlewares";
+
 import { Button } from "../../Common/Button/Button";
 import { ModalForm } from "../../Common/ModalForm/ModalForm";
 import { ModalBackground } from "../../Common/ModalBackground/ModalBackground";
 import { SearchboxForMemberModal } from "../../Search/SearchboxForMemberModal/SearchboxForMemberModal";
-
-import "./MemberModal.css";
 import { CandidateList } from "../../Search/CandidateList/CandidateList";
 import { SuggestedCardList } from "../../Search/SuggestedCardList/SuggestedCardList";
 
+import { useAppSelector } from "../../../hooks/reduxHooks";
+
+import "./MemberModal.css";
+import { MouseEventHandler } from "react";
+
 const Component = ({
-  enabled,
-  candidates,
-  buttonEnabled,
-  highlighted,
-  searchStatus,
   updateMemberModal,
   addMember,
   addCandidate,
   removeCandidate,
 }: Props) => {
-  const handleClick = async () => {
-    const memberIds = candidates.map((c) => c.id);
-    if (!highlighted) {
-      console.log("highlighted ID is null -> skip adding user to the channel");
-      return;
-    }
+  const {
+    memberModalEnabled,
+    candidates,
+    addMemberButtonEnabled,
+    searchStatus,
+  } = useAppSelector((state) => state.channel);
 
-    try {
-      addMember(memberIds, highlighted);
-    } catch (e) {
-      console.error(e);
-    }
+  const handleClickBackgrond: MouseEventHandler = (e) => {
+    const element = e.target as HTMLElement;
+    if (element.id && element.id === "member-modal") updateMemberModal(false);
   };
 
   return (
     <ModalBackground
       id="member-modal"
-      enabled={enabled}
-      onClick={updateMemberModal}
+      enabled={memberModalEnabled}
+      onClick={handleClickBackgrond}
     >
       <ModalForm
         title="Add new member to this channel"
@@ -63,8 +60,8 @@ const Component = ({
           <div className="modal-forms-bottom">
             <Button
               value="save"
-              enabled={buttonEnabled}
-              onClick={handleClick}
+              enabled={addMemberButtonEnabled}
+              onClick={() => addMember(candidates.map((c) => c.id))}
             />
           </div>
         </div>
@@ -73,13 +70,7 @@ const Component = ({
   );
 };
 
-const mapStateToProps = (state: RootState) => ({
-  enabled: state.channel.memberModalEnabled,
-  candidates: state.channel.candidates,
-  buttonEnabled: state.channel.addMemberButtonEnabled,
-  highlighted: state.channel.highlighted,
-  searchStatus: state.channel.searchStatus,
-});
+const mapStateToProps = (state: RootState) => ({});
 
 const mapDispatchToProps = {
   updateMemberModal: thunkUpdateMemberModal,

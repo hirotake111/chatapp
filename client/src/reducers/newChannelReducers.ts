@@ -26,11 +26,8 @@ export const newChannelReducer: NewChannelReducer = (
   action: NewChannelActionTypes
 ): NewChannelState => {
   switch (action.type) {
-    case "newChannel/showNewChannelModal":
-      return { ...state, modal: true };
-
-    case "newChannel/hideNewChannelModal":
-      return { ...state, modal: false };
+    case "newChannel/updateNewChannelModal":
+      return { ...state, modal: action.payload };
 
     case "newChannel/addSuggestedUser":
       return {
@@ -51,16 +48,10 @@ export const newChannelReducer: NewChannelReducer = (
         : { ...state, selectedUsers: [] };
 
     case "newChannel/updateSearchStatus":
-      return {
-        ...state,
-        searchStatus: action.payload,
-      };
+      return { ...state, searchStatus: action.payload };
 
-    case "newChannel/enableCreateButton":
-      return { ...state, buttonDisabled: false };
-
-    case "newChannel/disableCreateButton":
-      return { ...state, buttonDisabled: true };
+    case "newChannel/updateCreateButton":
+      return { ...state, buttonDisabled: action.payload.disable };
 
     case "newChannel/updateChannelName":
       return { ...state, channelName: action.payload.channelName };

@@ -27,7 +27,7 @@ it("should render channel items", () => {
   expect.assertions(1);
   const channels: ChannelPayload[] = [getChannel(), getChannel(), getChannel()];
   const { container } = render(
-    <ChannelList channels={channels} getMessages={callback} />
+    <ChannelList channels={channels} highlighted="" getMessages={callback} />
   );
   const ulElement = container.firstChild?.firstChild as HTMLDivElement;
   if (!ulElement) throw new Error("failed to render ul element");
@@ -40,7 +40,7 @@ it("should render channel name in member list", () => {
     { ...getChannel(), users: [{ id: uuid(), displayName: "alice" }] },
   ];
   const { container } = render(
-    <ChannelList channels={channels} getMessages={callback} />
+    <ChannelList channels={channels} highlighted="" getMessages={callback} />
   );
   expect(
     container.getElementsByClassName("channel-member-summary")[0].innerHTML
@@ -60,7 +60,7 @@ it("should display number in member list", () => {
     },
   ];
   const { container } = render(
-    <ChannelList channels={channels} getMessages={callback} />
+    <ChannelList channels={channels} highlighted="" getMessages={callback} />
   );
   expect(
     container.getElementsByClassName("channel-member-summary")[0].innerHTML
@@ -69,7 +69,7 @@ it("should display number in member list", () => {
 
 it("should invoke getMessages callback when clicked", () => {
   expect.assertions(1);
-  const highlighted = { id: uuid(), name: "highlightedChannel" };
+  const highlighted = uuid();
   const channels: ChannelPayload[] = [getChannel(), getChannel()];
   const { container } = render(
     <ChannelList
@@ -86,7 +86,7 @@ it("should not invoke getMessages callback when highlighted channel is no given"
   expect.assertions(1);
   const channels: ChannelPayload[] = [getChannel(), getChannel()];
   const { container } = render(
-    <ChannelList channels={channels} getMessages={callback} />
+    <ChannelList channels={channels} highlighted="" getMessages={callback} />
   );
   fireEvent.click(container.getElementsByClassName("channel-list-title")[0]);
   expect(callback).toHaveBeenCalledTimes(0);
@@ -94,8 +94,12 @@ it("should not invoke getMessages callback when highlighted channel is no given"
 
 it("should add channel-list-selected class when a channel is highlighted", () => {
   expect.assertions(1);
-  const highlighted = getChannel();
-  const channels: ChannelPayload[] = [getChannel(), highlighted, getChannel()];
+  const highlighted = uuid();
+  const channels: ChannelPayload[] = [
+    getChannel(),
+    { ...getChannel(), id: highlighted },
+    getChannel(),
+  ];
   const { container } = render(
     <ChannelList
       channels={channels}

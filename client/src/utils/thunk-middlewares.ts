@@ -1,168 +1,31 @@
-import { v4 as uuid, validate } from "uuid";
+import { validate } from "uuid";
 import { AppThunk } from "./store";
 
-import { socket } from "./socket";
-import {
-  getChannelMessages,
-  fetchChannelDetailPayload,
-  validateChannelsPayload,
-  getUserSearchSuggestions,
-} from "./utils";
-import { getData, postData } from "./network";
-import { userSignInAction } from "../actions/userActions";
+import { getUserSearchSuggestions } from "./utils";
+import { fetchChannelDetailPayload, postData } from "./network";
 import {
   GetChannelDetailAction,
-  GetMyChannelsAction,
-  GetChannelMessagesAction,
-  HighlightChannelAction,
   ReceiveMessageAction,
   UpdateMemberModalAction,
   UpdateMemberCandidateSearchStatusAction,
   AddCandidateToExistingChannelAction,
   RemoveCandidateFromExistingChannelAction,
   UpdateMemberButtonEnabledAction,
-  ToggleChannelLoadingAction,
-  GetChannelMessagesPayload,
 } from "../actions/channelActions";
 
 import {
-  ShowNewChannelModalAction,
-  hideNewChannelModalAction,
   AddSuggestedUserAction,
-  RemoveSuggestedUserAction,
   UpdateSearchStatusAction,
-  CreateChannelAction,
-  EnableCreateButtonAction,
-  DisableCreateButtonAction,
-  UpdateChannelNameAction,
-  UpdateCreateChannelStatusAction,
 } from "../actions/newChannelActions";
 import { ChangeMessageBeenEditedAction } from "../actions/messageActions";
 import { RefObject } from "react";
-import { validateData } from "./validators";
-import { UserInfoType } from "../reducers/userReducer";
-import { storage } from "./storage";
-
-export const thunkSignIn = (): AppThunk => async (dispatch) => {
-  try {
-    const body = await getData("/api/user/me");
-    const userInfo = validateData<UserInfoType>(body, {
-      userId: { type: "string", isUUID: true },
-      username: { type: "string" },
-      displayName: { type: "string" },
-    });
-    dispatch(userSignInAction(userInfo));
-  } catch (e) {
-    throw e;
-  }
-};
-
-export const thunkGetChannelDetail =
-  (channelId: string): AppThunk =>
-  async (dispatch) => {
-    try {
-      const payload = await fetchChannelDetailPayload(channelId);
-      // dispatch action
-      dispatch(GetChannelDetailAction(payload));
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-/**
- * Fetch a list of channels from server, then update store
- */
-export const thunkGetMyChannels = (): AppThunk => async (dispatch) => {
-  try {
-    // get channel detail from API server
-    const body = await getData("/api/channel/");
-    // validate payload
-    const payload = validateChannelsPayload(body);
-    // dispatch action
-    dispatch(GetMyChannelsAction(payload));
-    // update loading state
-    dispatch(ToggleChannelLoadingAction());
-  } catch (e) {
-    throw e;
-  }
-};
-
-/**
- * Get messages in a specific channel, and then update state
- * @param channelId ${string}
- * @returns ${void}
- */
-export const thunkGetChannelMessages =
-  (channelId: string): AppThunk =>
-  async (dispatch) => {
-    // highlight channel in the first place
-    dispatch(HighlightChannelAction({ channelId }));
-    try {
-      // fetch data from local storage
-      const dataInLocalStorage = storage.getChannel(channelId);
-      // if data is found in local storage, then update channel message
-      if (dataInLocalStorage && Object.keys(dataInLocalStorage).length !== 0) {
-        const data = dataInLocalStorage as GetChannelMessagesPayload;
-        dispatch(GetChannelMessagesAction(data));
-        const tsIntervalMinutes = Math.floor(
-          (Date.now() - data.channel.updatedAt) / 1000 / 60
-        );
-        // also, highlight channel
-        // dispatch(HighlightChannelAction({ channelId: data.channel.id }));
-        // if channel is updated within 2 minutes, then do nothing
-        if (tsIntervalMinutes <= 2) return;
-      }
-      // otherwise, get channel messages from server
-      const payload = await getChannelMessages(channelId);
-      // dispatch action
-      dispatch(GetChannelMessagesAction(payload));
-      // store messages to local storage
-      storage.setChannel(channelId, payload);
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-export const thunkHighlightChannel =
-  (channel: ChannelPayload): AppThunk =>
-  async (dispatch) => {
-    dispatch(HighlightChannelAction({ channelId: channel.id }));
-  };
+// import { storage } from "./storage";
 
 export const thunkChangeFormContent =
   (content: string): AppThunk =>
   async (dispatch) => {
     // this just dispatch payload to reducer
     dispatch(ChangeMessageBeenEditedAction({ content }));
-  };
-
-export const thunkSendMessage =
-  ({ channelId, sender, content }: MessageWithNoId): AppThunk =>
-  async (dispatch) => {
-    // check socket connectivity
-    if (!socket.connected) {
-      console.error("WebSocket not connected - retrying");
-      socket.connect();
-      // return;
-    }
-    // exit if message content is empty
-    if (content.length === 0) {
-      console.warn("message is empty - aborted");
-      return;
-    }
-    // generate new message ID
-    const chatMessage: Message = {
-      id: uuid(),
-      sender: { id: sender.id, username: sender.username },
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-      channelId,
-      content,
-    };
-    // send message to server
-    socket.emit("chat message", chatMessage);
-    // empty form
-    dispatch(ChangeMessageBeenEditedAction({ content: "" }));
   };
 
 export const thunkOnChatMessage =
@@ -172,13 +35,13 @@ export const thunkOnChatMessage =
     //
   };
 
-export const thunkShowNewChannelModal = (): AppThunk => async (dispatch) => {
-  dispatch(ShowNewChannelModalAction());
-};
+// export const thunkShowNewChannelModal = (): AppThunk => async (dispatch) => {
+//   dispatch(updateNewChannelModalAction());
+// };
 
-export const thunkHideNewChannelModal = (): AppThunk => async (dispatch) => {
-  dispatch(hideNewChannelModalAction());
-};
+// export const thunkHideNewChannelModal = (): AppThunk => async (dispatch) => {
+//   dispatch(hideNewChannelModalAction());
+// };
 
 export const thunkAddSuggestedUser =
   (user: SearchedUser): AppThunk =>
@@ -186,16 +49,6 @@ export const thunkAddSuggestedUser =
     dispatch(AddSuggestedUserAction(user));
     dispatch(UpdateSearchStatusAction({ type: "searchDone" }));
   };
-
-export const thunkRemoveSuggestedUser =
-  (userId: string): AppThunk =>
-  async (dispatch) => {
-    dispatch(RemoveSuggestedUserAction(userId));
-  };
-
-export const thunkHideSearchSuggestions = (): AppThunk => async (dispatch) => {
-  dispatch(UpdateSearchStatusAction({ type: "notInitiated" }));
-};
 
 export const thunkUpdateSearchStatus =
   (
@@ -236,73 +89,6 @@ export const thunkUpdateSearchStatus =
     } catch (e) {
       console.error(e);
     }
-  };
-
-export const thunkUpdateCreateButtonStatus =
-  (channelName: string, members: SearchedUser[], disabled: boolean): AppThunk =>
-  async (dispatch) => {
-    if (channelName.length > 4 && members.length > 0 && disabled)
-      return dispatch(EnableCreateButtonAction());
-    if (!disabled && (channelName.length <= 4 || members.length === 0))
-      return dispatch(DisableCreateButtonAction());
-  };
-
-/**
- * create a new channel, then get the information, upate channel state
- */
-export const thunkCreateChannel =
-  (channelName: string, members: SearchedUser[]): AppThunk =>
-  async (dispatch) => {
-    // convert an array of users into an array of user ID
-    const memberIds = members.map((member) => member.id);
-    try {
-      // disable create button
-      dispatch(DisableCreateButtonAction());
-      // post data to channel endpoint
-      const body = await postData("/api/channel", { channelName, memberIds });
-      // validate body
-      const { channelId } = body;
-      // if the network call failed - stop processing
-      if (!channelId)
-        return console.error("couldn't get new channel ID from server");
-      // display message
-      dispatch(UpdateCreateChannelStatusAction("Creating new channel..."));
-      // wait for the channel to be created
-      let count = 0;
-      const timeout = setInterval(async () => {
-        count++;
-        if (count > 3) {
-          // stop the network call
-          clearTimeout(timeout);
-          return dispatch(
-            UpdateCreateChannelStatusAction("Error: failed to create channel")
-          );
-        }
-        try {
-          // get channel detail. This will throw an error if response code !== 200
-          const channel = await fetchChannelDetailPayload(channelId);
-          // if succeeded, proceed
-          // stop network call
-          clearTimeout(timeout);
-          // hide modal
-          dispatch(hideNewChannelModalAction());
-          // update channel state
-          dispatch(CreateChannelAction(channel));
-          // join the channel (room)
-          socket.emit("join new room", { channelId: channel.id });
-        } catch (e) {
-          console.error(e);
-        }
-      }, 2000);
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-export const thunkUpdateChannelName =
-  (channelName: string): AppThunk =>
-  async (dispatch) => {
-    dispatch(UpdateChannelNameAction(channelName));
   };
 
 export const thunkUpdateMemberModal =
@@ -371,19 +157,21 @@ export const thunkGetUserByQuery =
   };
 
 export const thunkAddMemberToChannel =
-  (memberIds: string[], channelId: string | undefined): AppThunk =>
-  async (dispatch) => {
+  (memberIds: string[]): AppThunk =>
+  async (dispatch, getState) => {
+    // get highted channel ID
+    const { highlighted } = getState().channel;
+    if (!highlighted)
+      return console.error(
+        "failed to add memmber - highlighted channnel ID is undefined"
+      );
     // if no candidate, return
     if (memberIds.length === 0) return;
-    // if no channel ID, return
-    if (!channelId) throw new Error("channel is undefined");
-    // const { id: channelId } = channel;
-    if (!channelId) throw new Error("invalid channel ID");
     try {
       // disable button
       dispatch(UpdateMemberButtonEnabledAction(false));
       // post data to channel endpoint
-      const body = await postData(`/api/channel/${channelId}/member`, {
+      const body = await postData(`/api/channel/${highlighted}/member`, {
         userIds: memberIds,
       });
       // validate detail
@@ -407,7 +195,7 @@ export const thunkAddMemberToChannel =
           }
           // get/validate channel detail.
           // This will throw an error if response code !== 200
-          const payload = await fetchChannelDetailPayload(channelId);
+          const payload = await fetchChannelDetailPayload(highlighted);
           // if succeeded, clear timeout function
           clearTimeout(timeout);
           dispatch(GetChannelDetailAction(payload));
@@ -418,7 +206,6 @@ export const thunkAddMemberToChannel =
         throw e;
       }
     } catch (e) {
-      if (e instanceof Error) return console.error(e.message);
-      throw e;
+      console.error(e);
     }
   };

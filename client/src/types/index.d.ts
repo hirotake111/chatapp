@@ -16,7 +16,7 @@ declare interface Message {
   sender: {
     id: string;
     username: string;
-    displayName?: string;
+    displayName: string;
     firstName?: string;
     lastName?: string;
   };
@@ -30,7 +30,7 @@ declare interface MessageWithNoId {
   sender: {
     id: string;
     username: string;
-    displayName?: string;
+    displayName: string;
     firstName?: string;
     lastName?: string;
   };

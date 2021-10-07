@@ -21,6 +21,8 @@ Currently mobile device is not supported.
 
 ### TODO
 
+- unread message notification
+- pagenation
 - disable [add user] button if user belongs no channels
 - Redis for WebScoket backend
 - test code

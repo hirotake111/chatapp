@@ -39,15 +39,16 @@ export const channelReducer: Reducer<ChannelState, ChannelActionTypes> = (
     case "channel/fetchChannels":
       return {
         ...state,
-        channels: [...action.payload.channels],
+        channels: [...action.payload],
       };
 
     case "channel/getChannelMessages": {
-      const { channel } = action.payload;
-      const others = state.channels.filter(({ id }) => id !== channel.id);
+      const others = state.channels.filter(
+        ({ id }) => id !== action.payload.id
+      );
       return {
         ...state,
-        channels: [...others, { ...channel }],
+        channels: [...others, { ...action.payload }],
       };
     }
 
@@ -107,7 +108,8 @@ export const channelReducer: Reducer<ChannelState, ChannelActionTypes> = (
       return { ...state, addMemberButtonEnabled: action.payload.enabled };
 
     case "channel/ToggleChannelLoading":
-      return { ...state, loading: !state.loading };
+      // should be problematic but for now it's OK for development
+      return { ...state, loading: false };
 
     default:
       return state;

@@ -1,40 +1,31 @@
-import { Fragment } from "react";
-import { connect, ConnectedProps } from "react-redux";
 import { Header } from "../../components/Common/Header/Header";
-import { MainContainer } from "../MainContainer/MainContainer";
 import { NewChannelModal } from "../NewChannelModal/NewChannelModal";
-
-import { RootState } from "../../utils/store";
 import { MemberModal } from "../../components/Member/MemberModal/MemberModal";
 
-const Home = ({
-  user: {
-    userInfo: { username, userId },
-  },
-}: Props) => {
-  return username && userId ? (
-    <Fragment>
-      <Header userId={userId} username={username} />
-      <MainContainer />
+import { useAppSelector } from "../../hooks/reduxHooks";
+
+import "./Home.css";
+import { LeftColumn } from "../LeftColumn/LeftColumn";
+import { RightColumn } from "../RightColumn/RightColumn";
+
+const Home = () => {
+  const { userInfo } = useAppSelector((state) => state.user);
+
+  return userInfo && userInfo.username && userInfo.userId ? (
+    <>
+      <Header userId={userInfo.userId} username={userInfo.username} />
+      <div className="main">
+        <LeftColumn />
+        <RightColumn />
+      </div>
       <NewChannelModal />
       <MemberModal />
-    </Fragment>
+    </>
   ) : (
-    <Fragment>
+    <>
       <p>No username or user ID</p>
-    </Fragment>
+    </>
   );
 };
 
-const mapStateToProps = (state: RootState) => ({
-  user: state.user,
-});
-
-const mapDispatchToProps = {};
-
-const connector = connect(mapStateToProps, mapDispatchToProps);
-
-type PropsFromRedux = ConnectedProps<typeof connector>;
-type Props = PropsFromRedux & {};
-
-export default connector(Home);
+export default Home;

@@ -23,15 +23,6 @@ export interface GetChannelDetailPayload {
   channel: ChannelPayload;
 }
 
-export interface GetMyChannelsPayload {
-  channels: ChannelPayload[];
-}
-
-export interface GetChannelMessagesPayload {
-  channel: ChannelPayload;
-  messages: Message[];
-}
-
 export interface UpdateMemberModalPayload {
   enabled: boolean;
 }
@@ -66,15 +57,15 @@ interface GetChannelDetailActionType
 }
 
 interface GetMyChannelsActionType
-  extends PayloadAction<GetMyChannelsPayload, GetMyChannelsType> {
+  extends PayloadAction<ChannelPayload[], GetMyChannelsType> {
   type: GetMyChannelsType;
-  payload: GetMyChannelsPayload;
+  payload: ChannelPayload[];
 }
 
 interface GetChannelMessagesActionType
-  extends PayloadAction<GetChannelMessagesPayload, GetChannelMessagesType> {
+  extends PayloadAction<ChannelPayload, GetChannelMessagesType> {
   type: GetChannelMessagesType;
-  payload: GetChannelMessagesPayload;
+  payload: ChannelPayload;
 }
 
 interface HighlightChannelActionType
@@ -162,11 +153,11 @@ export const GetChannelDetailAction = (
 ): ChannelActionTypes => ({ type: "channel/fetchOneChannel", payload });
 
 export const GetMyChannelsAction = (
-  payload: GetMyChannelsPayload
+  payload: ChannelPayload[]
 ): ChannelActionTypes => ({ type: "channel/fetchChannels", payload });
 
 export const GetChannelMessagesAction = (
-  payload: GetChannelMessagesPayload
+  payload: ChannelPayload
 ): ChannelActionTypes => ({ type: "channel/getChannelMessages", payload });
 
 export const HighlightChannelAction = (payload: {
