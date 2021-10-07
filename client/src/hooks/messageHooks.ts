@@ -46,6 +46,9 @@ export const useSendMessage = () => {
         id: userInfo.userId,
         username: userInfo.username,
         displayName: userInfo.displayName,
+        firstName: userInfo.firstName,
+        lastName: userInfo.lastName,
+        profilePhotoURL: userInfo.profilePhotoURL,
       },
     };
     // send message to server

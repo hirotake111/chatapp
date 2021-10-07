@@ -19,6 +19,7 @@ declare interface Message {
     displayName: string;
     firstName?: string;
     lastName?: string;
+    profilePhotoURL?: string;
   };
 }
 

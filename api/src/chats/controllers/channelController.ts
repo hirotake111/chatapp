@@ -101,11 +101,14 @@ export const getChannelController = (
             name: ch.name,
             createdAt: ch.createdAt.getTime(),
             updatedAt: ch.updatedAt.getTime(),
-            users: ch.users.map(({ id, username, displayName }) => ({
-              id,
-              username,
-              displayName,
-            })),
+            users: ch.users.map(
+              ({ id, username, displayName, profilePhotoURL }) => ({
+                id,
+                username,
+                displayName,
+                profilePhotoURL,
+              })
+            ),
           })),
         });
       } catch (e) {
@@ -142,12 +145,13 @@ export const getChannelController = (
         // respond
         return res.status(200).send({
           detail: "success",
-          members: members.map((m) => ({
-            id: m.id,
-            username: m.username,
-            displayName: m.displayName,
-            firstName: m.firstName,
-            lastName: m.lastName,
+          members: members.map((user) => ({
+            id: user.id,
+            username: user.username,
+            displayName: user.displayName,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            profilePhotoURL: user.profilePhotoURL,
           })),
         });
       } catch (e) {
