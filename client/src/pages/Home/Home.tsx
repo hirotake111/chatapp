@@ -13,7 +13,7 @@ const Home = () => {
 
   return userInfo && userInfo.username && userInfo.userId ? (
     <>
-      <Header userId={userInfo.userId} username={userInfo.username} />
+      <Header />
       <div className="main">
         <LeftColumn />
         <RightColumn />

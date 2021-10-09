@@ -1,8 +1,33 @@
 .header {
-  background-color: #7c83fd;
-  color: #fff;
-  height: 40px;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  margin-bottom: 2px;
+  background-color: #fff;
+  color: #000;
+  height: 7vh;
   font-size: 2rem;
   line-height: 2rem;
-  padding: 10px;
+}
+
+.header__profileContainer {
+  display: flex;
+  align-items: center;
+}
+
+.header__profileImage {
+  display: flex;
+  justify-content: flex-end;
+  height: 33px;
+  width: 33px;
+  border-radius: 50%;
+  margin: 0 10px 0 10px;
+}
+
+.header__displayName {
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  margin: 5px 10px 5px 10px;
+  font-size: 1.4rem;
 }

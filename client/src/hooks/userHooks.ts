@@ -30,3 +30,18 @@ export const useSignIn = () => {
 
   return [user, signin] as const;
 };
+
+/**
+ * custom hook to toggle a modal next to display name
+ */
+export const useToggleUserModal = () => {
+  const dispatch = useAppDispatch();
+
+  const toggle = ({ enable }: { enable: boolean }): void => {
+    /**
+     * TODO
+     */
+  };
+
+  return toggle;
+};

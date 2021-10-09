@@ -1,7 +1,7 @@
 import { Reducer } from "redux";
 import { UserActionTypes } from "../actions/userActions";
 
-interface UserState {
+export interface UserState {
   isAuthenticated: boolean;
   userInfo?: UserInfoType;
 }
