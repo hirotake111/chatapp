@@ -27,12 +27,13 @@ it("should render child components", () => {
       <Home />
     </Provider>
   );
-  expect(childNodes.length).toEqual(4);
-  expect(childNodes[0].textContent).toEqual("mock Header component");
-  expect(childNodes[1].childNodes[0].textContent).toEqual("mock LeftColumn");
-  expect(childNodes[1].childNodes[1].textContent).toEqual("mock RightColumn");
-  expect(childNodes[2].textContent).toEqual("mock NewChannelModal component");
-  expect(childNodes[3].textContent).toEqual("mock MemberModal component");
+  const nodes = childNodes[0].childNodes[1].childNodes;
+  expect(nodes.length).toEqual(4);
+  expect(nodes[0].textContent).toEqual("mock Header component");
+  expect(nodes[1].childNodes[0].textContent).toEqual("mock LeftColumn");
+  expect(nodes[1].childNodes[1].textContent).toEqual("mock RightColumn");
+  expect(nodes[2].textContent).toEqual("mock NewChannelModal component");
+  expect(nodes[3].textContent).toEqual("mock MemberModal component");
 });
 
 it("should render 'no username or user ID' message if userId is not provided", () => {

@@ -2,8 +2,7 @@
   display: flex;
   justify-content: space-between;
   padding: 10px;
-  margin-bottom: 2px;
-  background-color: #fff;
+  border-bottom: 1px solid #ebebec;
   color: #000;
   height: 7vh;
   font-size: 2rem;
@@ -30,4 +29,9 @@
   align-items: center;
   margin: 5px 10px 5px 10px;
   font-size: 1.4rem;
+}
+
+.header__companyProfile {
+  display: flex;
+  align-items: center;
 }

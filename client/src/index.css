@@ -3,7 +3,9 @@ html {
   padding: 0;
   height: 100%;
   font-size: 10px;
-  font-family: "Roboto", sans-serif;
+  /* font-family: "Roboto", sans-serif; */
+  font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial,
+    sans-serif;
 }
 
 body {
@@ -11,7 +13,7 @@ body {
   padding: 0;
   height: 100%;
   color: #242424;
-  background-color: #ebebec;
+  background-color: #fff;
   overflow: hidden;
 }
 

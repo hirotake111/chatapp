@@ -8,6 +8,7 @@ import { updateNewChannelModalAction } from "../../actions/newChannelActions";
 import { ChannelList } from "../../components/Channel/ChannelItem/ChannelList";
 import { Button } from "../../components/Common/Button/Button";
 import { LoadingSpinner2 } from "../../components/Common/LoadingSpinner2/LoadingSpinner2";
+import { ChannelSearchBar } from "../../components/Search/ChannelSearchBar/ChannelSearchBar";
 
 import "./LeftColumn.css";
 
@@ -30,6 +31,7 @@ export const LeftColumn = () => {
 
   return (
     <div className="left-column">
+      <ChannelSearchBar />
       {loading ? (
         <div className="leftcolumn-nochannel">
           <LoadingSpinner2 />

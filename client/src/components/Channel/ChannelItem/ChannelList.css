@@ -1,7 +1,11 @@
 .channel-list-item-container {
+  display: flex;
+  flex-direction: column;
   padding: 10px;
-  margin: 10px;
-  border-bottom: 1px solid rgb(221, 219, 219);
+  height: 70px;
+  justify-content: center;
+  border-bottom: 1px solid #ebebec;
+  background-color: #f5f7f9;
   transition: 300ms;
 }
 
@@ -24,7 +28,7 @@
 }
 
 .channel-list-selected {
-  background-color: #e1dfdd;
+  background-color: #fff;
 }
 
 .channel-list {

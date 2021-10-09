@@ -12,15 +12,28 @@ const Home = () => {
   const { userInfo } = useAppSelector((state) => state.user);
 
   return userInfo && userInfo.username && userInfo.userId ? (
-    <>
-      <Header />
-      <div className="main">
-        <LeftColumn />
-        <RightColumn />
+    <div
+      style={{
+        display: "flex",
+      }}
+    >
+      <div
+        id="app-column"
+        style={{
+          width: "60px",
+          background: "#070e0c",
+        }}
+      ></div>
+      <div style={{ width: "100%" }}>
+        <Header />
+        <div className="main">
+          <LeftColumn />
+          <RightColumn />
+        </div>
+        <NewChannelModal />
+        <MemberModal />
       </div>
-      <NewChannelModal />
-      <MemberModal />
-    </>
+    </div>
   ) : (
     <>
       <p>No username or user ID</p>

@@ -45,13 +45,18 @@ const RColumn = ({ changeFormContent, updateMemberModal }: Props) => {
   return (
     <div className="right-column">
       <div className="channel-title-container">
-        <span className="channel-title">
-          {highlightedChannel ? highlightedChannel.name : ""}
-        </span>
+        <div
+          style={{ width: "100%", display: "flex", flexDirection: "column" }}
+        >
+          <span className="channel-title">
+            {highlightedChannel ? highlightedChannel.name : ""}
+          </span>
+          <span>Last Update - 2 days ago</span>
+        </div>
         <div className="add-member-button-container">
           {!!highlighted ? (
             <Button
-              value="ADD USERS"
+              value="+ ADD"
               enabled={true}
               onClick={handleClickAddMemberButton}
             ></Button>

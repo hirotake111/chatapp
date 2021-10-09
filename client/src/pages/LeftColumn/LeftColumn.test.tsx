@@ -34,7 +34,7 @@ it("should render LeftColumn component", () => {
       <LeftColumn />
     </Provider>
   );
-  expect(container.firstChild?.firstChild?.textContent).toEqual(
+  expect(container.firstChild?.childNodes[1]?.textContent).toEqual(
     "mock ChannelList"
   );
 });
@@ -49,7 +49,7 @@ it("should render render no channels message if it doesn't", () => {
       <LeftColumn />
     </Provider>
   );
-  expect(container.firstChild?.firstChild?.textContent).toEqual(
+  expect(container.firstChild?.childNodes[1]?.textContent).toEqual(
     "You don't have any channels yet."
   );
 });

@@ -1,6 +1,7 @@
 .right-column {
   display: flex;
-  background-color: rgb(243, 242, 241);
+  /* background-color: rgb(243, 242, 241); */
+  background-color: #fff;
   flex-direction: column;
   justify-content: space-between;
   width: calc(100% - 20rem);
@@ -8,18 +9,21 @@
 
 .channel-title-container {
   display: flex;
+  min-height: 80px;
   flex-direction: row;
   align-items: flex-end;
-  margin: 1.5rem;
+  /* margin: 1.5rem; */
   padding: 1.2rem;
-  border-bottom: 1px solid rgb(221, 219, 219);
+  border-bottom: 1px solid #ebebec;
 }
 
 .channel-title {
   display: flex;
-  height: 65px;
+  /* height: 65px; */
+  margin-bottom: 5px;
   width: 100%;
-  font-size: 1.8rem;
+  font-size: 2rem;
+  font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
   align-items: flex-end;
