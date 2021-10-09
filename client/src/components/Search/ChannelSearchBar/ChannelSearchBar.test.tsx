@@ -5,6 +5,6 @@ describe("ChannelSearchBar", () => {
   it("should render search bar", () => {
     expect.assertions(1);
     const { container } = render(<ChannelSearchBar />);
-    expect(container.firstChild).toBeTruthy();
+    expect(container.getElementsByTagName("input").length).toEqual(1);
   });
 });
