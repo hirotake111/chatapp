@@ -4,7 +4,7 @@ import { store } from "../../utils/store";
 
 import Home from "./Home";
 
-jest.mock("../../components/Common/Header/Header");
+jest.mock("../../components/Header/Header/Header");
 jest.mock("../NewChannelModal/NewChannelModal");
 jest.mock("../../components/Member/MemberModal/MemberModal");
 jest.mock("../LeftColumn/LeftColumn");
