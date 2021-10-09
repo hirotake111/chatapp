@@ -7,23 +7,14 @@ import { RightColumn } from "../RightColumn/RightColumn";
 import { useAppSelector } from "../../hooks/reduxHooks";
 
 import "./Home.css";
+import { AppColumn } from "../../components/Column/AppColumn/AppColumn";
 
 const Home = () => {
   const { userInfo } = useAppSelector((state) => state.user);
 
   return userInfo && userInfo.username && userInfo.userId ? (
-    <div
-      style={{
-        display: "flex",
-      }}
-    >
-      <div
-        id="app-column"
-        style={{
-          width: "60px",
-          background: "#070e0c",
-        }}
-      ></div>
+    <div style={{ display: "flex" }}>
+      <AppColumn />
       <div style={{ width: "100%" }}>
         <Header />
         <div className="main">

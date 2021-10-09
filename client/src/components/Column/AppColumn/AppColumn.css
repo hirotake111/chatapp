@@ -1,0 +1,13 @@
+.app-column {
+  display: flex;
+  flex-direction: column;
+  padding-top: 50px;
+  width: 60px;
+  align-items: center;
+  background: #070e0c;
+}
+
+.app-column__icon {
+  margin: 10px 0 10px 0;
+  color: #fff;
+}
