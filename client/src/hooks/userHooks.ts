@@ -1,4 +1,7 @@
-import { userSignInAction } from "../actions/userActions";
+import {
+  toggleUserProfileAction,
+  userSignInAction,
+} from "../actions/userActions";
 import { getUserData } from "../utils/network";
 import { socket } from "../utils/ws/socket";
 import { registerWebSocketEventHandlers } from "../utils/ws/eventHandlers";
@@ -36,11 +39,11 @@ export const useSignIn = () => {
  */
 export const useToggleUserModal = () => {
   const dispatch = useAppDispatch();
+  const { showProfileModal } = useAppSelector((state) => state.user);
 
-  const toggle = ({ enable }: { enable: boolean }): void => {
-    /**
-     * TODO
-     */
+  const toggle = (params: { enable: boolean }): void => {
+    if (showProfileModal !== params.enable)
+      dispatch(toggleUserProfileAction(params));
   };
 
   return toggle;

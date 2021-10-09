@@ -1,7 +1,6 @@
 import { nanoid } from "@reduxjs/toolkit";
 import { v4 as uuid } from "uuid";
 import { RootState } from "./store";
-import { UserState } from "../reducers/userReducer";
 
 /**
  * helper function to create fake user
@@ -61,6 +60,7 @@ export const getFakeState = (): RootState => ({
       displayName: nanoid(),
       profilePhotoURL: `https://example.com/api/image`,
     },
+    showProfileModal: false,
   },
   channel: {
     channels: [getFakeChannel(), getFakeChannel(), getFakeChannel()],

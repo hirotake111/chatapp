@@ -43,16 +43,18 @@ it("should display displayName and profile picture", () => {
   ).toEqual(userState.userInfo?.displayName);
 });
 
-it("should invoke toggle callback when angle icon is clicked", () => {
+it("should invoke toggle callback when profile is clicked", () => {
   expect.assertions(1);
   const userState = getFakeState().user;
   mockUseAppSelector.mockReturnValue(userState);
   const { container } = render(<Header />);
   // get angle-down element
-  const icon = container.getElementsByClassName("fa")[0];
-  if (!icon) throw new Error("failed to get angle-down icon");
+  const element = container.getElementsByClassName(
+    "header__profileContainer"
+  )[0];
+  if (!element) throw new Error("failed to get profile element");
   // click the element
-  fireEvent.click(icon);
+  fireEvent.click(element);
   // validate callback
   expect(mockToggleUserModal).toHaveBeenCalledWith({ enable: true });
 });

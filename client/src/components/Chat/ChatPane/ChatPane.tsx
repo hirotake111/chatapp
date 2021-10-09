@@ -56,17 +56,7 @@ export const MessageContainerItem = ({
         </span>
         <p className="message">{content}</p>
       </div>
-      <img
-        className="profile-image"
-        src={
-          profilePhotoURL
-            ? profilePhotoURL
-            : isMyMessage
-            ? "https://randomuser.me/api/portraits/men/28.jpg"
-            : "https://randomuser.me/api/portraits/women/3.jpg"
-        }
-        alt="profile"
-      />
+      <img className="profile-image" src={profilePhotoURL} alt="profile" />
     </div>
   );
 };

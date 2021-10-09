@@ -2,8 +2,17 @@ import { Action } from "redux";
 import { PayloadAction } from "@reduxjs/toolkit";
 import { UserInfoType } from "../reducers/userReducer";
 
+/**
+ * type of action.type
+ */
 type userSignedInType = "user/signedIn";
 type userSignedOutType = "user/signedOut";
+type ToggleUserProfile = "user/toggleUserProfile";
+
+/**
+ * payload type
+ */
+type ToggleUserProfilePayload = { enable: boolean };
 
 interface UserSignInActionType
   extends PayloadAction<UserInfoType, userSignedInType> {
@@ -11,11 +20,27 @@ interface UserSignInActionType
   payload: UserInfoType;
 }
 
+/**
+ * action type
+ */
 interface UserSignOutActionType extends Action {
   type: userSignedOutType;
 }
 
-export type UserActionTypes = UserSignInActionType | UserSignOutActionType;
+interface ToggleUserProfileActionType
+  extends PayloadAction<ToggleUserProfilePayload, ToggleUserProfile> {
+  type: ToggleUserProfile;
+  payload: ToggleUserProfilePayload;
+}
+
+export type UserActionTypes =
+  | UserSignInActionType
+  | UserSignOutActionType
+  | ToggleUserProfileActionType;
+
+/**
+ * Action creators
+ */
 
 export const userSignInAction = (
   userInfo: UserInfoType
@@ -31,3 +56,10 @@ export const userSignOutAction = (): UserSignOutActionType => {
     type: "user/signedOut",
   };
 };
+
+export const toggleUserProfileAction = (
+  payload: ToggleUserProfilePayload
+): ToggleUserProfileActionType => ({
+  type: "user/toggleUserProfile",
+  payload,
+});

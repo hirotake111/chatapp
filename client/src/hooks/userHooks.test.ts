@@ -1,5 +1,9 @@
-import { userSignInAction } from "../actions/userActions";
-import { useSignIn } from "./userHooks";
+import {
+  toggleUserProfileAction,
+  userSignInAction,
+} from "../actions/userActions";
+import { getFakeState } from "../utils/testHelpers";
+import { useSignIn, useToggleUserModal } from "./userHooks";
 
 const mockDispatch = jest.fn();
 const mockSelector = jest.fn();
@@ -35,13 +39,9 @@ describe("useSignIn", () => {
   it("should dispatch userSignInAction", async () => {
     expect.assertions(1);
     // set fake userInfo
-    const userInfo = {
-      userId: "xx-xx-xx-xx",
-      username: "alice",
-      displayName: "ALICE",
-    };
+    const userInfo = getFakeState().user.userInfo!;
     mockGetUserData.mockReturnValue(userInfo);
-    const [user, signIn] = useSignIn();
+    const [_, signIn] = useSignIn();
     await signIn();
     expect(mockDispatch).toHaveBeenCalledWith(userSignInAction(userInfo));
   });
@@ -56,5 +56,55 @@ describe("useSignIn", () => {
     const [user, signIn] = useSignIn();
     await signIn();
     expect(console.error).toHaveBeenCalledWith(err);
+  });
+});
+
+describe("useToggleUserModal", () => {
+  it("should dispatch toggleUserProfileAction with payload {enable: true} if showProfileModal state is false", () => {
+    expect.assertions(1);
+    mockSelector.mockReturnValue({
+      ...getFakeState().user,
+      showProfileModal: false,
+    });
+    const toggle = useToggleUserModal();
+    toggle({ enable: true });
+    expect(mockDispatch).toHaveBeenCalledWith(
+      toggleUserProfileAction({ enable: true })
+    );
+  });
+
+  it("should not dispatch toggleUserProfileAction with payload {enable: true} if showProfileModal state is true", () => {
+    expect.assertions(1);
+    mockSelector.mockReturnValue({
+      ...getFakeState().user,
+      showProfileModal: true,
+    });
+    const toggle = useToggleUserModal();
+    toggle({ enable: true });
+    expect(mockDispatch).toHaveBeenCalledTimes(0);
+  });
+
+  it("should dispatch toggleUserProfileAction with payload {enable: false} if showProfileModal state is true", () => {
+    expect.assertions(1);
+    mockSelector.mockReturnValue({
+      ...getFakeState().user,
+      showProfileModal: true,
+    });
+    const toggle = useToggleUserModal();
+    toggle({ enable: false });
+    expect(mockDispatch).toHaveBeenCalledWith(
+      toggleUserProfileAction({ enable: false })
+    );
+  });
+
+  it("should not dispatch toggleUserProfileAction with payload {enable: false} if showProfileModal state is false", () => {
+    expect.assertions(1);
+    mockSelector.mockReturnValue({
+      ...getFakeState().user,
+      showProfileModal: false,
+    });
+    const toggle = useToggleUserModal();
+    toggle({ enable: false });
+    expect(mockDispatch).toHaveBeenCalledTimes(0);
   });
 });

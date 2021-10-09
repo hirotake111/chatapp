@@ -7,25 +7,22 @@ export const Header = () => {
   const { userInfo } = useAppSelector((state) => state.user);
   const toggle = useToggleUserModal();
 
-  const { profilePhotoURL, displayName } = userInfo
-    ? userInfo
-    : { profilePhotoURL: "", displayName: "" };
   return (
     <div className="header">
       <div className="header__companyProfile">
         <span>Chat App</span>
       </div>
-      <div className="header__profileContainer">
+      <div
+        className="header__profileContainer"
+        onClick={() => toggle({ enable: true })}
+      >
         <img
           className="header__profileImage"
-          src={profilePhotoURL}
-          alt="profile picture"
+          src={userInfo?.profilePhotoURL}
+          alt="profile"
         />
-        <span className="header__displayName">{displayName}</span>
-        <i
-          className="fa fa-angle-down"
-          onClick={() => toggle({ enable: true })}
-        ></i>
+        <span className="header__displayName">{userInfo?.displayName}</span>
+        <i className="fa fa-angle-down"></i>
       </div>
     </div>
   );
