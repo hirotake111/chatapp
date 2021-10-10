@@ -123,7 +123,7 @@ export const getMessageController = (
             content,
             createdAt: createdAt.getTime(),
             updatedAt: updatedAt.getTime(),
-            sender: sender,
+            sender,
           },
         });
       } catch (e) {

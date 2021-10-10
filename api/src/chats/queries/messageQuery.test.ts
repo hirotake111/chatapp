@@ -94,7 +94,7 @@ describe("messageQuery", () => {
       try {
         await query.createMessage(nanoid(), channelId, requesterId, content);
       } catch (e) {
-        expect(e.message).toEqual("invalid message ID");
+        if (e instanceof Error) expect(e.message).toEqual("invalid message ID");
       }
     });
 
@@ -104,7 +104,8 @@ describe("messageQuery", () => {
       try {
         await query.createMessage(messageId, id, requesterId, content);
       } catch (e) {
-        expect(e.message).toEqual(`invalid channel ID: ${id}`);
+        if (e instanceof Error)
+          expect(e.message).toEqual(`invalid channel ID: ${id}`);
       }
     });
 
@@ -113,7 +114,7 @@ describe("messageQuery", () => {
       try {
         await query.createMessage(messageId, channelId, nanoid(), content);
       } catch (e) {
-        expect(e.message).toEqual("invalid sender ID");
+        if (e instanceof Error) expect(e.message).toEqual("invalid sender ID");
       }
     });
 
@@ -122,7 +123,8 @@ describe("messageQuery", () => {
       try {
         await query.createMessage(messageId, channelId, requesterId, "");
       } catch (e) {
-        expect(e.message).toEqual("content can't be empty");
+        if (e instanceof Error)
+          expect(e.message).toEqual("content can't be empty");
       }
     });
     it("should raise an error for any other errors", async () => {
@@ -134,7 +136,7 @@ describe("messageQuery", () => {
       try {
         await query.createMessage(messageId, channelId, requesterId, content);
       } catch (e) {
-        expect(e.message).toEqual(msg);
+        if (e instanceof Error) expect(e.message).toEqual(msg);
       }
     });
   });
@@ -156,7 +158,8 @@ describe("messageQuery", () => {
       try {
         await query.getMessagesInChannel(id);
       } catch (e) {
-        expect(e.message).toEqual(`invalid channel ID: ${id}`);
+        if (e instanceof Error)
+          expect(e.message).toEqual(`invalid channel ID: ${id}`);
       }
     });
 
@@ -169,7 +172,7 @@ describe("messageQuery", () => {
       try {
         await query.getMessagesInChannel(channelId);
       } catch (e) {
-        expect(e.message).toEqual(msg);
+        if (e instanceof Error) expect(e.message).toEqual(msg);
       }
     });
   });
@@ -200,7 +203,7 @@ describe("messageQuery", () => {
       try {
         await query.getSpecificMessage(nanoid(), channelId);
       } catch (e) {
-        expect(e.message).toEqual("invalid message ID");
+        if (e instanceof Error) expect(e.message).toEqual("invalid message ID");
       }
     });
 
@@ -213,7 +216,7 @@ describe("messageQuery", () => {
       try {
         await query.getSpecificMessage(messageId, channelId);
       } catch (e) {
-        expect(e.message).toEqual(msg);
+        if (e instanceof Error) expect(e.message).toEqual(msg);
       }
     });
   });
@@ -247,7 +250,7 @@ describe("messageQuery", () => {
       try {
         await query.editMessage(nanoid(), channelId, newContent);
       } catch (e) {
-        expect(e.message).toEqual("invalid message ID");
+        if (e instanceof Error) expect(e.message).toEqual("invalid message ID");
       }
     });
 
@@ -257,7 +260,8 @@ describe("messageQuery", () => {
       try {
         await query.editMessage(messageId, id, newContent);
       } catch (e) {
-        expect(e.message).toEqual(`invalid channel ID: ${id}`);
+        if (e instanceof Error)
+          expect(e.message).toEqual(`invalid channel ID: ${id}`);
       }
     });
 
@@ -266,7 +270,8 @@ describe("messageQuery", () => {
       try {
         await query.editMessage(messageId, channelId, "");
       } catch (e) {
-        expect(e.message).toEqual("content can't be empty");
+        if (e instanceof Error)
+          expect(e.message).toEqual("content can't be empty");
       }
     });
     it("should return null if messageId does not exist", async () => {
@@ -293,7 +298,7 @@ describe("messageQuery", () => {
       try {
         await query.editMessage(messageId, channelId, newContent);
       } catch (e) {
-        expect(e.message).toEqual(msg);
+        if (e instanceof Error) expect(e.message).toEqual(msg);
       }
     });
   });
@@ -319,7 +324,7 @@ describe("messageQuery", () => {
       try {
         await query.deleteMessage(nanoid());
       } catch (e) {
-        expect(e.message).toEqual("invalid message ID");
+        if (e instanceof Error) expect(e.message).toEqual("invalid message ID");
       }
     });
 
@@ -342,7 +347,7 @@ describe("messageQuery", () => {
       try {
         await query.deleteMessage(messageId);
       } catch (e) {
-        expect(e.message).toEqual(msg);
+        if (e instanceof Error) expect(e.message).toEqual(msg);
       }
     });
   });

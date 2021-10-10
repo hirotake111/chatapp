@@ -77,7 +77,8 @@ describe("getRegisterUser", () => {
     try {
       await registerUser(kafkaMessage);
     } catch (e) {
-      expect(e.message).toEqual("message.values is empty");
+      if (e instanceof Error)
+        expect(e.message).toEqual("message.values is empty");
     }
   });
 
@@ -98,7 +99,7 @@ describe("getRegisterUser", () => {
       });
       await registerUser(kafkaMessage);
     } catch (e) {
-      expect(e.message).toEqual(msg);
+      if (e instanceof Error) expect(e.message).toEqual(msg);
     }
   });
 });

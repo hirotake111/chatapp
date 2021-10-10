@@ -64,6 +64,8 @@ const io = new Server(http, {
       const request = socket.request as Request;
       session(request, request.res!, next as NextFunction);
     });
+    // redis adapter
+    io.adapter(config.chat.redis.redisAdapter);
     // WebSocket controller
     const wsController = getWSController(config.chat, queries);
     // use WebSocket router

@@ -132,7 +132,7 @@ describe("channel.query", () => {
       try {
         await query.createChannel(nanoid(), nanoid());
       } catch (e) {
-        expect(e.message).toEqual("invalid input");
+        if (e instanceof Error) expect(e.message).toEqual("invalid input");
       }
     });
 
@@ -178,7 +178,7 @@ describe("channel.query", () => {
       try {
         await query.createChannel(uuid(), uuid());
       } catch (e) {
-        expect(e.message).toEqual(msg);
+        if (e instanceof Error) expect(e.message).toEqual(msg);
       }
     });
   });
@@ -204,7 +204,7 @@ describe("channel.query", () => {
       try {
         await query.getChannelById(nanoid());
       } catch (e) {
-        expect(e.message).toEqual("invalid input");
+        if (e instanceof Error) expect(e.message).toEqual("invalid input");
       }
     });
 
@@ -217,7 +217,7 @@ describe("channel.query", () => {
       try {
         await query.getChannelById(uuid());
       } catch (e) {
-        expect(e.message).toEqual(msg);
+        if (e instanceof Error) expect(e.message).toEqual(msg);
       }
     });
   });
@@ -264,7 +264,7 @@ describe("channel.query", () => {
       try {
         await query.getChannelsByUserId(uuid());
       } catch (e) {
-        expect(e.message).toEqual(msg);
+        if (e instanceof Error) expect(e.message).toEqual(msg);
       }
     });
   });
@@ -306,7 +306,8 @@ describe("channel.query", () => {
         // update channel
         await query.updateChannelbyId(id, uuid());
       } catch (e) {
-        expect(e.message).toEqual(`id ${id} does not eixst`);
+        if (e instanceof Error)
+          expect(e.message).toEqual(`id ${id} does not eixst`);
       }
     });
 
@@ -324,7 +325,7 @@ describe("channel.query", () => {
       try {
         await query.updateChannelbyId(id, name);
       } catch (e) {
-        expect(e.message).toEqual(msg);
+        if (e instanceof Error) expect(e.message).toEqual(msg);
       }
     });
   });
@@ -374,7 +375,7 @@ describe("channel.query", () => {
         // delete channel
         await query.deleteChannelById(id);
       } catch (e) {
-        expect(e.message).toEqual(msg);
+        if (e instanceof Error) expect(e.message).toEqual(msg);
       }
     });
   });
@@ -410,7 +411,8 @@ describe("channel.query", () => {
       try {
         await query.getChannelByChannelIdWithMessages(id);
       } catch (e) {
-        expect(e.message).toEqual(`invalid channel ID: ${id}`);
+        if (e instanceof Error)
+          expect(e.message).toEqual(`invalid channel ID: ${id}`);
       }
     });
 
@@ -423,7 +425,7 @@ describe("channel.query", () => {
       try {
         await query.getChannelByChannelIdWithMessages(channelId);
       } catch (e) {
-        expect(e.message).toEqual(msg);
+        if (e instanceof Error) expect(e.message).toEqual(msg);
       }
     });
   });

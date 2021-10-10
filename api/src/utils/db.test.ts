@@ -42,7 +42,7 @@ describe("getDb()", () => {
         config.database.sequelizeoptions
       );
     } catch (e) {
-      expect(e.message).toEqual(msg);
+      if (e instanceof Error) expect(e.message).toEqual(msg);
     }
   });
 });

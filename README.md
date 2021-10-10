@@ -17,17 +17,7 @@ server side:
 - Rest API / WebSocket
 - and Raspberry PI
 
-Currently mobile device is not supported.
-
-### TODO
-
-- unread message notification
-- pagenation
-- disable [add user] button if user belongs no channels
-- Redis for WebScoket backend
-- test code
-- delete channel button
-- delete message button
+(Currently mobile device is not supported.)
 
 The following secrets are necessary to trigger GitHub actions
 
