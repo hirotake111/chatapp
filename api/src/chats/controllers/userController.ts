@@ -1,3 +1,4 @@
+import os from "os";
 import { v4 as uuid, validate } from "uuid";
 import { Request, Response, RequestHandler, NextFunction } from "express";
 import { ProducerRecord } from "kafkajs";
@@ -165,6 +166,7 @@ export const getUserController = (
           firstName,
           lastName,
           profilePhotoURL,
+          serverName: os.hostname(),
         });
       } catch (e) {
         if (e instanceof Error)

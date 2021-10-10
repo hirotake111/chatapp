@@ -23,6 +23,12 @@ const userInfo = {
   lastName: nanoid(),
 };
 
+// mock os module
+const mockHostname = jest.fn();
+jest.mock("os", () => ({
+  hostname: () => mockHostname(),
+}));
+
 // mock ojbects
 let req = { session: { username: "", userId: "", verifier: "xxxx" } } as any;
 let res = {
@@ -333,8 +339,9 @@ describe("userController", () => {
       controller = getUserController(config, queries);
     });
 
-    it("should return user information", async () => {
+    it("should return user information and server name", async () => {
       expect.assertions(2);
+      mockHostname.mockReturnValue("dev server");
       try {
         await controller.getUserInfo(req, res, next);
         expect(statusMock.mock.calls[0][0]).toEqual(200);
@@ -345,6 +352,7 @@ describe("userController", () => {
           displayName,
           firstName,
           lastName,
+          serverName: "dev server",
         });
       } catch (e) {
         throw e;
