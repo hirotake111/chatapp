@@ -19,6 +19,7 @@ export const ChatPane = ({
             .map((msg) => (
               <MessageContainerItem
                 key={msg.id}
+                displayName={msg.sender.displayName}
                 timestamp={msg.updatedAt}
                 content={msg.content}
                 profilePhotoURL={msg.sender.profilePhotoURL}
@@ -36,27 +37,42 @@ export const ChatPane = ({
 };
 
 export const MessageContainerItem = ({
+  displayName,
   timestamp,
   content,
   isMyMessage,
   profilePhotoURL,
 }: {
+  displayName: string;
   timestamp: number;
   content: string;
   isMyMessage: boolean;
   profilePhotoURL?: string;
 }) => {
   return (
-    <div
-      className={"message-image-container" + (isMyMessage ? "" : " reverse")}
-    >
-      <div className={"message-container" + (isMyMessage ? "" : " white")}>
-        <span className="message-timestamp">
-          {convertTimestampToDate(timestamp)}
-        </span>
-        <p className="message">{content}</p>
+    <div className={isMyMessage ? "message" : "message message_reverse"}>
+      <div
+        className={
+          isMyMessage
+            ? "message__container"
+            : "message__container message__container_white"
+        }
+      >
+        <img
+          className="message__profile-image"
+          src={profilePhotoURL}
+          alt="profile"
+        />
+        <div className="message__name-and-content">
+          <div className="message__name-container">
+            <div className="message__name">{displayName}</div>
+            <span className="message-timestamp">
+              {convertTimestampToDate(timestamp)}
+            </span>
+          </div>
+          <p className="message__content">{content}</p>
+        </div>
       </div>
-      <img className="profile-image" src={profilePhotoURL} alt="profile" />
     </div>
   );
 };
