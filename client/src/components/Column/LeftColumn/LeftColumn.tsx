@@ -1,13 +1,14 @@
 import { MouseEventHandler, useEffect } from "react";
 
-import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
-import { useGetMessagesByChannelId } from "../../hooks/messageHooks";
-import { useGetMyChannels } from "../../hooks/channelHooks";
-import { updateNewChannelModalAction } from "../../actions/newChannelActions";
+import { useAppDispatch, useAppSelector } from "../../../hooks/reduxHooks";
+import { useGetMessagesByChannelId } from "../../../hooks/messageHooks";
+import { useGetMyChannels } from "../../../hooks/channelHooks";
+import { updateNewChannelModalAction } from "../../../actions/newChannelActions";
 
-import { ChannelList } from "../../components/Channel/ChannelItem/ChannelList";
-import { Button } from "../../components/Common/Button/Button";
-import { LoadingSpinner2 } from "../../components/Common/LoadingSpinner2/LoadingSpinner2";
+import { ChannelList } from "../../Channel/ChannelItem/ChannelList";
+import { Button } from "../../Common/Button/Button";
+import { LoadingSpinner2 } from "../../Common/LoadingSpinner2/LoadingSpinner2";
+import { ChannelSearchBar } from "../../Search/ChannelSearchBar/ChannelSearchBar";
 
 import "./LeftColumn.css";
 
@@ -30,6 +31,7 @@ export const LeftColumn = () => {
 
   return (
     <div className="left-column">
+      <ChannelSearchBar />
       {loading ? (
         <div className="leftcolumn-nochannel">
           <LoadingSpinner2 />
@@ -46,7 +48,9 @@ export const LeftColumn = () => {
         />
       )}
       <div className="new-channel-button-container">
-        <Button enabled={true} value="NEW CHANNEL" onClick={handleClick} />
+        <Button enabled={true} onClick={handleClick}>
+          NEW CHANNEL
+        </Button>
       </div>
     </div>
   );

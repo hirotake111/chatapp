@@ -50,9 +50,7 @@ export const useUpdateCreateButtonStatus = () => {
  */
 export const useCreateChannel = () => {
   const dispatch = useAppDispatch();
-  const { channelName, selectedUsers } = useAppSelector(
-    (state) => state.newChannel
-  );
+  const { channelName, selectedUsers } = useAppSelector((s) => s.newChannel);
 
   const create = async (): Promise<void> => {
     // disable create button first

@@ -1,0 +1,37 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  border-bottom: 1px solid #ebebec;
+  color: #000;
+  height: 7vh;
+  font-size: 2rem;
+  line-height: 2rem;
+}
+
+.header__profileContainer {
+  display: flex;
+  align-items: center;
+}
+
+.header__profileImage {
+  display: flex;
+  justify-content: flex-end;
+  height: 33px;
+  width: 33px;
+  border-radius: 50%;
+  margin: 0 10px 0 10px;
+}
+
+.header__displayName {
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  margin: 5px 10px 5px 10px;
+  font-size: 1.4rem;
+}
+
+.header__companyProfile {
+  display: flex;
+  align-items: center;
+}

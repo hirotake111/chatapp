@@ -1,19 +1,20 @@
+import { MouseEventHandler } from "react";
 import { connect, ConnectedProps } from "react-redux";
 
 import {
   thunkChangeFormContent,
   thunkUpdateMemberModal,
-} from "../../utils/thunk-middlewares";
-import { RootState } from "../../utils/store";
-import { ChatTextarea } from "../../components/Chat/ChatTextarea/ChatTextarea";
-import { PaperPlaneIcon } from "../../components/Chat/PaperPlaneIcon/PaperPlaneIcon";
-import { ChatPane } from "../../components/Chat/ChatPane/ChatPane";
-import { Button } from "../../components/Common/Button/Button";
+} from "../../../utils/thunk-middlewares";
+import { RootState } from "../../../utils/store";
+import { ChatTextarea } from "../../Chat/ChatTextarea/ChatTextarea";
+import { PaperPlaneIcon } from "../../Chat/PaperPlaneIcon/PaperPlaneIcon";
+import { ChatPane } from "../../Chat/ChatPane/ChatPane";
+import { Button } from "../../Common/Button/Button";
+
+import { useSendMessage } from "../../../hooks/messageHooks";
+import { useAppSelector } from "../../../hooks/reduxHooks";
 
 import "./RightColumn.css";
-import { MouseEventHandler } from "react";
-import { useSendMessage } from "../../hooks/messageHooks";
-import { useAppSelector } from "../../hooks/reduxHooks";
 
 const RColumn = ({ changeFormContent, updateMemberModal }: Props) => {
   const send = useSendMessage();
@@ -45,16 +46,19 @@ const RColumn = ({ changeFormContent, updateMemberModal }: Props) => {
   return (
     <div className="right-column">
       <div className="channel-title-container">
-        <span className="channel-title">
-          {highlightedChannel ? highlightedChannel.name : ""}
-        </span>
+        <div
+          style={{ width: "100%", display: "flex", flexDirection: "column" }}
+        >
+          <span className="channel-title">
+            {highlightedChannel ? highlightedChannel.name : ""}
+          </span>
+          <span>Last Update - 2 days ago</span>
+        </div>
         <div className="add-member-button-container">
           {!!highlighted ? (
-            <Button
-              value="ADD USERS"
-              enabled={true}
-              onClick={handleClickAddMemberButton}
-            ></Button>
+            <Button enabled={true} onClick={handleClickAddMemberButton}>
+              + ADD
+            </Button>
           ) : null}
         </div>
       </div>
@@ -64,6 +68,9 @@ const RColumn = ({ changeFormContent, updateMemberModal }: Props) => {
         ""
       )}
       <div className="chat-form-container">
+        <div className="chat-form-container__header">
+          Press Enter to send message
+        </div>
         <ChatTextarea
           content={content}
           onChange={handleChange}

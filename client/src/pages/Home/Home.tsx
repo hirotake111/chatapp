@@ -1,26 +1,30 @@
-import { Header } from "../../components/Common/Header/Header";
+import { Header } from "../../components/Header/Header/Header";
 import { NewChannelModal } from "../NewChannelModal/NewChannelModal";
 import { MemberModal } from "../../components/Member/MemberModal/MemberModal";
+import { LeftColumn } from "../../components/Column/LeftColumn/LeftColumn";
+import { RightColumn } from "../../components/Column/RightColumn/RightColumn";
 
 import { useAppSelector } from "../../hooks/reduxHooks";
 
 import "./Home.css";
-import { LeftColumn } from "../LeftColumn/LeftColumn";
-import { RightColumn } from "../RightColumn/RightColumn";
+import { AppColumn } from "../../components/Column/AppColumn/AppColumn";
 
 const Home = () => {
   const { userInfo } = useAppSelector((state) => state.user);
 
   return userInfo && userInfo.username && userInfo.userId ? (
-    <>
-      <Header userId={userInfo.userId} username={userInfo.username} />
-      <div className="main">
-        <LeftColumn />
-        <RightColumn />
+    <div style={{ display: "flex" }}>
+      <AppColumn />
+      <div style={{ width: "100%" }}>
+        <Header />
+        <div className="main">
+          <LeftColumn />
+          <RightColumn />
+        </div>
+        <NewChannelModal />
+        <MemberModal />
       </div>
-      <NewChannelModal />
-      <MemberModal />
-    </>
+    </div>
   ) : (
     <>
       <p>No username or user ID</p>

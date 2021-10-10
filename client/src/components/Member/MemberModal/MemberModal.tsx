@@ -59,10 +59,11 @@ const Component = ({
           </div>
           <div className="modal-forms-bottom">
             <Button
-              value="save"
               enabled={addMemberButtonEnabled}
               onClick={() => addMember(candidates.map((c) => c.id))}
-            />
+            >
+              save
+            </Button>
           </div>
         </div>
       </ModalForm>

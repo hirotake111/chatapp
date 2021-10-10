@@ -14,7 +14,7 @@ export const getFakeUser = (): {
   id: uuid(),
   username: nanoid(),
   displayName: nanoid(),
-  profilePhotoURL: `https://example.com/api/${nanoid()}`,
+  profilePhotoURL: `https://example.com/api/picture`,
 });
 
 /**
@@ -54,7 +54,13 @@ export const getFakeChannel = (): ChannelPayload => ({
 export const getFakeState = (): RootState => ({
   user: {
     isAuthenticated: true,
-    userInfo: { userId: uuid(), username: nanoid(), displayName: nanoid() },
+    userInfo: {
+      userId: uuid(),
+      username: nanoid(),
+      displayName: nanoid(),
+      profilePhotoURL: `https://example.com/api/image`,
+    },
+    showProfileModal: false,
   },
   channel: {
     channels: [getFakeChannel(), getFakeChannel(), getFakeChannel()],

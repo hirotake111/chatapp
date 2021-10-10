@@ -6,3 +6,13 @@ describe("userSignOutAction", () => {
     expect(actions.userSignOutAction()).toEqual({ type: "user/signedOut" });
   });
 });
+
+describe("toggleUserProfileAction", () => {
+  it("should return ToggleUserProfileActionType if showProfileModal", () => {
+    expect.assertions(1);
+    expect(actions.toggleUserProfileAction({ enable: true })).toEqual({
+      type: "user/toggleUserProfile",
+      payload: { enable: true },
+    });
+  });
+});

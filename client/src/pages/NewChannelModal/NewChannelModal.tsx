@@ -15,6 +15,7 @@ import {
   useCreateChannel,
   useUpdateCreateButtonStatus,
 } from "../../hooks/newChannelHooks";
+import { Button } from "../../components/Common/Button/Button";
 
 export const NewChannelModal = () => {
   const {
@@ -89,14 +90,12 @@ export const NewChannelModal = () => {
               </div>
             </div>
             <div className="channel-button-container">
-              <button
-                id="submit"
-                className="channel-button"
+              <Button
                 onClick={createChannel}
-                disabled={buttonDisabled ? true : false}
+                enabled={buttonDisabled ? false : true}
               >
                 CREATE CHANNEL
-              </button>
+              </Button>
               <span className="status-message">
                 {createChannelStatusMessage}
               </span>

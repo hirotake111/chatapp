@@ -1,4 +1,3 @@
-import { v4 as uuid } from "uuid";
 import { render, getByText, fireEvent } from "@testing-library/react";
 import {
   RemoveSuggestedUserAction,
@@ -129,7 +128,7 @@ test("useCreateChannel works properly", () => {
     buttonDisabled: false,
   });
   const { container } = render(<NewChannelModal />);
-  const input = container.querySelector("#submit");
+  const input = container.querySelector("button");
   if (!input) throw new Error("failed to query input element");
   // fire on change event
   fireEvent.click(input);

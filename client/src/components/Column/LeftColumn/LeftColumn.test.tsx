@@ -1,25 +1,25 @@
 import { render } from "@testing-library/react";
 import { Provider } from "react-redux";
-import { store } from "../../utils/store";
-import { getFakeChannel } from "../../utils/testHelpers";
+import { store } from "../../../utils/store";
+import { getFakeChannel } from "../../../utils/testHelpers";
 import { LeftColumn } from "./LeftColumn";
 
 const mockUseGetMessagesByChannelId = jest.fn();
 const mockUseGetMyChannels = jest.fn();
 const mockUserAppSelector = jest.fn();
 
-jest.mock("../../components/Channel/ChannelItem/ChannelList");
+jest.mock("../../Channel/ChannelItem/ChannelList");
 
-jest.mock("../../hooks/messageHooks", () => ({
+jest.mock("../../../hooks/messageHooks", () => ({
   useGetMessagesByChannelId: (params: any) =>
     mockUseGetMessagesByChannelId(params),
 }));
 
-jest.mock("../../hooks/channelHooks", () => ({
+jest.mock("../../../hooks/channelHooks", () => ({
   useGetMyChannels: (params: any) => mockUseGetMyChannels(params),
 }));
 
-jest.mock("../../hooks/reduxHooks", () => ({
+jest.mock("../../../hooks/reduxHooks", () => ({
   useAppSelector: (params: any) => mockUserAppSelector(params),
   useAppDispatch: () => null,
 }));
@@ -34,7 +34,7 @@ it("should render LeftColumn component", () => {
       <LeftColumn />
     </Provider>
   );
-  expect(container.firstChild?.firstChild?.textContent).toEqual(
+  expect(container.firstChild?.childNodes[1]?.textContent).toEqual(
     "mock ChannelList"
   );
 });
@@ -49,7 +49,7 @@ it("should render render no channels message if it doesn't", () => {
       <LeftColumn />
     </Provider>
   );
-  expect(container.firstChild?.firstChild?.textContent).toEqual(
+  expect(container.firstChild?.childNodes[1]?.textContent).toEqual(
     "You don't have any channels yet."
   );
 });

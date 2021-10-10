@@ -1,39 +1,14 @@
 import { render } from "@testing-library/react";
 import { v4 as uuid } from "uuid";
+import { getFakeChannel } from "../../../utils/testHelpers";
 
 import { ChatPane, MessageContainerItem } from "./ChatPane";
 
-/**
- * helper function to create message
- */
-const getMesage = (channelId: string = uuid()): Message => {
-  return {
-    id: uuid(),
-    channelId,
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
-    sender: { id: uuid(), username: "BOB", displayName: "BOB" },
-    content: `message in channel ${channelId}`,
-  };
-};
-
-const getChannel = (name: string): ChannelPayload => {
-  const id = uuid();
-  return {
-    id,
-    name,
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
-    users: [{ id: uuid(), displayName: "ALICE" }],
-    messages: [getMesage(id), getMesage(id), getMesage(id)],
-  };
-};
-
 describe("ChatPane", () => {
   it("should render messages", () => {
-    expect.assertions(2);
+    expect.assertions(1);
     // create a new channel
-    const channel = getChannel("my channel");
+    const channel = getFakeChannel();
     // render chat pane
     const { container } = render(
       <ChatPane channel={channel} senderId={uuid()} />
@@ -45,14 +20,13 @@ describe("ChatPane", () => {
     }
     // validate the number of messages
     expect(messages.length).toEqual(3);
-    expect(messages[0].textContent).toEqual(`message in channel ${channel.id}`);
   });
 
   it("should render 'start conversation' message if channel has no messages", () => {
     expect.assertions(1);
     // crete channel with no messages
     const channel: ChannelPayload = {
-      ...getChannel("my channel"),
+      ...getFakeChannel(),
       messages: [],
     };
     // render it
@@ -68,30 +42,36 @@ describe("ChatPane", () => {
 });
 
 describe("MessageContainerItem", () => {
-  it("should render user's message", () => {
-    expect.assertions(1);
+  it("should render user's displayName, message", () => {
+    expect.assertions(2);
     const { container } = render(
       <MessageContainerItem
+        displayName="Test User"
         timestamp={Date.now()}
         content={"hello world"}
         isMyMessage={true}
       />
     );
-    const item = container.getElementsByClassName("message")[0];
-    expect(item.textContent).toEqual("hello world");
+    const message = container.getElementsByClassName("message")[0];
+    expect(
+      message.getElementsByClassName("message__name")[0].textContent
+    ).toEqual("Test User");
+    expect(
+      message.getElementsByClassName("message__content")[0].textContent
+    ).toEqual("hello world");
   });
 
   it("should render message as one from other if isMyMessage is false", () => {
     expect.assertions(1);
     const { container } = render(
       <MessageContainerItem
+        displayName="Taro Suzuki"
         timestamp={Date.now()}
         content={"hey"}
         isMyMessage={false}
       />
     );
-    const item = container.getElementsByClassName("reverse")[0];
-    const message = item.getElementsByClassName("message")[0];
-    expect(message.textContent).toEqual("hey");
+    const messages = container.getElementsByClassName("message_reverse");
+    expect(messages.length).toEqual(1);
   });
 });
