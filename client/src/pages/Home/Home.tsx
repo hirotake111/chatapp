@@ -1,8 +1,8 @@
 import { Header } from "../../components/Header/Header/Header";
 import { NewChannelModal } from "../NewChannelModal/NewChannelModal";
 import { MemberModal } from "../../components/Member/MemberModal/MemberModal";
-import { LeftColumn } from "../LeftColumn/LeftColumn";
-import { RightColumn } from "../RightColumn/RightColumn";
+import { LeftColumn } from "../../components/Column/LeftColumn/LeftColumn";
+import { RightColumn } from "../../components/Column/RightColumn/RightColumn";
 
 import { useAppSelector } from "../../hooks/reduxHooks";
 

@@ -7,8 +7,8 @@ import Home from "./Home";
 jest.mock("../../components/Header/Header/Header");
 jest.mock("../NewChannelModal/NewChannelModal");
 jest.mock("../../components/Member/MemberModal/MemberModal");
-jest.mock("../LeftColumn/LeftColumn");
-jest.mock("../RightColumn/RightColumn");
+jest.mock("../../components/Column/LeftColumn/LeftColumn");
+jest.mock("../../components/Column/RightColumn/RightColumn");
 const mockUseAppSelector = jest.fn();
 
 jest.mock("../../hooks/reduxHooks", () => ({

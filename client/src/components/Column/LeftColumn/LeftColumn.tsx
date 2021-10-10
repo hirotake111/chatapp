@@ -1,14 +1,14 @@
 import { MouseEventHandler, useEffect } from "react";
 
-import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
-import { useGetMessagesByChannelId } from "../../hooks/messageHooks";
-import { useGetMyChannels } from "../../hooks/channelHooks";
-import { updateNewChannelModalAction } from "../../actions/newChannelActions";
+import { useAppDispatch, useAppSelector } from "../../../hooks/reduxHooks";
+import { useGetMessagesByChannelId } from "../../../hooks/messageHooks";
+import { useGetMyChannels } from "../../../hooks/channelHooks";
+import { updateNewChannelModalAction } from "../../../actions/newChannelActions";
 
-import { ChannelList } from "../../components/Channel/ChannelItem/ChannelList";
-import { Button } from "../../components/Common/Button/Button";
-import { LoadingSpinner2 } from "../../components/Common/LoadingSpinner2/LoadingSpinner2";
-import { ChannelSearchBar } from "../../components/Search/ChannelSearchBar/ChannelSearchBar";
+import { ChannelList } from "../../Channel/ChannelItem/ChannelList";
+import { Button } from "../../Common/Button/Button";
+import { LoadingSpinner2 } from "../../Common/LoadingSpinner2/LoadingSpinner2";
+import { ChannelSearchBar } from "../../Search/ChannelSearchBar/ChannelSearchBar";
 
 import "./LeftColumn.css";
 

@@ -4,15 +4,15 @@ import { connect, ConnectedProps } from "react-redux";
 import {
   thunkChangeFormContent,
   thunkUpdateMemberModal,
-} from "../../utils/thunk-middlewares";
-import { RootState } from "../../utils/store";
-import { ChatTextarea } from "../../components/Chat/ChatTextarea/ChatTextarea";
-import { PaperPlaneIcon } from "../../components/Chat/PaperPlaneIcon/PaperPlaneIcon";
-import { ChatPane } from "../../components/Chat/ChatPane/ChatPane";
-import { Button } from "../../components/Common/Button/Button";
+} from "../../../utils/thunk-middlewares";
+import { RootState } from "../../../utils/store";
+import { ChatTextarea } from "../../Chat/ChatTextarea/ChatTextarea";
+import { PaperPlaneIcon } from "../../Chat/PaperPlaneIcon/PaperPlaneIcon";
+import { ChatPane } from "../../Chat/ChatPane/ChatPane";
+import { Button } from "../../Common/Button/Button";
 
-import { useSendMessage } from "../../hooks/messageHooks";
-import { useAppSelector } from "../../hooks/reduxHooks";
+import { useSendMessage } from "../../../hooks/messageHooks";
+import { useAppSelector } from "../../../hooks/reduxHooks";
 
 import "./RightColumn.css";
 
