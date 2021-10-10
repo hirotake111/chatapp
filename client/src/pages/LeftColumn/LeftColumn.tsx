@@ -48,7 +48,9 @@ export const LeftColumn = () => {
         />
       )}
       <div className="new-channel-button-container">
-        <Button enabled={true} value="NEW CHANNEL" onClick={handleClick} />
+        <Button enabled={true} onClick={handleClick}>
+          NEW CHANNEL
+        </Button>
       </div>
     </div>
   );

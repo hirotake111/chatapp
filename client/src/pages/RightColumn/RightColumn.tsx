@@ -1,3 +1,4 @@
+import { MouseEventHandler } from "react";
 import { connect, ConnectedProps } from "react-redux";
 
 import {
@@ -10,10 +11,10 @@ import { PaperPlaneIcon } from "../../components/Chat/PaperPlaneIcon/PaperPlaneI
 import { ChatPane } from "../../components/Chat/ChatPane/ChatPane";
 import { Button } from "../../components/Common/Button/Button";
 
-import "./RightColumn.css";
-import { MouseEventHandler } from "react";
 import { useSendMessage } from "../../hooks/messageHooks";
 import { useAppSelector } from "../../hooks/reduxHooks";
+
+import "./RightColumn.css";
 
 const RColumn = ({ changeFormContent, updateMemberModal }: Props) => {
   const send = useSendMessage();
@@ -55,11 +56,9 @@ const RColumn = ({ changeFormContent, updateMemberModal }: Props) => {
         </div>
         <div className="add-member-button-container">
           {!!highlighted ? (
-            <Button
-              value="+ ADD"
-              enabled={true}
-              onClick={handleClickAddMemberButton}
-            ></Button>
+            <Button enabled={true} onClick={handleClickAddMemberButton}>
+              + ADD
+            </Button>
           ) : null}
         </div>
       </div>
@@ -69,6 +68,9 @@ const RColumn = ({ changeFormContent, updateMemberModal }: Props) => {
         ""
       )}
       <div className="chat-form-container">
+        <div className="chat-form-container__header">
+          Press Enter to send message
+        </div>
         <ChatTextarea
           content={content}
           onChange={handleChange}

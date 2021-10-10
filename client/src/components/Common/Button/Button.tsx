@@ -1,18 +1,18 @@
-import { MouseEventHandler } from "react";
+import { MouseEventHandler, ReactNode } from "react";
 import "./Button.css";
 
 export const Button = ({
-  value,
+  children,
   enabled,
   onClick,
 }: {
-  value: string;
+  children: ReactNode;
   enabled: boolean;
   onClick: MouseEventHandler<HTMLButtonElement>;
 }) => {
   return (
     <button className="button" onClick={onClick} disabled={!enabled}>
-      {value}
+      {children}
     </button>
   );
 };

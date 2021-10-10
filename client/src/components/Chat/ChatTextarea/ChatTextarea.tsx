@@ -18,6 +18,7 @@ export const ChatTextarea = ({
       value={content}
       onChange={(e) => onChange(e.target.value)}
       onKeyPress={(e) => onKeyPress(e, content)}
+      placeholder="New Message..."
     />
   );
 };
