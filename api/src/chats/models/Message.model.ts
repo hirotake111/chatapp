@@ -11,6 +11,7 @@ import {
   Sequelize,
   ForeignKey,
   BelongsTo,
+  Length,
 } from "sequelize-typescript";
 
 import Channel from "./Channel.model";
@@ -37,6 +38,7 @@ class Message extends Model {
   senderId!: string;
 
   @NotNull
+  @Length({ max: 8192 })
   @Column({ allowNull: false })
   content!: string;
 
