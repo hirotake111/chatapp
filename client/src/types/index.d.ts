@@ -4,7 +4,7 @@ declare interface ChannelPayload {
   createdAt: number;
   updatedAt: number;
   users: { id: string; displayName: string }[];
-  messages: Message[];
+  messages?: Message[];
 }
 
 declare interface Message {

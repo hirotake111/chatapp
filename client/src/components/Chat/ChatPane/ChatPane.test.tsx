@@ -24,7 +24,7 @@ describe("ChatPane", () => {
 
   it("should render 'start conversation' message if channel has no messages", () => {
     expect.assertions(1);
-    // crete channel with no messages
+    // creae channel with no messages
     const channel: ChannelPayload = {
       ...getFakeChannel(),
       messages: [],
@@ -38,6 +38,21 @@ describe("ChatPane", () => {
     expect(elm.item(0)?.textContent).toEqual(
       "You can start your new conversation here!!"
     );
+  });
+
+  it("should render loading spinner if channel.message is undefined", () => {
+    expect.assertions(1);
+    // create channel with no messages
+    const channel: ChannelPayload = {
+      ...getFakeChannel(),
+      messages: undefined,
+    };
+    // render it
+    const { container } = render(
+      <ChatPane channel={channel} senderId={uuid()} />
+    );
+    const elm = container.getElementsByClassName("dotted-spinner");
+    expect(elm.length).toEqual(1);
   });
 });
 

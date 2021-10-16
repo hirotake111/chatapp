@@ -46,7 +46,7 @@ export const storage: CustomStorage = {
     // append a new message to the channel
     const newChannel: ChannelPayload = {
       ...channel,
-      messages: [...channel.messages, message],
+      messages: channel.messages ? [...channel.messages, message] : [message],
     };
     // store all channel data to local storage
     this.setChannel(channelId, newChannel);
