@@ -1,10 +1,10 @@
-import Client from "socket.io-client";
+import { io } from "socket.io-client";
 
 const url = process.env.REACT_APP_WS_URL;
 
 const socket = url
-  ? Client(url, { autoConnect: false })
-  : Client({ autoConnect: false });
+  ? io(url, { autoConnect: false })
+  : io({ autoConnect: false });
 
 // console.log("registering onAny handler for debugging purpose");
 // socket.onAny((event, data) =>

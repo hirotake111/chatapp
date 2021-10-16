@@ -1,6 +1,6 @@
 import { createServer } from "http";
 import { Server, Socket as ServerSocket } from "socket.io";
-import Client, { Socket } from "socket.io-client";
+import { io as clientIO, Socket } from "socket.io-client";
 import { v4 as uuid } from "uuid";
 import {
   GetChannelMessagesAction,
@@ -94,14 +94,14 @@ describe("onJoinedNewRoom", () => {
 
 describe("registerWebSocketEventHandlers", () => {
   let io: Server;
-  let client: Socket;
+  let client: any;
   let server: ServerSocket;
 
   beforeAll((done) => {
     const http = createServer();
     io = new Server(http);
     http.listen(3333, () => {
-      client = Client("http://localhost:3333");
+      client = clientIO("http://localhost:3333");
       io.on("connection", (socket) => {
         server = socket;
       });
