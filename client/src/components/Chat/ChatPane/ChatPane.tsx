@@ -1,4 +1,5 @@
 import { convertTimestampToDate } from "../../../utils/utils";
+import { LoadingSpinner2 } from "../../Common/LoadingSpinner2/LoadingSpinner2";
 
 import "./ChatPane.css";
 
@@ -11,25 +12,34 @@ export const ChatPane = ({
 }) => {
   return (
     <>
-      {channel.messages && channel.messages.length > 0 ? (
-        <div className="chat-pane">
-          {channel.messages
-            .slice()
-            .reverse()
-            .map((msg) => (
-              <MessageContainerItem
-                key={msg.id}
-                displayName={msg.sender.displayName}
-                timestamp={msg.updatedAt}
-                content={msg.content}
-                profilePhotoURL={msg.sender.profilePhotoURL}
-                isMyMessage={msg.sender.id === senderId}
-              />
-            ))}
-        </div>
+      {channel.messages ? (
+        channel.messages.length > 0 ? (
+          <div className="chat-pane">
+            {channel.messages
+              .slice()
+              .reverse()
+              .map((msg) => (
+                <MessageContainerItem
+                  key={msg.id}
+                  displayName={msg.sender.displayName}
+                  timestamp={msg.updatedAt}
+                  content={msg.content}
+                  profilePhotoURL={msg.sender.profilePhotoURL}
+                  isMyMessage={msg.sender.id === senderId}
+                />
+              ))}
+          </div>
+        ) : (
+          <div className="chat-pane-withNoMessage">
+            <span>You can start your new conversation here!!</span>
+          </div>
+        )
       ) : (
-        <div className="chat-pane-withNoMessage">
-          <span>You can start your new conversation here!!</span>
+        <div
+          className="chat-pane__spinner"
+          style={{ display: "flex", justifyContent: "center" }}
+        >
+          <LoadingSpinner2 />
         </div>
       )}
     </>
