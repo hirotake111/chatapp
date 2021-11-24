@@ -19,13 +19,16 @@ server side:
 
 Currently mobile device is not supported.
 
+```bash
+# start development server(s)
+./dev.sh
+```
+
 ### TODO
 
 - unread message notification
 - pagenation
 - disable [add user] button if user belongs no channels
-- Redis for WebScoket backend
-- test code
 - delete channel button
 - delete message button
 

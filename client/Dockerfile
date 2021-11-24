@@ -1,4 +1,4 @@
-FROM node:14.12.0 AS builder
+FROM node:14.17.0 AS builder
 
 #
 # Build stage
