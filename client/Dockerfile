@@ -6,7 +6,8 @@ FROM node:14.17.0 AS builder
 WORKDIR /app
 # Copy files
 COPY *.json /app/
-# Install dev modules
+COPY *.js /app/
+# Install modules
 RUN npm install --no-optional
 # Copy and compile files
 COPY public /app/public
