@@ -24,7 +24,7 @@ export const LeftColumn = () => {
     getMyChannels();
   }, []);
 
-  const handleClick: MouseEventHandler = (e) => {
+  const handleClick: MouseEventHandler = () => {
     // show new channel modal
     dispatch(updateNewChannelModalAction(true));
   };
@@ -38,7 +38,7 @@ export const LeftColumn = () => {
         </div>
       ) : channels.length === 0 ? (
         <div className="leftcolumn-nochannel">
-          <span>You don't have any channels yet.</span>
+          <span>You do not have any channels yet.</span>
         </div>
       ) : (
         <ChannelList

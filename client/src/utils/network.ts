@@ -38,7 +38,7 @@ export const getData = async (url: string): Promise<any> => {
   }
 };
 
-export const postData = async (url: string, payload: object): Promise<any> => {
+export const postData = async (url: string, payload: any): Promise<any> => {
   try {
     const res = await fetch(url, {
       method: "POST",

@@ -17,7 +17,20 @@ server side:
 - Rest API / WebSocket
 - and Raspberry PI
 
-(Currently mobile device is not supported.)
+Currently mobile device is not supported.
+
+```bash
+# start development server(s)
+./dev.sh
+```
+
+### TODO
+
+- unread message notification
+- pagenation
+- disable [add user] button if user belongs no channels
+- delete channel button
+- delete message button
 
 The following secrets are necessary to trigger GitHub actions
 

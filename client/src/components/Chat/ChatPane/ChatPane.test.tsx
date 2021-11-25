@@ -1,6 +1,6 @@
 import { render } from "@testing-library/react";
 import { v4 as uuid } from "uuid";
-import { getFakeChannel } from "../../../utils/testHelpers";
+import { getFakeChannel, getFakeMessage } from "../../../utils/testHelpers";
 
 import { ChatPane, MessageContainerItem } from "./ChatPane";
 
@@ -20,6 +20,29 @@ describe("ChatPane", () => {
     }
     // validate the number of messages
     expect(messages.length).toEqual(3);
+  });
+
+  it("should render messages in timestamp order", () => {
+    expect.assertions(3);
+    // create a new channel
+    const channel: ChannelPayload = {
+      ...getFakeChannel(),
+      messages: [
+        { ...getFakeMessage(), content: "a", createdAt: 1637806481753 - 1000 }, // oldest
+        { ...getFakeMessage(), content: "b", createdAt: 1637806481753 }, // latest
+        { ...getFakeMessage(), content: "c", createdAt: 1637806481753 - 10 },
+      ],
+    };
+    // render chat pane
+    const { container } = render(
+      <ChatPane channel={channel} senderId={uuid()} />
+    );
+    // get messages
+    const messages = container.getElementsByClassName("message__content");
+    // validate the number of messages
+    expect(messages[0].textContent).toEqual("b");
+    expect(messages[1].textContent).toEqual("c");
+    expect(messages[2].textContent).toEqual("a");
   });
 
   it("should render 'start conversation' message if channel has no messages", () => {

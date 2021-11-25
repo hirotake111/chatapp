@@ -22,13 +22,13 @@ jest.mock("./validators", () => ({
 // mock getData
 jest.mock("./network.ts", () => ({
   getData: (url: string) => {
-    if (/\/api\/user\?q\=fail/g.test(url)) {
+    if (/\/api\/user\?q=fail/g.test(url)) {
       return {
         detail: "failed",
         users: [{ id: "xx-xx-xx-xx" }],
       };
     }
-    if (/\/api\/user\?q\=/g.test(url)) {
+    if (/\/api\/user\?q=/g.test(url)) {
       return {
         detail: "success",
         users: [{ id: "xx-xx-xx-xx" }],

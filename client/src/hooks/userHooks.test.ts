@@ -39,9 +39,10 @@ describe("useSignIn", () => {
   it("should dispatch userSignInAction", async () => {
     expect.assertions(1);
     // set fake userInfo
-    const userInfo = getFakeState().user.userInfo!;
+    const userInfo = getFakeState().user.userInfo;
+    if (!userInfo) throw new Error("userInfo is undefined");
     mockGetUserData.mockReturnValue(userInfo);
-    const [_, signIn] = useSignIn();
+    const [, signIn] = useSignIn();
     await signIn();
     expect(mockDispatch).toHaveBeenCalledWith(userSignInAction(userInfo));
   });
@@ -53,7 +54,7 @@ describe("useSignIn", () => {
     mockGetUserData.mockImplementation(() => {
       throw err;
     });
-    const [user, signIn] = useSignIn();
+    const [, signIn] = useSignIn();
     await signIn();
     expect(console.error).toHaveBeenCalledWith(err);
   });

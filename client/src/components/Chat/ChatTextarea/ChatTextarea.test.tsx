@@ -1,4 +1,4 @@
-import { render, screen, getByRole, fireEvent } from "@testing-library/react";
+import { render, getByRole, fireEvent } from "@testing-library/react";
 import { ChatTextarea } from "./ChatTextarea";
 
 const mockOnChange = jest.fn();

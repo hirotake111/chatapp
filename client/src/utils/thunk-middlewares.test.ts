@@ -11,7 +11,6 @@ import {
   thunkUpdateSearchStatus,
 } from "./thunk-middlewares";
 import { store } from "./store";
-import { getFakeChannel } from "./testHelpers";
 
 const mockSuggestedUser: SearchedUser = {
   id: uuid(),
@@ -77,7 +76,7 @@ jest.mock("./network", () => ({
         username: "alice",
         displayName: "ALICE",
       };
-    if (url.match(/^\/api\/user\?q\=/))
+    if (url.match(/^\/api\/user\?q=/))
       return {
         detail: "success",
         users: [mockSuggestedUser],
@@ -106,7 +105,7 @@ jest.mock("./network", () => ({
 jest.mock("./ws/socket", () => ({
   socket: {
     connected: true,
-    emit: (eventName: string, msg: Message) => {
+    emit: () => {
       return null;
     },
   },

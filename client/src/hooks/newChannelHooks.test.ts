@@ -20,7 +20,7 @@ const mockPostData = jest.fn();
 const mockAsyncTimeInterval = jest.fn();
 jest.mock("../utils/network", () => ({
   postData: (params: any) => mockPostData(params),
-  asyncTimeInterval: (func: any) => mockAsyncTimeInterval,
+  asyncTimeInterval: () => mockAsyncTimeInterval,
 }));
 
 // mock socket module
@@ -48,7 +48,7 @@ describe("useUpdateCreateButtonStatus", () => {
   it("should dispatch updateCreateButtonAction with value true if condition mathes", () => {
     expect.assertions(3);
     mockUseAppSelector.mockReturnValue(getFakeState().newChannel);
-    const [channelName, update] = useUpdateCreateButtonStatus();
+    const [, update] = useUpdateCreateButtonStatus();
     update("my team");
     expect(mockDispatch).toHaveBeenCalledWith(
       UpdateChannelNameAction("my team")
@@ -66,7 +66,7 @@ describe("useUpdateCreateButtonStatus", () => {
       buttonDisabled: false,
       channelName: "my channel",
     });
-    const [name, update] = useUpdateCreateButtonStatus();
+    const [, update] = useUpdateCreateButtonStatus();
     update("abc");
     expect(mockDispatch).toHaveBeenCalledWith(UpdateChannelNameAction("abc"));
     expect(mockDispatch).toHaveBeenCalledWith(
@@ -82,7 +82,7 @@ describe("useUpdateCreateButtonStatus", () => {
       buttonDisabled: true,
       channelName: "asfjeek",
     });
-    const [name, update] = useUpdateCreateButtonStatus();
+    const [, update] = useUpdateCreateButtonStatus();
     update("");
     expect(mockDispatch).toHaveBeenCalledWith(UpdateChannelNameAction(""));
     expect(mockDispatch).toHaveBeenCalledTimes(1);
@@ -95,7 +95,7 @@ describe("useUpdateCreateButtonStatus", () => {
       buttonDisabled: false,
       selecteUsers: [getFakeUser()],
     });
-    const [name, update] = useUpdateCreateButtonStatus();
+    const [, update] = useUpdateCreateButtonStatus();
     update("test channel");
     expect(mockDispatch).toHaveBeenCalledTimes(1);
     expect(mockDispatch).toHaveBeenCalledWith(

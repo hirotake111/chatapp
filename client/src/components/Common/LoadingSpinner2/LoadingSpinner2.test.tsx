@@ -1,5 +1,5 @@
-import { it, expect, jest } from "@jest/globals";
-import { render, screen } from "@testing-library/react";
+import { it, expect } from "@jest/globals";
+import { render } from "@testing-library/react";
 
 import { LoadingSpinner2 } from "./LoadingSpinner2";
 
