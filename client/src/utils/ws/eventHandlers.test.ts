@@ -9,7 +9,7 @@ import {
 import {
   getFakeChannel,
   getFakeMessage,
-  getFakeMessageWithNoId,
+  // getFakeMessageWithNoId,
 } from "../testHelpers";
 
 import {
@@ -38,16 +38,16 @@ describe("onChatMessage", () => {
     expect(mockDispatch).toHaveBeenCalledWith(ReceiveMessageAction(data));
   });
 
-  it("should throw an error if data is invalid", () => {
-    expect.assertions(1);
-    const data = getFakeMessageWithNoId();
-    try {
-      onChatMessage(mockDispatch, data);
-    } catch (e) {
-      if (e instanceof Error)
-        expect(e.message).toEqual("validation error: data doesn't contain id");
-    }
-  });
+  // it("should throw an error if data is invalid", () => {
+  //   expect.assertions(1);
+  //   const data = getFakeMessageWithNoId();
+  //   try {
+  //     onChatMessage(mockDispatch, data);
+  //   } catch (e) {
+  //     if (e instanceof Error)
+  //       expect(e.message).toEqual("validation error: data doesn't contain id");
+  //   }
+  // });
 });
 
 describe("onJoinedNewRoom", () => {
@@ -61,24 +61,24 @@ describe("onJoinedNewRoom", () => {
     );
   });
 
-  it("should console.error if passed data is invalid", async () => {
-    expect.assertions(2);
-    console.error = jest.fn();
-    // data cannot be string
-    await onJoinedNewRoom(mockDispatch, "abc");
-    expect(console.error).toHaveBeenCalledWith(
-      new Error(
-        'invalid channelId was given on "joined a new room" event - channelId is undefined'
-      )
-    );
-    // data cannot be falsy value
-    await onJoinedNewRoom(mockDispatch, null);
-    expect(console.error).toHaveBeenCalledWith(
-      new Error(
-        'invalid channelId was given on "joined a new room" event - data is null'
-      )
-    );
-  });
+  // it("should console.error if passed data is invalid", async () => {
+  //   expect.assertions(2);
+  //   console.error = jest.fn();
+  //   // data cannot be string
+  //   await onJoinedNewRoom(mockDispatch, "abc");
+  //   expect(console.error).toHaveBeenCalledWith(
+  //     new Error(
+  //       'invalid channelId was given on "joined a new room" event - channelId is undefined'
+  //     )
+  //   );
+  //   // data cannot be falsy value
+  //   await onJoinedNewRoom(mockDispatch, null);
+  //   expect(console.error).toHaveBeenCalledWith(
+  //     new Error(
+  //       'invalid channelId was given on "joined a new room" event - data is null'
+  //     )
+  //   );
+  // });
 
   it("should console.error if network call failed", async () => {
     expect.assertions(1);
@@ -94,7 +94,7 @@ describe("onJoinedNewRoom", () => {
 
 describe("registerWebSocketEventHandlers", () => {
   let io: Server;
-  let client: any;
+  let client: Socket;
   let server: ServerSocket;
 
   beforeAll((done) => {

@@ -11,7 +11,7 @@ import { getFakeChannel, getFakeUser } from "./testHelpers";
 
 const mockRes = jest.fn();
 // mock fetch API
-global.fetch = (url: any, options: any) => {
+global.fetch = () => {
   return Promise.resolve(mockRes());
 };
 

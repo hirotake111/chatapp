@@ -5,7 +5,6 @@ import {
   thunkChangeFormContent,
   thunkUpdateMemberModal,
 } from "../../../utils/thunk-middlewares";
-import { RootState } from "../../../utils/store";
 import { ChatTextarea } from "../../Chat/ChatTextarea/ChatTextarea";
 import { PaperPlaneIcon } from "../../Chat/PaperPlaneIcon/PaperPlaneIcon";
 import { ChatPane } from "../../Chat/ChatPane/ChatPane";
@@ -39,7 +38,7 @@ const RColumn = ({ changeFormContent, updateMemberModal }: Props) => {
     }
   };
 
-  const handleClickAddMemberButton: MouseEventHandler = (e) => {
+  const handleClickAddMemberButton: MouseEventHandler = () => {
     updateMemberModal();
   };
 
@@ -55,7 +54,7 @@ const RColumn = ({ changeFormContent, updateMemberModal }: Props) => {
           <span>Last Update - 2 days ago</span>
         </div>
         <div className="add-member-button-container">
-          {!!highlighted ? (
+          {highlighted ? (
             <Button enabled={true} onClick={handleClickAddMemberButton}>
               + ADD
             </Button>
@@ -84,7 +83,7 @@ const RColumn = ({ changeFormContent, updateMemberModal }: Props) => {
   );
 };
 
-const mapStateToProps = (state: RootState) => ({});
+const mapStateToProps = () => ({});
 
 const mapDispatchToProps = {
   changeFormContent: (content: string) => thunkChangeFormContent(content),
@@ -93,7 +92,7 @@ const mapDispatchToProps = {
 
 const connector = connect(mapStateToProps, mapDispatchToProps);
 type PropsFromRedux = ConnectedProps<typeof connector>;
-type Props = PropsFromRedux & {};
+type Props = PropsFromRedux;
 
 export const RightColumn = connect(
   mapStateToProps,

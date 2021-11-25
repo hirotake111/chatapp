@@ -1,6 +1,5 @@
 import { connect, ConnectedProps } from "react-redux";
 
-import { RootState } from "../../../utils/store";
 import {
   thunkAddCandidateToExistingChannel,
   thunkAddMemberToChannel,
@@ -71,7 +70,7 @@ const Component = ({
   );
 };
 
-const mapStateToProps = (state: RootState) => ({});
+const mapStateToProps = () => ({});
 
 const mapDispatchToProps = {
   updateMemberModal: thunkUpdateMemberModal,
@@ -82,6 +81,6 @@ const mapDispatchToProps = {
 
 const connector = connect(mapStateToProps, mapDispatchToProps);
 type PropsFromRedux = ConnectedProps<typeof connector>;
-type Props = PropsFromRedux & {};
+type Props = PropsFromRedux;
 
 export const MemberModal = connector(Component);
