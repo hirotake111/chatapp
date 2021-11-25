@@ -1,4 +1,3 @@
-import { MouseEvent } from "react";
 import { connect, ConnectedProps } from "react-redux";
 import { RootState } from "../../../utils/store";
 import { thunkAddSuggestedUser } from "../../../utils/thunk-middlewares";
@@ -40,7 +39,7 @@ const CandidateCard = ({
   name: string;
   onClick?: () => void;
 }) => {
-  const handleClick = (e: MouseEvent) => {
+  const handleClick = () => {
     if (onClick) onClick();
   };
 
@@ -61,6 +60,6 @@ const mapDispatchToProps = {
 
 const connector = connect(mapStateToProps, mapDispatchToProps);
 type PropsFromRedux = ConnectedProps<typeof connector>;
-type Props = PropsFromRedux & {};
+type Props = PropsFromRedux;
 
 export const CandidateCardList = connector(_CandidateCardList);

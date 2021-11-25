@@ -67,14 +67,14 @@ describe("getChannel", () => {
 
   it("should return {} if local storage doesn't have key 'channels'", () => {
     expect.assertions(1);
-    expect(storage.getChannel(channelId)).toEqual({});
+    expect(storage.getChannel(channelId)).toEqual(null);
   });
 
   it("should return {} if value for channel ID key is empty object", () => {
     expect.assertions(1);
     // set mock data
     fakeLocalStorageAPI.setItem("channels", JSON.stringify({}));
-    expect(storage.getChannel(uuid())).toEqual({});
+    expect(storage.getChannel(uuid())).toEqual(null);
   });
 
   it("should return {} if channel ID doesn't eixst in local storage", () => {
@@ -84,7 +84,7 @@ describe("getChannel", () => {
       "channels",
       JSON.stringify({ [channelId]: data })
     );
-    expect(storage.getChannel(uuid())).toEqual({});
+    expect(storage.getChannel(uuid())).toEqual(null);
   });
 
   it("should throw an error if retrieved data is invalid format", () => {

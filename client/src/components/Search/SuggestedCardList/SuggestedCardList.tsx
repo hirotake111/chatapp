@@ -1,5 +1,3 @@
-import { MouseEvent } from "react";
-
 import "./SuggestedCardList.css";
 
 export const SuggestedCardList = ({
@@ -43,7 +41,7 @@ const SuggestedCard = ({
   name: string;
   onClick?: () => void;
 }) => {
-  const handleClick = (e: MouseEvent) => {
+  const handleClick = () => {
     if (onClick) onClick();
   };
 

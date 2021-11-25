@@ -12,7 +12,7 @@ const _SearchboxAndCardContainer = ({
 }: Props) => {
   const searchbox = useRef<HTMLInputElement>(null);
 
-  const handleSearchBoxChange: ChangeEventHandler = async (e) => {
+  const handleSearchBoxChange: ChangeEventHandler = async () => {
     updateSearchStatus(searchbox, selectedUsers);
   };
 
@@ -44,6 +44,6 @@ const mapDispatchToProps = {
 
 const connector = connect(mapStateToProps, mapDispatchToProps);
 type PropsFromRedux = ConnectedProps<typeof connector>;
-type Props = PropsFromRedux & {};
+type Props = PropsFromRedux;
 
 export const SearchboxAndCardContainer = connector(_SearchboxAndCardContainer);

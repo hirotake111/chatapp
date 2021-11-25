@@ -54,7 +54,7 @@ describe("useGetMyChannels", () => {
       throw err;
     });
     try {
-      const [_, get] = useGetMyChannels();
+      const [, get] = useGetMyChannels();
       await get();
       expect(console.error).toHaveBeenCalledWith(err);
     } catch (e) {

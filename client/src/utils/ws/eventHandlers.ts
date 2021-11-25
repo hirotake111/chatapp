@@ -11,7 +11,7 @@ import { validate } from "uuid";
 /**
  * validate data and dispatch action
  */
-export const onChatMessage = (dispatch: AppDispatch, data: any): void => {
+export const onChatMessage = (dispatch: AppDispatch, data: Message): void => {
   // validate data and dispatch action
   const message = validateMessage(data);
   dispatch(ReceiveMessageAction(message));
@@ -20,7 +20,10 @@ export const onChatMessage = (dispatch: AppDispatch, data: any): void => {
 /**
  * vlaidate channel ID, get messages, then dispatch action to update messages
  */
-export const onJoinedNewRoom = async (dispatch: AppDispatch, data: any) => {
+export const onJoinedNewRoom = async (
+  dispatch: AppDispatch,
+  data: { channelId: string }
+) => {
   try {
     if (!data)
       throw new Error(
@@ -48,11 +51,11 @@ export const registerWebSocketEventHandlers = (
   // connect WebSocket server
   socket.connect();
   // on chat message event
-  socket.on("chat message", (data: any) => {
+  socket.on("chat message", (data: Message) => {
     onChatMessage(dispatch, data);
   });
   // on joined a new room event
-  socket.on("joined a new room", async (data: any) => {
+  socket.on("joined a new room", async (data: { channelId: string }) => {
     // console.log("fire!");
     onJoinedNewRoom(dispatch, data);
     // console.log("done");

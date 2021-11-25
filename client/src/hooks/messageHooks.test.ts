@@ -1,7 +1,7 @@
 import { nanoid } from "@reduxjs/toolkit";
 import { v4 as uuid } from "uuid";
 import { ChangeMessageBeenEditedAction } from "../actions/messageActions";
-import { getFakeChannel, getFakeMessageWithNoId } from "../utils/testHelpers";
+import { getFakeChannel } from "../utils/testHelpers";
 
 import { useGetMessagesByChannelId, useSendMessage } from "./messageHooks";
 

@@ -19,7 +19,7 @@ export const Searchbox = ({
 }: Props) => {
   const searchbox = useRef<HTMLInputElement>(null);
 
-  const handleSearchBoxChange: ChangeEventHandler = async (e) => {
+  const handleSearchBoxChange: ChangeEventHandler = async () => {
     // if searchbox is empty, then do nothing
     if (!(searchbox.current && searchbox.current.value.length !== 0)) {
       // invoke onEmptyCallback if exists

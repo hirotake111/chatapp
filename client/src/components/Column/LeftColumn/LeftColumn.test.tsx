@@ -50,7 +50,7 @@ it("should render render no channels message if it doesn't", () => {
     </Provider>
   );
   expect(container.firstChild?.childNodes[1]?.textContent).toEqual(
-    "You don't have any channels yet."
+    "You do not have any channels yet."
   );
 });
 
