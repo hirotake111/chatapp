@@ -5,6 +5,7 @@ import Redis from "ioredis";
 import { RedisStore } from "connect-redis";
 
 import { Models } from "./models/models";
+import { RedisAdapter } from "@socket.io/redis-adapter";
 
 export type ChatConfigType = {
   oidc: {
@@ -30,5 +31,6 @@ export type ChatConfigType = {
     sessionStore: RedisStore;
     publisher: Redis.Redis;
     subscriber: Redis.Redis;
+    redisAdapter: (nsp: any) => RedisAdapter;
   };
 };

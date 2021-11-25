@@ -33,6 +33,39 @@ services:
       - "KAFKA_TOPIC_NAME=${KAFKA_TOPIC_NAME}"
       - "REACT_APP_WS_URL=${REACT_APP_WS_URL}"
 
+  chat-api2: # app#2
+    image: video_chat_api-dev
+    container_name: chat-api2
+    volumes:
+      - type: bind
+        source: ./api/src
+        target: /app/src
+    depends_on:
+      - chat-api
+      - app_db
+      - app_redis
+      - kafka1
+      # - kafka2
+    ports:
+      - 3001:3000
+    environment:
+      - "SECRETKEY=${SECRETKEY}"
+      - "OAUTH_CLIENTID=${OAUTH_CLIENTID}"
+      - "OAUTH_CLIENTSECRET=${OAUTH_CLIENTSECRET}"
+      - "HOSTNAME=${HOSTNAME}"
+      - "PORT=${PORT}"
+      - "ISSUER=${ISSUER}"
+      - "FRONTEND_URL=${FRONTEND_URL}"
+      - "CALLBACK_URL=${CALLBACK_URL}"
+      - "DATABASE_URI=${DATABASE_URI}"
+      - "NODE_ENV=${NODE_ENV}"
+      - "REDIS_URL=${REDIS_URL}"
+      - "KAFKA_CLIENT_ID=${KAFKA_CLIENT_ID}"
+      - "KAFKA_BROKERS=${KAFKA_BROKERS}"
+      - "KAFKA_GROUP_ID=${KAFKA_GROUP_ID}"
+      - "KAFKA_TOPIC_NAME=${KAFKA_TOPIC_NAME}"
+      - "REACT_APP_WS_URL=${REACT_APP_WS_URL}"
+
   app_db: # PostgreSQL
     image: postgres:13.2
     container_name: app_db

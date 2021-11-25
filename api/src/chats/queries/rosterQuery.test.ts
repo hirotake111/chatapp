@@ -60,7 +60,7 @@ describe("RosterQuery", () => {
       try {
         await rosterQuery.addUserToChannel(nanoid(), uuid());
       } catch (e) {
-        expect(e.message).toEqual("invalid input");
+        if (e instanceof Error) expect(e.message).toEqual("invalid input");
       }
     });
 
@@ -69,7 +69,7 @@ describe("RosterQuery", () => {
       try {
         await rosterQuery.addUserToChannel(uuid(), nanoid());
       } catch (e) {
-        expect(e.message).toEqual("invalid input");
+        if (e instanceof Error) expect(e.message).toEqual("invalid input");
       }
     });
 
@@ -83,7 +83,7 @@ describe("RosterQuery", () => {
       try {
         await rosterQuery.addUserToChannel(uuid(), uuid());
       } catch (e) {
-        expect(e.message).toEqual(msg);
+        if (e instanceof Error) expect(e.message).toEqual(msg);
       }
     });
   });
@@ -118,7 +118,7 @@ describe("RosterQuery", () => {
         // delete it
         await rosterQuery.deleteUserFromChannel(channelId, userId);
       } catch (e) {
-        expect(e.message).toEqual("invalid input");
+        if (e instanceof Error) expect(e.message).toEqual("invalid input");
       }
       try {
         // add a record directly to db
@@ -128,7 +128,7 @@ describe("RosterQuery", () => {
         // delete it
         await rosterQuery.deleteUserFromChannel(channelId, userId);
       } catch (e) {
-        expect(e.message).toEqual("invalid input");
+        if (e instanceof Error) expect(e.message).toEqual("invalid input");
       }
     });
 
@@ -141,7 +141,7 @@ describe("RosterQuery", () => {
       try {
         await rosterQuery.deleteUserFromChannel(uuid(), uuid());
       } catch (e) {
-        expect(e.message).toEqual(msg);
+        if (e instanceof Error) expect(e.message).toEqual(msg);
       }
     });
   });

@@ -9,6 +9,9 @@ import { getIssuer, getOIDCClient } from "../utils/oidc";
 import session, { SessionOptions } from "express-session";
 import Redis from "ioredis";
 import connectRedis from "connect-redis";
+// import { createAdapter } from "socket.io-redis";
+import { createAdapter, RedisAdapter } from "@socket.io/redis-adapter";
+
 import { Env } from "./env";
 import { ChatConfigType } from "../chats/config";
 
@@ -43,7 +46,10 @@ export const getConfig = async (env: Env): Promise<ConfigType> => {
 
     const redisUrl = env.REDIS_URL;
     const redisSessionStore = connectRedis(session);
-    const sessionStore = new redisSessionStore({ client: new Redis(redisUrl) });
+    const redisClient = new Redis(redisUrl);
+    const subClient = redisClient.duplicate();
+    const sessionStore = new redisSessionStore({ client: redisClient });
+    const redisAdapter = createAdapter(redisClient, subClient);
 
     return {
       // basic configuration
@@ -97,6 +103,7 @@ export const getConfig = async (env: Env): Promise<ConfigType> => {
           publisher: new Redis(redisUrl),
           subscriber: new Redis(redisUrl),
           sessionStore,
+          redisAdapter,
         },
       },
     };
