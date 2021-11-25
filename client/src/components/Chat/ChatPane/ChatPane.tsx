@@ -16,13 +16,13 @@ export const ChatPane = ({
         channel.messages.length > 0 ? (
           <div className="chat-pane">
             {channel.messages
-              .slice()
+              .sort((a, b) => a.createdAt - b.createdAt)
               .reverse()
               .map((msg) => (
                 <MessageContainerItem
                   key={msg.id}
                   displayName={msg.sender.displayName}
-                  timestamp={msg.updatedAt}
+                  timestamp={msg.createdAt}
                   content={msg.content}
                   profilePhotoURL={msg.sender.profilePhotoURL}
                   isMyMessage={msg.sender.id === senderId}
