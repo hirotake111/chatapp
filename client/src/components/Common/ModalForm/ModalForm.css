@@ -17,3 +17,20 @@
 .modal-content-span {
   font-size: 1.4rem;
 }
+
+@media (max-width: 800px) {
+  .modal-content {
+    padding: 16px;
+    border-radius: 10px;
+    height: 60%;
+    width: 90%;
+  }
+
+  .modal-content-title {
+    font-size: 16px;
+  }
+
+  .modal-content-span {
+    font-size: 12px;
+  }
+}

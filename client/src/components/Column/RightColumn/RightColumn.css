@@ -55,9 +55,18 @@
 }
 
 .chat-form-button-container {
-  /* margin-bottom: 20px; */
   display: flex;
   flex-direction: row-reverse;
   justify-content: right;
   padding: 15px 25px 15px 0;
+}
+
+@media (max-width: 800px) {
+  .right-column {
+    width: 100%;
+  }
+
+  .chat-form-button-container {
+    padding: 5px 15px 15px 0;
+  }
 }

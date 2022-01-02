@@ -48,7 +48,7 @@ const Component = ({
         subtitle="Start typing a name to add new users to your channel"
       >
         <div className="modal-forms-compoents-buttons">
-          <div className="moda-forms-top">
+          <div className="modal-forms-top">
             <SearchboxForMemberModal />
             <SuggestedCardList
               status={searchStatus}

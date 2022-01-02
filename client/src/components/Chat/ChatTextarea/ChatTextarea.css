@@ -11,3 +11,10 @@
 .chat-textarea:focus {
   outline: none;
 }
+
+@media (max-width: 800px) {
+  .chat-textarea {
+    margin: 0;
+    min-height: 0;
+  }
+}

@@ -11,3 +11,9 @@
   margin: 10px 0 10px 0;
   color: #fff;
 }
+
+@media (max-width: 800px) {
+  .app-column {
+    display: none;
+  }
+}

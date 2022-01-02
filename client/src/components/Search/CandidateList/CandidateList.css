@@ -6,3 +6,9 @@
   height: 140px;
   overflow: auto;
 }
+
+@media (max-width: 800px) {
+  .suggested-card-list {
+    height: auto;
+  }
+}
