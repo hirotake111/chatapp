@@ -20,3 +20,9 @@
   justify-content: center;
   font-size: 1.4rem;
 }
+
+@media (max-width: 800px) {
+  .left-column {
+    display: none;
+  }
+}

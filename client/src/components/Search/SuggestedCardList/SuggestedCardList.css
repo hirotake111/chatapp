@@ -29,3 +29,13 @@
 .suggested-card-container > span {
   font-size: 1.4rem;
 }
+
+@media (max-width: 800px) {
+  .candidate-card-list {
+    margin-top: 15px;
+    margin-left: 5px;
+  }
+  .suggested-card-container {
+    height: 32px;
+  }
+}
